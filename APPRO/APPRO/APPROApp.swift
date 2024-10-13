@@ -10,24 +10,24 @@ import SwiftUI
 @main
 struct APPROApp: App {
 
-    @State private var appModel = AppModel()
+    @State private var appState = AppState()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(appModel)
+                .environment(appState)
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
 
-        ImmersiveSpace(id: appModel.immersiveSpaceID) {
+        ImmersiveSpace(id: appState.immersiveSpaceID) {
             ImmersiveView()
-                .environment(appModel)
+                .environment(appState)
                 .onAppear {
-                    appModel.immersiveSpaceState = .open
+                    appState.immersiveSpaceState = .open
                 }
                 .onDisappear {
-                    appModel.immersiveSpaceState = .closed
+                    appState.immersiveSpaceState = .closed
                 }
         }
         .immersionStyle(selection: .constant(.mixed), in: .mixed)

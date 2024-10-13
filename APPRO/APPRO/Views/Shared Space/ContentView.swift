@@ -11,11 +11,11 @@ import RealityKitContent
 
 struct ContentView: View {
 
-    @Environment(AppModel.self) var appModel: AppModel
+    @Environment(AppState.self) var appState: AppState
     
     var body: some View {
         VStack {
-            Text(appModel.appTitle)
+            Text(appState.appTitle)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .font(.title)
                 .foregroundStyle(.white)
@@ -23,7 +23,7 @@ struct ContentView: View {
             Spacer()
             
             Model3D(
-                named: appModel.sharedSpaceObjectName,
+                named: appState.sharedSpaceObjectName,
                 bundle: realityKitContentBundle
             ) { model in
                 model
@@ -52,7 +52,7 @@ struct ContentView: View {
     
 }
 
-#Preview(windowStyle: .volumetric) {
+#Preview(windowStyle: .plain) {
     ContentView()
-        .environment(AppModel())
+        .environment(AppState())
 }
