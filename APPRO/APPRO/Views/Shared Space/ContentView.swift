@@ -11,40 +11,45 @@ import RealityKitContent
 
 struct ContentView: View {
 
-    @State private var enlarge = false
-
+    @Environment(AppModel.self) var appModel: AppModel
+    
     var body: some View {
-        RealityView { content in
-            // Add the initial RealityKit content
-            if let scene = try? await Entity(named: "Scene", in: realityKitContentBundle) {
-                content.add(scene)
+        VStack {
+            Text(appModel.appTitle)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .font(.title)
+                .foregroundStyle(.white)
+            
+            Spacer()
+            
+            Model3D(
+                named: appModel.sharedSpaceObjectName,
+                bundle: realityKitContentBundle
+            ) { model in
+                model
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            } placeholder: {
+                ProgressView()
             }
-        } update: { content in
-            // Update the RealityKit content when SwiftUI state changes
-            if let scene = content.entities.first {
-                let uniformScale: Float = enlarge ? 1.4 : 1.0
-                scene.transform.scale = [uniformScale, uniformScale, uniformScale]
-            }
-        }
-        .gesture(TapGesture().targetedToAnyEntity().onEnded { _ in
-            enlarge.toggle()
-        })
-        .toolbar {
-            ToolbarItemGroup(placement: .bottomOrnament) {
-                VStack (spacing: 12) {
-                    Button {
-                        enlarge.toggle()
-                    } label: {
-                        Text(enlarge ? "Reduce RealityView Content" : "Enlarge RealityView Content")
-                    }
-                    .animation(.none, value: 0)
+            .frame(width: 310, height: 310)
+            
+            Spacer()
+            
+            Button(action: {
+                // TODO: Open Immersive Space
+            }) {
+                Text("Stretchy Out")
+                    .frame(width: 161, height: 51)
+                    .font(.title3)
                     .fontWeight(.semibold)
-
-                    ToggleImmersiveSpaceButton()
-                }
             }
         }
+        .padding(24)
+        .frame(width: 632, height: 554)
+        .glassBackgroundEffect()
     }
+    
 }
 
 #Preview(windowStyle: .volumetric) {

@@ -10,12 +10,18 @@ import SwiftUI
 /// Maintains app-wide state
 @MainActor
 @Observable
-class AppModel {
+final class AppModel {
+    
     let immersiveSpaceID = "ImmersiveSpace"
+    let sharedSpaceObjectName: String = "Scene"
+    let appTitle = "Stretchy"
+    
+    var immersiveSpaceState = ImmersiveSpaceState.closed
+    
     enum ImmersiveSpaceState {
         case closed
         case inTransition
         case open
     }
-    var immersiveSpaceState = ImmersiveSpaceState.closed
+    
 }
