@@ -17,7 +17,8 @@ struct APPROApp: App {
             ContentView()
                 .environment(appModel)
         }
-        .windowStyle(.volumetric)
+        .windowStyle(.plain)
+        .windowResizability(.contentSize)
 
         ImmersiveSpace(id: appModel.immersiveSpaceID) {
             ImmersiveView()
