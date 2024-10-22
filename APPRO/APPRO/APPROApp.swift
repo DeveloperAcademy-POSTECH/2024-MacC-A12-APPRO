@@ -14,7 +14,7 @@ struct APPROApp: App {
 
     var body: some Scene {
         WindowGroup(id: appState.stretchingPartsWindowID) {
-            ContentView()
+            StretchingPartsView()
                 .environment(appState)
         }
         .windowStyle(.plain)
