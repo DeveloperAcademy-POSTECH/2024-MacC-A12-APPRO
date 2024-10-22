@@ -10,13 +10,29 @@ import RealityKit
 import RealityKitContent
 
 struct StretchingPartsView: View {
-
+    
     @Environment(AppState.self) var appState: AppState
     
+    private let spacing: CGFloat = 30.0
+    
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: spacing) {
+            Text("Stretching Parts")
+                .font(.largeTitle)
             
+            Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
+                GridRow {
+                    StretchingCard(stretching: .eyes)
+                    StretchingCard(stretching: .wrist)
+                }
+                
+                GridRow {
+                    StretchingCard(stretching: .shoulder)
+                }
+            }
         }
+        .padding(spacing)
+        .glassBackgroundEffect()
     }
     
 }
