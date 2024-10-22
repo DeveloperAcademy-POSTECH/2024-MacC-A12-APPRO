@@ -12,16 +12,10 @@ import SwiftUI
 @Observable
 final class AppState {
     
-    let immersiveSpaceID = "ImmersiveSpace"
-    let sharedSpaceObjectName: String = "Scene"
-    let appTitle = "Stretchy"
+    let stretchingPartsWindowID = "StretchingPartsWindow"
+    let stretchingProcessWindowID = "StretchingProcessWindow"
+    let immersiveSpaceID = "StretchingSpace"
     
-    var immersiveSpaceState = ImmersiveSpaceState.closed
-    
-    enum ImmersiveSpaceState {
-        case closed
-        case inTransition
-        case open
-    }
+    var appPhase: AppPhase = .choosingStretchingPart
     
 }

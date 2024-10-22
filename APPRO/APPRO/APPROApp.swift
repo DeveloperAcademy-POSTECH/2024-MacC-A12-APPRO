@@ -13,22 +13,21 @@ struct APPROApp: App {
     @State private var appState = AppState()
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: appState.stretchingPartsWindowID) {
             ContentView()
                 .environment(appState)
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
-
+        
+        WindowGroup(id: appState.stretchingPartsWindowID) {
+            // TODO: 스트레칭 진행 윈도우 구현 및 추가
+        }
+        .windowStyle(.plain)
+        .windowResizability(.contentSize)
+        
         ImmersiveSpace(id: appState.immersiveSpaceID) {
-            ImmersiveView()
-                .environment(appState)
-                .onAppear {
-                    appState.immersiveSpaceState = .open
-                }
-                .onDisappear {
-                    appState.immersiveSpaceState = .closed
-                }
+            
         }
         .immersionStyle(selection: .constant(.mixed), in: .mixed)
     }
