@@ -9,26 +9,45 @@ import SwiftUI
 
 @main
 struct APPROApp: App {
-
-    @State private var appModel = AppModel()
-
+    
+    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
+    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
+    
+    @State private var appState = AppState()
+    
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "APPRO") {
             ContentView()
-                .environment(appModel)
+                .environment(appState)
+                .onChange(of: appState.phase.isImmersed) { _, showImmersiveView in
+                    if showImmersiveView {
+                        Task {
+                            await openImmersiveSpace(id: appState.immersiveSpaceID)
+                        }
+                    } else {
+                        Task {
+                            await dismissImmersiveSpace()
+                        }
+                    }
+                }
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
-
-        ImmersiveSpace(id: appModel.immersiveSpaceID) {
-            ImmersiveView()
-                .environment(appModel)
-                .onAppear {
-                    appModel.immersiveSpaceState = .open
-                }
-                .onDisappear {
-                    appModel.immersiveSpaceState = .closed
-                }
+        
+        ImmersiveSpace(id: appState.immersiveSpaceID) {
+            switch appState.currentStretchingPart {
+            case .shoulder:
+                ShoulderStretchingView()
+                    .preferredSurroundingsEffect(.ultraDark)
+            case .wrist:
+                HandRollingImmersiveView()
+                    .preferredSurroundingsEffect(.ultraDark)
+            case .eyes:
+                EyeStretchingView()
+                    .preferredSurroundingsEffect(.ultraDark)
+            default:
+                EmptyView()
+            }
         }
         .immersionStyle(selection: .constant(.mixed), in: .mixed)
     }
