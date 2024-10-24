@@ -23,13 +23,10 @@ struct StretchingPartsView: View {
             Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
                 GridRow {
                     StretchingCard(stretching: .eyes)
-                        .environment(appState)
                     StretchingCard(stretching: .wrist)
-                        .environment(appState)
                 }
                 GridRow {
                     StretchingCard(stretching: .shoulder)
-                        .environment(appState)
                 }
             }
         }
