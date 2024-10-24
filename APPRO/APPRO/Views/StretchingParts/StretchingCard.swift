@@ -33,8 +33,9 @@ struct StretchingCard: View {
             }
             .aspectRatio(1.67, contentMode: .fit)
             .background {
-                // TODO: 스트레칭 부위별 배경 이미지 추가
-                Color.teal
+                Image(stretching.backgroundImageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
             }
             .clipShape(RoundedRectangle(cornerRadius: 20))
         }

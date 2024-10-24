@@ -17,13 +17,17 @@ enum Stretching: String, Identifiable, CaseIterable {
     
     var description: String {
         switch self {
-        case .eyes: 
+        case .eyes:
             "Restore eye fatigue through stretching that rolls both eyes"
         case .wrist:
             "Restore wrist fatigue through stretching that fixes arms and turns wrists"
         case .shoulder:
             "Restore shoulder fatigue by stretching your shoulders left and right, up and down"
         }
+    }
+    
+    var backgroundImageName: String {
+        "\(self)_background"
     }
     
 }
