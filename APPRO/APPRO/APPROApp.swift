@@ -34,7 +34,10 @@ struct APPROApp: App {
         }
         
         WindowGroup(id: appState.stretchingProcessWindowID) {
-            // TODO: 스트레칭 진행 윈도우 구현 및 추가
+            if let stretching = appState.currentStretching {
+                StretchingProcessView()
+                    .environment(appState)
+            }
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)

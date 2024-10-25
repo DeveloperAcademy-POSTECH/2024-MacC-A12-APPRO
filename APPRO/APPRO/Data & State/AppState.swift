@@ -30,7 +30,7 @@ final class AppState {
     private(set) var maxCount = 0
     
     func resetStretchingCount() {
-        if case(.isStretching(let stretching)) = appPhase {
+        if let stretching = currentStretching {
             doneCount = 0
             maxCount = (stretching == .eyes || stretching == .wrist) ? 12 : 3
         } else {
