@@ -11,6 +11,7 @@ import RealityKit
 struct StretchingProcessView: View {
     
     @Environment(AppState.self) private var appState
+    @Environment(\.scenePhase) private var scenePhase
     
     var body: some View {
         if let stretching = appState.currentStretching {
@@ -53,6 +54,14 @@ struct StretchingProcessView: View {
             .onAppear {
                 appState.resetStretchingCount()
                 appState.doneCount = 1
+            }
+            .onChange(of: scenePhase) { _, scenePhase in
+                switch scenePhase {
+                case .inactive, .background:
+                    appState.appPhase = .choosingStretchingPart
+                default:
+                    break
+                }
             }
         }
     }

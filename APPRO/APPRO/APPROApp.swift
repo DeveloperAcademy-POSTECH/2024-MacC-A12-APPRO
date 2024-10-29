@@ -14,6 +14,7 @@ struct APPROApp: App {
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(\.scenePhase) private var scenePhase
 
     @State private var appState = AppState()
 
@@ -34,7 +35,7 @@ struct APPROApp: App {
         }
         
         WindowGroup(id: appState.stretchingProcessWindowID) {
-            if let stretching = appState.currentStretching {
+            if appState.currentStretching != nil {
                 StretchingProcessView()
                     .environment(appState)
             }
@@ -49,19 +50,19 @@ struct APPROApp: App {
     }
     
     private func configureChoosingStretchingPartScene() {
-        dismissWindow(id: appState.stretchingProcessWindowID)
         Task {
+            openWindow(id: appState.stretchingPartsWindowID)
             await dismissImmersiveSpace()
+            dismissWindow(id: appState.stretchingProcessWindowID)
         }
-        openWindow(id: appState.stretchingPartsWindowID)
     }
     
     private func configureStretchingScene() {
-        dismissWindow(id: appState.stretchingPartsWindowID)
         Task {
+            openWindow(id: appState.stretchingProcessWindowID)
             await openImmersiveSpace(id: appState.immersiveSpaceID)
+            dismissWindow(id: appState.stretchingPartsWindowID)
         }
-        openWindow(id: appState.stretchingProcessWindowID)
     }
     
 }
