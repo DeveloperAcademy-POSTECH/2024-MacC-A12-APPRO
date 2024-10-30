@@ -47,7 +47,7 @@ struct StretchingProcessView: View {
                     }
                 }
             }
-            .frame(width: 632)
+            .frame(width: 550)
             .padding(24)
             .padding(.bottom, 24)
             .glassBackgroundEffect()

@@ -24,7 +24,11 @@ struct APPROApp: App {
                 .environment(appState)
         }
         .windowStyle(.plain)
-        .windowResizability(.contentSize)
+        .defaultWindowPlacement { content, context in
+            guard let stretchingProcessWindow = context.windows.first(where: { $0.id == appState.stretchingProcessWindowID }) else { return .init(.none) }
+            
+            return .init(.trailing(stretchingProcessWindow))
+        }
         .onChange(of: appState.appPhase) { _, newPhase in
             switch newPhase {
             case .choosingStretchingPart:
@@ -41,6 +45,11 @@ struct APPROApp: App {
             }
         }
         .windowStyle(.plain)
+        .defaultWindowPlacement { _, context in
+            guard let stretchingPartsWindow = context.windows.first(where: { $0.id == appState.stretchingPartsWindowID }) else { return .init(.none) }
+            
+            return .init(.leading(stretchingPartsWindow))
+        }
         .windowResizability(.contentSize)
         
         ImmersiveSpace(id: appState.immersiveSpaceID) {
@@ -52,8 +61,8 @@ struct APPROApp: App {
     private func configureChoosingStretchingPartScene() {
         Task {
             openWindow(id: appState.stretchingPartsWindowID)
-            await dismissImmersiveSpace()
             dismissWindow(id: appState.stretchingProcessWindowID)
+            await dismissImmersiveSpace()
         }
     }
     
