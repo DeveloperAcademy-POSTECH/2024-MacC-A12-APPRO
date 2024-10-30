@@ -24,10 +24,11 @@ struct APPROApp: App {
                 .environment(appState)
         }
         .windowStyle(.plain)
+        .windowResizability(.contentSize)
         .defaultWindowPlacement { content, context in
             guard let stretchingProcessWindow = context.windows.first(where: { $0.id == appState.stretchingProcessWindowID }) else { return .init(.none) }
             
-            return .init(.trailing(stretchingProcessWindow))
+            return .init(.leading(stretchingProcessWindow))
         }
         .onChange(of: appState.appPhase) { _, newPhase in
             switch newPhase {
@@ -48,7 +49,7 @@ struct APPROApp: App {
         .defaultWindowPlacement { _, context in
             guard let stretchingPartsWindow = context.windows.first(where: { $0.id == appState.stretchingPartsWindowID }) else { return .init(.none) }
             
-            return .init(.leading(stretchingPartsWindow))
+            return .init(.trailing(stretchingPartsWindow))
         }
         .windowResizability(.contentSize)
         
