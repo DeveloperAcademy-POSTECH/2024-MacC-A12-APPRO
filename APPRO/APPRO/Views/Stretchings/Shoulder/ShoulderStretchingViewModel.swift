@@ -193,4 +193,20 @@ final class ShoulderStretchingViewModel {
         audioPlayer.play()
     }
     
+    func changeMatreialColor(entity: Entity) {
+        guard let modelEntity = entity as? ModelEntity else {
+            debugPrint("not a model entity")
+            return
+        }
+        
+        // TODO: 불켜진 Star 모델 색상 변경
+        let newMeterial = SimpleMaterial(color: .yellow, isMetallic: false)
+        guard let mesh = modelEntity.components[ModelComponent.self]?.mesh else {
+            debugPrint("no mesh found")
+            return
+        }
+         
+        let modelComponent = ModelComponent(mesh: mesh, materials: [newMeterial])
+        modelEntity.components.set(modelComponent)
+    }
 }
