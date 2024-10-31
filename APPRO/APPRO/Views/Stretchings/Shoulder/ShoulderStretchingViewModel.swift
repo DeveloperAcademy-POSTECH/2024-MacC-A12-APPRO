@@ -31,8 +31,6 @@ final class ShoulderStretchingViewModel {
     private(set) var numberOfObjects: Int = 8
     private var lastStarEntityTransform = Transform() //ShoulderTimer의 위치를 잡기 위한 변수
     
-    
-    
     func resetModelEntities() {
         modelEntities.forEach { entity in
             entity.removeFromParent()
@@ -159,6 +157,13 @@ final class ShoulderStretchingViewModel {
             )
                         
             addModelsToPoints(isRightSide: false, points: leftPoints)
+        }
+    }
+    
+    func playAnimation(animationEntity: Entity) {
+        for animation in animationEntity.availableAnimations {
+            let animation = animation.repeat(count: 1)
+            let controller = animationEntity.playAnimation(animation, transitionDuration: 0.0, startsPaused: false)
         }
     }
     
