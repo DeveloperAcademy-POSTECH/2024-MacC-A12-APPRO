@@ -30,10 +30,13 @@ final class ShoulderStretchingViewModel {
     var leftIndexFingerTipModelEntity = ModelEntity.createHandEntity()
     var leftRocketEntity = ModelEntity.createHandEntity(isMarker: true)
     
-    var isFistShowing: Bool = false
-    var isFirstPositioning: Bool = true
-    var isRightDone: Bool = false
-    var rightHandTransform = Transform()
+    private var isFistShowing: Bool = false
+    private var isFirstPositioning: Bool = true
+    private var isRightDone: Bool = false
+    private var rightHandTransform = Transform()
+    private(set) var numberOfObjects: Int = 8
+    private var lastStarEntityTransform = Transform() //ShoulderTimer의 위치를 잡기 위한 변수
+
     
     func resetModelEntities() {
         modelEntities.forEach { entity in
@@ -94,6 +97,50 @@ final class ShoulderStretchingViewModel {
         }
 
         return points
+    }
+    
+    func addModelsToPoints(isRightSide: Bool, points: [SIMD3<Float>]) {
+        let entityName = isRightSide ? "rightModelEntity" : "leftModelEntity"
+        
+        for (idx, point) in points.enumerated() {
+            Task {
+                if let starEntity = try? await Entity(named: "Shoulder/StarScene.usda", in: realityKitContentBundle) {
+                    guard let starModelEntity = starEntity.findEntity(named: "Star") as? ModelEntity else { return }
+                    starModelEntity.name = "\(entityName)-\(idx)"
+                    starModelEntity.generateCollisionShapes(recursive: false)
+                    
+                    //TODO: 에셋자체를 회색으로 바꾸거나 UIColor로 디자인 색상 지정
+                    let material = SimpleMaterial(color: .gray, isMetallic: false)
+                    guard let mesh = starModelEntity.components[ModelComponent.self]?.mesh else {
+                        debugPrint("no mesh found")
+                        return
+                    }
+                    let modelComponent = ModelComponent(mesh: mesh, materials: [material])
+                    starModelEntity.components.set(modelComponent)
+                    
+                    starModelEntity.name = "\(entityName)-\(idx)"
+                    starModelEntity.position = point
+                    starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
+                    
+                    modelEntities.append(starModelEntity)
+                    contentEntity.addChild(starModelEntity)
+                    
+                    // 마지막 인덱스 일때
+                    if idx == numberOfObjects - 1 {
+                        lastStarEntityTransform = starModelEntity.transform
+                        let translation = lastStarEntityTransform.translation
+                        
+                        if isRightSide {
+                            lastStarEntityTransform.translation = SIMD3<Float>(x: translation.x + 0.2, y: translation.y, z: translation.z + 0.1)
+                            lastStarEntityTransform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(0, 1, 0))
+                        } else {
+                            lastStarEntityTransform.translation = SIMD3<Float>(x: translation.x - 0.2, y: translation.y, z: translation.z + 0.2)
+                            lastStarEntityTransform.rotation = simd_quatf(angle: -.pi, axis: SIMD3<Float>(0, 1, 0))
+                        }
+                    }
+                }
+            }
+        }
     }
     
 }
