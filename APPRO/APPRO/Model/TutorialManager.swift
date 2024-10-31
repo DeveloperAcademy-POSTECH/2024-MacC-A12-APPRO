@@ -5,6 +5,10 @@
 //  Created by 정상윤 on 10/31/24.
 //
 
+import Foundation
+
+@MainActor
+@Observable
 class TutorialManager {
     
     private(set) var steps: [TutorialStep] = []
