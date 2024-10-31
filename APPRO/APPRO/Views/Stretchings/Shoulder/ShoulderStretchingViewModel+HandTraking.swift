@@ -136,8 +136,8 @@ extension ShoulderStretchingViewModel {
     
     func addRightHandAnchor() {
         let modelEntities = [
-            rightThumbIntermediateBaseModelEntity,//3
-            rightIndexFingerTipModelEntity, //10
+            rightThumbIntermediateBaseModelEntity,
+            rightIndexFingerTipModelEntity,
             rightRocketEntity
         ]
         
