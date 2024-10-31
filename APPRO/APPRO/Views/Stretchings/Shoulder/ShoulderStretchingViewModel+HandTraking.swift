@@ -68,12 +68,10 @@ extension ShoulderStretchingViewModel {
             
             rightRocketEntity.transform = getTransform(rightHandAnchor, .middleFingerMetacarpal, rightRocketEntity.transform)
             
-            if !isFirstPositioning {
-                if !isFistShowing  {
-                    resetModelEntities()
-                    // TODO: RightTransform 위치를 기준으로 포물선 생성
-                    isFistShowing = true
-                }
+            if !isFirstPositioning && !isFistShowing{
+                resetModelEntities()
+                // TODO: RightTransform 위치를 기준으로 포물선 생성
+                isFistShowing = true
                 return
             }
             
