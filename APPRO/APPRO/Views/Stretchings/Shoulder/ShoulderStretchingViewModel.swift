@@ -38,6 +38,13 @@ final class ShoulderStretchingViewModel {
         modelEntities = []
     }
     
+    func resetHandEntities() {
+        handEntities.forEach { entity in
+            entity.removeFromParent()
+        }
+        handEntities = []
+    }
+    
     // 어깨 중심을 기준으로 포물선 경로의 좌표를 생성하는 함수
     func generateUniformEllipseArcPoints(
         centerPosition: SIMD3<Float>,
