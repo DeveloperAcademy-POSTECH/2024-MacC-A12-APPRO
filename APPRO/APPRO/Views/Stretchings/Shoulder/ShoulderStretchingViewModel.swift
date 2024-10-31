@@ -180,4 +180,17 @@ final class ShoulderStretchingViewModel {
         eventEntity.components.set([particleEmitterComponent])
     }
     
+    func playSpatialAudio(_ entity: Entity) async {
+        guard let audioEntity = entity.findEntity(named: "SpatialAudio"), let indexString = entity.name.split(separator: "-").last, let idx = Int(indexString) else { return }
+        guard let resource = try? await AudioFileResource(named: "/Root/StarAudio_\((idx % 5) + 1)_wav",
+                                                          from: "Shoulder/StarScene.usda",
+                                                          in: realityKitContentBundle) else {
+            debugPrint("audio not found")
+            return
+        }
+        
+        let audioPlayer = audioEntity.prepareAudio(resource)
+        audioPlayer.play()
+    }
+    
 }
