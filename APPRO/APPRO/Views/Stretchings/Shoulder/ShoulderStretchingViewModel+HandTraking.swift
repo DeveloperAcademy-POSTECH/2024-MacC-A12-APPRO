@@ -70,7 +70,7 @@ extension ShoulderStretchingViewModel {
             
             if !isFirstPositioning && !isFistShowing{
                 resetModelEntities()
-                // TODO: RightTransform 위치를 기준으로 포물선 생성
+                createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
                 isFistShowing = true
                 return
             }
@@ -105,7 +105,7 @@ extension ShoulderStretchingViewModel {
                 )
                 self.rightHandTransform = Transform(matrix: mulitypliedMatrix)
                 
-                // TODO: RightTransform 위치를 기준으로 포물선 생성
+                createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
                 isFistShowing = true
             } else {
                 return
