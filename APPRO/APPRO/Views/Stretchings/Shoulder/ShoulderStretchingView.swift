@@ -14,7 +14,7 @@ struct ShoulderStretchingView: View {
     var body: some View {
         RealityView { content in
             content.add(viewModel.contentEntity)
-            //TODO: 충돌 이벤트 구독 액션 호출
+            subscribeToCollisionEvents(content: content)
         } update: { content in
             viewModel.computeTransformHandTracking()
         }
