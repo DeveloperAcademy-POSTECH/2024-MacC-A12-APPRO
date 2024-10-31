@@ -88,8 +88,6 @@ final class ShoulderStretchingViewModel {
             Task {
                 if let starEntity = try? await Entity(named: "Shoulder/StarScene.usda", in: realityKitContentBundle) {
                     guard let starModelEntity = starEntity.findEntity(named: "Star") as? ModelEntity else { return }
-                    starModelEntity.name = "\(entityName)-\(idx)"
-                    starModelEntity.generateCollisionShapes(recursive: false)
                     
                     //TODO: 에셋자체를 회색으로 바꾸거나 UIColor로 디자인 색상 지정
                     let material = SimpleMaterial(color: .gray, isMetallic: false)
@@ -99,7 +97,8 @@ final class ShoulderStretchingViewModel {
                     }
                     let modelComponent = ModelComponent(mesh: mesh, materials: [material])
                     starModelEntity.components.set(modelComponent)
-                    
+
+                    starModelEntity.generateCollisionShapes(recursive: false)
                     starModelEntity.name = "\(entityName)-\(idx)"
                     starModelEntity.position = point
                     starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
