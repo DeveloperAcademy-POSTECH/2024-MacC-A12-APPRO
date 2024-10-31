@@ -30,6 +30,7 @@ final class ShoulderStretchingViewModel {
     var rightHandTransform = Transform()
     private(set) var numberOfObjects: Int = 8
     private var lastStarEntityTransform = Transform() //ShoulderTimer의 위치를 잡기 위한 변수
+    var shoulderTimerEntity = Entity()
     
     func resetModelEntities() {
         modelEntities.forEach { entity in
@@ -215,5 +216,18 @@ final class ShoulderStretchingViewModel {
          
         let modelComponent = ModelComponent(mesh: mesh, materials: [newMeterial])
         modelEntity.components.set(modelComponent)
+    }
+    
+    func addShoulderTimerEntity() {
+        Task {
+            if let rootEntity = try? await Entity(named: "Shoulder/ShoulderTimerScene.usda", in: realityKitContentBundle) {
+                shoulderTimerEntity.name = "ShoulderTimerEntity"
+                shoulderTimerEntity = rootEntity
+                shoulderTimerEntity.transform = lastStarEntityTransform
+                shoulderTimerEntity.scale *= 2
+                contentEntity.addChild(shoulderTimerEntity)
+                playAnimation(animationEntity: shoulderTimerEntity)
+            }
+        }
     }
 }
