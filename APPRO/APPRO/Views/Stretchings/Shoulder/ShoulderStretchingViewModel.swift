@@ -22,13 +22,13 @@ final class ShoulderStretchingViewModel {
     var handTrackingProvider = HandTrackingProvider()
     var latestHandTracking: HandsUpdates = .init(left: nil, right: nil)
     // right
-    var rightThumbIntermediateBaseModelEntity = ModelEntity.createHandEntity()
-    var rightIndexFingerTipModelEntity = ModelEntity.createHandEntity()
-    var rightRocketEntity = ModelEntity.createHandEntity(isMarker: true)
+    var rightThumbIntermediateBaseModelEntity = ModelEntity()
+    var rightIndexFingerTipModelEntity = ModelEntity()
+    var rightRocketEntity = ModelEntity()
     // left
-    var leftIndexFingerIntermediateBaseModelEntity = ModelEntity.createHandEntity()
-    var leftIndexFingerTipModelEntity = ModelEntity.createHandEntity()
-    var leftRocketEntity = ModelEntity.createHandEntity(isMarker: true)
+    var leftIndexFingerIntermediateBaseModelEntity = ModelEntity()
+    var leftIndexFingerTipModelEntity = ModelEntity()
+    var leftRocketEntity = ModelEntity()
     
     var isFistShowing: Bool = false
     var isFirstPositioning: Bool = true
@@ -36,7 +36,30 @@ final class ShoulderStretchingViewModel {
     var rightHandTransform = Transform()
     private(set) var numberOfObjects: Int = 8
     private var lastStarEntityTransform = Transform() //ShoulderTimer의 위치를 잡기 위한 변수
-
+    
+    init() {
+        rightThumbIntermediateBaseModelEntity = createHandEntity()
+        rightIndexFingerTipModelEntity = createHandEntity()
+        leftIndexFingerIntermediateBaseModelEntity = createHandEntity()
+        leftIndexFingerTipModelEntity = createHandEntity()
+        rightRocketEntity = createHandEntity(isMarker: true)
+        leftRocketEntity = createHandEntity(isMarker: true)
+    }
+    
+    private func createHandEntity(isMarker: Bool = false)  -> ModelEntity {
+        var modelEntity = ModelEntity()
+        var clearMaterial = PhysicallyBasedMaterial()
+        clearMaterial.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(scale: 0))
+        if isMarker {
+            modelEntity = ModelEntity(mesh: .generateSphere(radius: 0.05), materials: [clearMaterial])
+            modelEntity.generateCollisionShapes(recursive: true)
+            modelEntity.name = "Marker"
+        } else {
+            modelEntity = ModelEntity(mesh: .generateBox(size: 0.012), materials: [clearMaterial])
+            modelEntity.name = "Finger"
+        }
+        return modelEntity
+    }
     
     func resetModelEntities() {
         modelEntities.forEach { entity in
@@ -181,21 +204,4 @@ final class ShoulderStretchingViewModel {
         }
     }
     
-}
-
-private extension ModelEntity {
-    static func createHandEntity(isMarker: Bool = false)  -> ModelEntity {
-        var modelEntity = ModelEntity()
-        var clearMaterial = PhysicallyBasedMaterial()
-        clearMaterial.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(scale: 0))
-        if isMarker {
-            modelEntity = ModelEntity(mesh: .generateSphere(radius: 0.05), materials: [clearMaterial])
-            modelEntity.generateCollisionShapes(recursive: true)
-            modelEntity.name = "Marker"
-        } else {
-            modelEntity = ModelEntity(mesh: .generateBox(size: 0.012), materials: [clearMaterial])
-            modelEntity.name = "Finger"
-        }
-        return modelEntity
-    }
 }
