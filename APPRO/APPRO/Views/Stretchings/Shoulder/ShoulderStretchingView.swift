@@ -31,6 +31,32 @@ struct ShoulderStretchingView: View {
         }
     }
     
+    func subscribeToCollisionEvents(content: RealityViewContent) {
+        // 충돌 시작 감지
+        _ = content.subscribe(to: CollisionEvents.Began.self, on: viewModel.rightHandModelEntity.rocketEntity) { collisionEvent in
+            setCollisionAction(collisionEvent: collisionEvent, isRight: true)
+        }
+        
+        _ = content.subscribe(to: CollisionEvents.Began.self, on: viewModel.leftHandModelEntity.rocketEntity) { collisionEvent in
+            setCollisionAction(collisionEvent: collisionEvent, isRight: false)
+        }
+        
+        // 충돌 종료 감지
+        _ = content.subscribe(to: CollisionEvents.Ended.self, on: viewModel.rightHandModelEntity.rocketEntity) { collisionEvent in
+            handleCollisionEnd(collisionEvent: collisionEvent)
+        }
+        
+        _ = content.subscribe(to: CollisionEvents.Ended.self, on: viewModel.leftHandModelEntity.rocketEntity) { collisionEvent in
+            handleCollisionEnd(collisionEvent: collisionEvent)
+        }
+        
+        // 애니메이션 종료 감지
+        _ = content.subscribe(to: AnimationEvents.PlaybackCompleted.self, on: nil) { animationEvent in
+            animationEvent.playbackController.entity?.removeFromParent()
+            executeCollisionAction()
+        }
+    }
+    
     func setCollisionAction(collisionEvent: CollisionEvents.Began, isRight: Bool) {
         let entityName = isRight ? "rightModelEntity" : "leftModelEntity"
         let collidedModelEntity = collisionEvent.entityB
@@ -59,6 +85,7 @@ struct ShoulderStretchingView: View {
     // 충돌 상태가 5초 지속된 후 실행할 함수
     func executeCollisionAction() {
         // 충돌이 5초간 유지된 후 실행할 코드
+        viewModel.isColliding = false
         viewModel.resetHandEntities()
         viewModel.isFistShowing = false
         viewModel.isFirstPositioning = false
