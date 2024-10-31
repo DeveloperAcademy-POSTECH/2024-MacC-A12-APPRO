@@ -39,21 +39,6 @@ extension ShoulderStretchingViewModel {
         }
     }
     
-    func getTransform(_ anchor: HandAnchor, _ jointName: HandSkeleton.JointName, _ beforeTransform: Transform) -> Transform {
-        let joint = anchor.handSkeleton?.joint(jointName)
-        
-        if ((joint?.isTracked) != nil) {
-            //MARK: 두 변환을 결합하여 손의 특정 관절이 월드 좌표계에서 정확히 어디에 위치하는지를 구하기 위함입니다.
-            let t = matrix_multiply(anchor.originFromAnchorTransform, (joint?.anchorFromJointTransform)!)
-            var transform = Transform(matrix: t)
-            
-            // 로켓의 transform을 적용
-            transform.scale = SIMD3<Float>(repeating: 0.1)
-            return transform
-        }
-        return beforeTransform
-    }
-    
     func computeTransformHandTracking() {
         // 오른손 계산
         if !isRightDone {
@@ -63,15 +48,18 @@ extension ShoulderStretchingViewModel {
             }
             
             //right
-            rightThumbIntermediateBaseModelEntity.transform = getTransform(rightHandAnchor, .thumbIntermediateBase, rightThumbIntermediateBaseModelEntity.transform)
-            rightIndexFingerTipModelEntity.transform = getTransform(rightHandAnchor, .indexFingerTip, rightIndexFingerTipModelEntity.transform)
+            rightHandModelEntity.thumbIntermediateBaseModelEntity.transform = getTransform(rightHandAnchor, .thumbIntermediateBase, rightHandModelEntity.thumbIntermediateBaseModelEntity.transform)
+            rightHandModelEntity.indexFingerTipModelEntity.transform = getTransform(rightHandAnchor, .indexFingerTip, rightHandModelEntity.indexFingerTipModelEntity.transform)
             
-            rightRocketEntity.transform = getTransform(rightHandAnchor, .middleFingerMetacarpal, rightRocketEntity.transform)
+            rightHandModelEntity.rocketEntity.transform = getTransform(rightHandAnchor, .middleFingerMetacarpal, rightHandModelEntity.rocketEntity.transform)
             
-            if !isFirstPositioning && !isFistShowing{
-                resetModelEntities()
-                createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
-                isFistShowing = true
+            if !isFirstPositioning {
+                //TODO: isFirstPositioning 이 false가 된 후에는 isFistShowing을 확인할 필요가 없음
+                if !isFistShowing  {
+                    resetModelEntities()
+                    createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
+                    isFistShowing = true
+                }
                 return
             }
             
@@ -119,25 +107,41 @@ extension ShoulderStretchingViewModel {
                 return
             }
             //left
-            leftIndexFingerIntermediateBaseModelEntity.transform = getTransform(leftHandAnchor, .thumbIntermediateBase, leftIndexFingerIntermediateBaseModelEntity.transform)
-            leftIndexFingerTipModelEntity.transform = getTransform(leftHandAnchor, .indexFingerTip, leftIndexFingerTipModelEntity.transform)
-            leftRocketEntity.transform = getTransform(leftHandAnchor, .middleFingerMetacarpal, leftRocketEntity.transform)
-            leftRocketEntity.transform.rotation *= simd_quatf(angle: .pi, axis: SIMD3<Float>(0, 1, 0))
+            leftHandModelEntity.thumbIntermediateBaseModelEntity.transform = getTransform(leftHandAnchor, .thumbIntermediateBase, leftHandModelEntity.thumbIntermediateBaseModelEntity.transform)
+            leftHandModelEntity.indexFingerTipModelEntity.transform = getTransform(leftHandAnchor, .indexFingerTip, leftHandModelEntity.indexFingerTipModelEntity.transform)
+            leftHandModelEntity.rocketEntity.transform = getTransform(leftHandAnchor, .middleFingerMetacarpal, leftHandModelEntity.rocketEntity.transform)
+            leftHandModelEntity.rocketEntity.transform.rotation *= simd_quatf(angle: .pi, axis: SIMD3<Float>(0, 1, 0))
             
             
             if !isFistShowing {
                 resetModelEntities()
-                createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
+                
+                createEntitiesOnEllipticalArc(handTransform: rightHandTransform)
                 isFistShowing = true
             }
         }
     }
     
+    func getTransform(_ anchor: HandAnchor, _ jointName: HandSkeleton.JointName, _ beforeTransform: Transform) -> Transform {
+        let joint = anchor.handSkeleton?.joint(jointName)
+        
+        if ((joint?.isTracked) != nil) {
+            //MARK: 두 변환을 결합하여 손의 특정 관절이 월드 좌표계에서 정확히 어디에 위치하는지를 구하기 위함입니다.
+            let t = matrix_multiply(anchor.originFromAnchorTransform, (joint?.anchorFromJointTransform)!)
+            var transform = Transform(matrix: t)
+            
+            // 로켓의 transform을 적용
+            transform.scale = SIMD3<Float>(repeating: 0.1)
+            return transform
+        }
+        return beforeTransform
+    }
+    
     func addRightHandAnchor() {
         let modelEntities = [
-            rightThumbIntermediateBaseModelEntity,
-            rightIndexFingerTipModelEntity,
-            rightRocketEntity
+            rightHandModelEntity.indexFingerTipModelEntity,
+            rightHandModelEntity.thumbIntermediateBaseModelEntity,
+            rightHandModelEntity.rocketEntity
         ]
         
         for entity in modelEntities {
@@ -148,9 +152,9 @@ extension ShoulderStretchingViewModel {
     
     func addLeftHandAnchor() {
         let modelEntities = [
-            leftIndexFingerIntermediateBaseModelEntity,
-            leftIndexFingerTipModelEntity,
-            leftRocketEntity
+            leftHandModelEntity.indexFingerTipModelEntity,
+            leftHandModelEntity.thumbIntermediateBaseModelEntity,
+            leftHandModelEntity.rocketEntity
         ]
         
         for entity in modelEntities {
@@ -158,6 +162,4 @@ extension ShoulderStretchingViewModel {
             handEntities.append(entity)
         }
     }
-    
 }
-

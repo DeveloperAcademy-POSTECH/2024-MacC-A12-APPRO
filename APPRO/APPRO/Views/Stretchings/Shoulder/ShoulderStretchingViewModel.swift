@@ -21,14 +21,8 @@ final class ShoulderStretchingViewModel {
     let session = ARKitSession()
     var handTrackingProvider = HandTrackingProvider()
     var latestHandTracking: HandsUpdates = .init(left: nil, right: nil)
-    // right
-    var rightThumbIntermediateBaseModelEntity = ModelEntity()
-    var rightIndexFingerTipModelEntity = ModelEntity()
-    var rightRocketEntity = ModelEntity()
-    // left
-    var leftIndexFingerIntermediateBaseModelEntity = ModelEntity()
-    var leftIndexFingerTipModelEntity = ModelEntity()
-    var leftRocketEntity = ModelEntity()
+    let rightHandModelEntity = HandModelEntity()
+    let leftHandModelEntity = HandModelEntity()
     
     var isFistShowing: Bool = false
     var isFirstPositioning: Bool = true
@@ -37,48 +31,13 @@ final class ShoulderStretchingViewModel {
     private(set) var numberOfObjects: Int = 8
     private var lastStarEntityTransform = Transform() //ShoulderTimer의 위치를 잡기 위한 변수
     
-    init() {
-        rightThumbIntermediateBaseModelEntity = createHandEntity()
-        rightIndexFingerTipModelEntity = createHandEntity()
-        leftIndexFingerIntermediateBaseModelEntity = createHandEntity()
-        leftIndexFingerTipModelEntity = createHandEntity()
-        rightRocketEntity = createHandEntity(isMarker: true)
-        leftRocketEntity = createHandEntity(isMarker: true)
-    }
     
-    private func createHandEntity(isMarker: Bool = false)  -> ModelEntity {
-        var modelEntity = ModelEntity()
-        var clearMaterial = PhysicallyBasedMaterial()
-        clearMaterial.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(scale: 0))
-        if isMarker {
-            modelEntity = ModelEntity(mesh: .generateSphere(radius: 0.05), materials: [clearMaterial])
-            modelEntity.generateCollisionShapes(recursive: true)
-            modelEntity.name = "Marker"
-        } else {
-            modelEntity = ModelEntity(mesh: .generateBox(size: 0.012), materials: [clearMaterial])
-            modelEntity.name = "Finger"
-        }
-        return modelEntity
-    }
     
     func resetModelEntities() {
         modelEntities.forEach { entity in
             entity.removeFromParent()
         }
         modelEntities = []
-    }
-    
-    func setupRocketEntity()  {
-        Task {
-            if let rootEntity = try? await Entity(named: "Shoulder/RocketScene.usda", in: realityKitContentBundle) {
-                rightRocketEntity.generateCollisionShapes(recursive: true)
-                rightRocketEntity.addChild(rootEntity)
-                
-                let leftRootEntity = rootEntity.clone(recursive: true)
-                leftRocketEntity.generateCollisionShapes(recursive: true)
-                leftRocketEntity.addChild(leftRootEntity)
-            }
-        }
     }
     
     // 어깨 중심을 기준으로 포물선 경로의 좌표를 생성하는 함수
