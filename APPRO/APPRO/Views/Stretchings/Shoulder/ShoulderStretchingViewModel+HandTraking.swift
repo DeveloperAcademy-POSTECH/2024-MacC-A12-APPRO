@@ -127,8 +127,7 @@ extension ShoulderStretchingViewModel {
             
             if !isFistShowing {
                 resetModelEntities()
-                
-                // TODO: RightTransform 위치를 기준으로 포물선 생성
+                createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
                 isFistShowing = true
             }
         }
