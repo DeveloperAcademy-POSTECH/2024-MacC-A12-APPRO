@@ -41,7 +41,20 @@ final class ShoulderStretchingViewModel {
         }
         modelEntities = []
     }
-
+    
+    func setupRocketEntity()  {
+        Task {
+            if let rootEntity = try? await Entity(named: "Shoulder/RocketScene.usda", in: realityKitContentBundle) {
+                rightRocketEntity.generateCollisionShapes(recursive: true)
+                rightRocketEntity.addChild(rootEntity)
+                
+                let leftRootEntity = rootEntity.clone(recursive: true)
+                leftRocketEntity.generateCollisionShapes(recursive: true)
+                leftRocketEntity.addChild(leftRootEntity)
+            }
+        }
+    }
+    
 }
 
 private extension ModelEntity {
