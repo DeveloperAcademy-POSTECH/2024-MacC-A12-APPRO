@@ -134,5 +134,31 @@ extension ShoulderStretchingViewModel {
         }
     }
     
+    func addRightHandAnchor() {
+        let modelEntities = [
+            rightThumbIntermediateBaseModelEntity,//3
+            rightIndexFingerTipModelEntity, //10
+            rightRocketEntity
+        ]
+        
+        for entity in modelEntities {
+            contentEntity.addChild(entity)
+            handEntities.append(entity)
+        }
+    }
+    
+    func addLeftHandAnchor() {
+        let modelEntities = [
+            leftIndexFingerIntermediateBaseModelEntity,
+            leftIndexFingerTipModelEntity,
+            leftRocketEntity
+        ]
+        
+        for entity in modelEntities {
+            contentEntity.addChild(entity)
+            handEntities.append(entity)
+        }
+    }
+    
 }
 
