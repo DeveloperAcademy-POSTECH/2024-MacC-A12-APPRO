@@ -30,6 +30,31 @@ struct ShoulderStretchingView: View {
             await viewModel.updateHandTracking()
         }
     }
+    
+    func setCollisionAction(collisionEvent: CollisionEvents.Began, isRight: Bool) {
+        let entityName = isRight ? "rightModelEntity" : "leftModelEntity"
+        let collidedModelEntity = collisionEvent.entityB
+        // 충돌시 particle, audio 실행
+        viewModel.playEmitter(eventEntity: collidedModelEntity)
+        Task {
+            await viewModel.playSpatialAudio(collidedModelEntity)
+        }
+        // 다음 엔터티 일때만 Material 변경
+        if collidedModelEntity.name == "\(entityName)-\(viewModel.expectedNextNumber)" {
+            viewModel.changeMatreialColor(entity: collidedModelEntity)
+            viewModel.addExpectedNextNumber()
+        }
+        
+        // 마지막 엔터티 감지
+        if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 1)") {
+            viewModel.resetExpectedNextNumber()
+            // 충돌 상태가 유지되고 있는지 확인하기 위해 타이머를 설정
+            if !viewModel.isColliding {
+                viewModel.toggleIsColliding()
+                viewModel.addShoulderTimerEntity()
+            }
+        }
+    }
 }
 
 #Preview {

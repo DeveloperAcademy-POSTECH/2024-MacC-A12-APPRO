@@ -31,6 +31,20 @@ final class ShoulderStretchingViewModel {
     private(set) var numberOfObjects: Int = 8
     private var lastStarEntityTransform = Transform() //ShoulderTimer의 위치를 잡기 위한 변수
     var shoulderTimerEntity = Entity()
+    private(set) var expectedNextNumber = 0
+    private(set) var isColliding = false
+    
+    func toggleIsColliding() {
+        isColliding.toggle()
+    }
+    
+    func resetExpectedNextNumber() {
+        expectedNextNumber = 0
+    }
+    
+    func addExpectedNextNumber() {
+        expectedNextNumber += 1
+    }
     
     func resetModelEntities() {
         modelEntities.forEach { entity in
