@@ -50,7 +50,7 @@ struct ShoulderStretchingView: View {
             viewModel.resetExpectedNextNumber()
             // 충돌 상태가 유지되고 있는지 확인하기 위해 타이머를 설정
             if !viewModel.isColliding {
-                viewModel.toggleIsColliding()
+                viewModel.isColliding = true
                 viewModel.addShoulderTimerEntity()
             }
         }
@@ -69,6 +69,17 @@ struct ShoulderStretchingView: View {
         } else {
             viewModel.isRightDone = false
             viewModel.addRightHandAnchor()
+        }
+    }
+    
+    // 충돌 종료를 감지하여 타이머를 중지
+    func handleCollisionEnd(collisionEvent: CollisionEvents.Ended) {
+        let entityName = collisionEvent.entityB.name
+        
+        // 마지막 충돌 엔터티가 아닌 경우 또는 충돌이 끝났을 경우 타이머 중지
+        if entityName.contains("\(viewModel.numberOfObjects - 1)") {
+            viewModel.shoulderTimerEntity.removeFromParent()
+            viewModel.isColliding = false
         }
     }
 }
