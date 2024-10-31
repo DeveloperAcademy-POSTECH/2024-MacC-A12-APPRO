@@ -14,6 +14,7 @@ struct APPROApp: App {
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(\.scenePhase) private var scenePhase
 
     @State private var appState = AppState()
 
@@ -24,6 +25,11 @@ struct APPROApp: App {
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
+        .defaultWindowPlacement { content, context in
+            guard let stretchingProcessWindow = context.windows.first(where: { $0.id == appState.stretchingProcessWindowID }) else { return .init(.none) }
+            
+            return .init(.leading(stretchingProcessWindow))
+        }
         .onChange(of: appState.appPhase) { _, newPhase in
             switch newPhase {
             case .choosingStretchingPart:
@@ -34,9 +40,17 @@ struct APPROApp: App {
         }
         
         WindowGroup(id: appState.stretchingProcessWindowID) {
-            // TODO: 스트레칭 진행 윈도우 구현 및 추가
+            if appState.currentStretching != nil {
+                StretchingProcessView()
+                    .environment(appState)
+            }
         }
         .windowStyle(.plain)
+        .defaultWindowPlacement { _, context in
+            guard let stretchingPartsWindow = context.windows.first(where: { $0.id == appState.stretchingPartsWindowID }) else { return .init(.none) }
+            
+            return .init(.trailing(stretchingPartsWindow))
+        }
         .windowResizability(.contentSize)
         
         ImmersiveSpace(id: appState.immersiveSpaceID) {
@@ -46,19 +60,19 @@ struct APPROApp: App {
     }
     
     private func configureChoosingStretchingPartScene() {
-        dismissWindow(id: appState.stretchingProcessWindowID)
         Task {
+            openWindow(id: appState.stretchingPartsWindowID)
+            dismissWindow(id: appState.stretchingProcessWindowID)
             await dismissImmersiveSpace()
         }
-        openWindow(id: appState.stretchingPartsWindowID)
     }
     
     private func configureStretchingScene() {
-        dismissWindow(id: appState.stretchingPartsWindowID)
         Task {
+            openWindow(id: appState.stretchingProcessWindowID)
             await openImmersiveSpace(id: appState.immersiveSpaceID)
+            dismissWindow(id: appState.stretchingPartsWindowID)
         }
-        openWindow(id: appState.stretchingProcessWindowID)
     }
     
 }

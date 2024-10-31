@@ -31,7 +31,6 @@ struct StretchingCard: View {
                 .foregroundStyle(.white)
                 .background(.thinMaterial)
             }
-            .aspectRatio(1.67, contentMode: .fit)
             .background {
                 Image(stretching.backgroundImageName)
                     .resizable()
@@ -39,6 +38,7 @@ struct StretchingCard: View {
             }
             .clipShape(RoundedRectangle(cornerRadius: 20))
         }
+        .frame(width: 498, height: 280)
         .buttonStyle(.plain)
         .buttonBorderShape(.roundedRectangle)
     }
