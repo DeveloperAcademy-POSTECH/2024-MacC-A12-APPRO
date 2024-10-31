@@ -55,6 +55,22 @@ struct ShoulderStretchingView: View {
             }
         }
     }
+    
+    // 충돌 상태가 5초 지속된 후 실행할 함수
+    func executeCollisionAction() {
+        // 충돌이 5초간 유지된 후 실행할 코드
+        viewModel.resetHandEntities()
+        viewModel.isFistShowing = false
+        viewModel.isFirstPositioning = false
+        
+        if !viewModel.isRightDone {
+            viewModel.isRightDone = true
+            viewModel.addLeftHandAnchor()
+        } else {
+            viewModel.isRightDone = false
+            viewModel.addRightHandAnchor()
+        }
+    }
 }
 
 #Preview {
