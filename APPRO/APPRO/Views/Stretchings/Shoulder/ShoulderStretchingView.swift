@@ -21,7 +21,6 @@ struct ShoulderStretchingView: View {
         .upperLimbVisibility(.hidden)
         .ignoresSafeArea()
         .onAppear() {
-            viewModel.setupRocketEntity()
             viewModel.addRightHandAnchor()
         }
         .task {
