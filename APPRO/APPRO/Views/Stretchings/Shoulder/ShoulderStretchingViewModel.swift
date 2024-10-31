@@ -167,4 +167,17 @@ final class ShoulderStretchingViewModel {
         }
     }
     
+    func playEmitter(eventEntity: Entity) {
+        guard let particleEntity = eventEntity.findEntity(named: "ParticleEmitter"), var particleEmitterComponent = particleEntity.components[ParticleEmitterComponent.self] else {
+            debugPrint("particle Emitter component not found")
+            return
+        }
+        eventEntity.components.remove(ParticleEmitterComponent.self)
+        particleEmitterComponent.isEmitting = true
+        particleEmitterComponent.simulationState = .stop
+        particleEmitterComponent.simulationState = .play
+        
+        eventEntity.components.set([particleEmitterComponent])
+    }
+    
 }
