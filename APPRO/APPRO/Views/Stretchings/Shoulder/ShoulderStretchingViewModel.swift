@@ -30,10 +30,10 @@ final class ShoulderStretchingViewModel {
     var leftIndexFingerTipModelEntity = ModelEntity.createHandEntity()
     var leftRocketEntity = ModelEntity.createHandEntity(isMarker: true)
     
-    private var isFistShowing: Bool = false
-    private var isFirstPositioning: Bool = true
-    private var isRightDone: Bool = false
-    private var rightHandTransform = Transform()
+    var isFistShowing: Bool = false
+    var isFirstPositioning: Bool = true
+    var isRightDone: Bool = false
+    var rightHandTransform = Transform()
     private(set) var numberOfObjects: Int = 8
     private var lastStarEntityTransform = Transform() //ShoulderTimer의 위치를 잡기 위한 변수
 
