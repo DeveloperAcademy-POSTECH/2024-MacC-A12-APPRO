@@ -5,7 +5,7 @@
 //  Created by 정상윤 on 10/13/24.
 //
 
-enum Stretching: String, Identifiable, CaseIterable {
+enum StretchingPart: String, Identifiable, CaseIterable {
     
     case eyes, wrist, shoulder
     
