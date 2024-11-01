@@ -10,39 +10,49 @@
 
 def Xform "Root"
 {
+    reorder nameChildren = ["Rocket", "Rocket"]
     def "Rocket" (
         active = true
         customData = {
             float3 rotationEulerHint = (-1.5707964, 0, 0)
         }
-        references = @Rocket.usdz@
+        references = @shoulderrocketsmall.usdz@
     )
     {
         reorder nameChildren = ["Materials", "rocket", "ParticleEmitter"]
-        int ui:nodegraph:node:stackingOrder = 1
         quatf xformOp:orient = (0.70710677, -0.70710677, 0, 0)
         float3 xformOp:scale = (0.01, 0.01, 0.01)
-        double3 xformOp:translate = (0, 0, 0)
+        double3 xformOp:translate = (-0.05000000074505806, 0, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         over "Materials"
         {
-            over "Mat"
+            over "Mat_2"
             {
                 token outputs:mtlx:surface
                 token outputs:realitykit:vertex
             }
         }
 
+        over "rocket"
+        {
+            quatf xformOp:orient = (1, 0, 0, 0)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+
         def Xform "ParticleEmitter" (
             customData = {
-                float3 rotationEulerHint = (-5.6324546e-7, 0.38723603, 1.5707961)
+                float3 rotationEulerHint = (1.6324021, -6.327431e-8, 5.9491565e-8)
             }
         )
         {
-            quatf xformOp:orient = (-0.69389415, 0.13605496, -0.1360546, -0.6938941)
-            float3 xformOp:scale = (0.01, 0.1, 0.01)
-            float3 xformOp:translate = (-0.00003050355, -147.01866, 0)
+            float2 ui:nodegraph:node:pos = (20, 20)
+            int ui:nodegraph:node:stackingOrder = 1
+            quatf xformOp:orient = (0.68499386, 0.7285488, -8.745182e-17, 4.342489e-8)
+            float3 xformOp:scale = (0.009999996, 0.09999994, 0.009999998)
+            float3 xformOp:translate = (-0.33408707, -22.92321, 0.18452388)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
             def RealityKitComponent "VFXEmitter"
@@ -102,8 +112,8 @@ def Xform "Root"
                         float particleAngleVariation = 0
                         float particleAngularVelocity = 0
                         float particleAngularVelocityVariation = 1
-                        asset particleImage = @RocketScene_references/dustsheet.exr@
-                        double particleLifeSpan = 1
+                        asset particleImage = @../ParticleEmitterPresetTextures/dustsheet.exr@
+                        double particleLifeSpan = 2
                         double particleLifeSpanVariation = 1
                         float particleMass = 1
                         float particleMassVariation = 0.8
