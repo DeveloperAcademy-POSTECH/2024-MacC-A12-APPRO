@@ -25,20 +25,35 @@ struct APPROApp: App {
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
+        .defaultWindowPlacement { _, context in
+            guard let previousWindow = context.windows.first else { return WindowPlacement(.none) }
+            
+            return WindowPlacement(.above(previousWindow))
+        }
         .onChange(of: appState.appPhase) { _, newPhase in
-            switch newPhase {
-            case .choosingStretchingPart:
-                configureChoosingStretchingPartScene()
-            case .isStretching(_):
-                configureStretchingScene()
+            Task {
+                switch newPhase {
+                case .choosingStretchingPart:
+                    await configureStretchingPartsScene()
+                case .stretching:
+                    await configureStretchingScene()
+                case .tutorial:
+                    // TODO: 각 스트레칭 부위별 TutorialManager 분기
+                    let tutorialManager = TutorialManager.sampleTutorialManager
+                    
+                    if tutorialManager.isSkipped {
+                        appState.appPhase = .stretching
+                    } else {
+                        appState.tutorialManager = tutorialManager
+                        await configureTutorialScene()
+                    }
+                }
             }
         }
         
         WindowGroup(id: appState.stretchingProcessWindowID) {
-            if appState.currentStretching != nil {
-                StretchingProcessView()
-                    .environment(appState)
-            }
+            StretchingProcessView()
+                .environment(appState)
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
@@ -62,20 +77,20 @@ struct APPROApp: App {
         .immersionStyle(selection: .constant(.mixed), in: .mixed)
     }
     
-    private func configureChoosingStretchingPartScene() {
-        Task {
-            openWindow(id: appState.stretchingPartsWindowID)
-            dismissWindow(id: appState.stretchingProcessWindowID)
-            await dismissImmersiveSpace()
-        }
+    private func configureStretchingPartsScene() async {
+        openWindow(id: appState.stretchingPartsWindowID)
+        await dismissImmersiveSpace()
     }
     
-    private func configureStretchingScene() {
-        Task {
-            openWindow(id: appState.stretchingProcessWindowID)
-            await openImmersiveSpace(id: appState.immersiveSpaceID)
-            dismissWindow(id: appState.stretchingPartsWindowID)
-        }
+    private func configureStretchingScene() async {
+        openWindow(id: appState.stretchingProcessWindowID)
+        await openImmersiveSpace(id: appState.immersiveSpaceID)
+    }
+    
+    private func configureTutorialScene() async {
+        openWindow(id: appState.stretchingTutorialWindowID)
+        await openImmersiveSpace(id: appState.immersiveSpaceID)
+        
     }
     
 }
