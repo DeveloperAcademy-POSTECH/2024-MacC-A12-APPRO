@@ -54,7 +54,16 @@ struct APPROApp: App {
         .windowResizability(.contentSize)
         
         ImmersiveSpace(id: appState.immersiveSpaceID) {
-            // TODO: 각 스트레칭에 따른 뷰 추가
+            switch appState.currentStretching {
+            case .eyes:
+                EmptyView()
+            case .shoulder:
+                EmptyView()
+            case .wrist:
+                HandRollingStretchingView()
+            default:
+                EmptyView()
+            }
         }
         .immersionStyle(selection: .constant(.mixed), in: .mixed)
     }
