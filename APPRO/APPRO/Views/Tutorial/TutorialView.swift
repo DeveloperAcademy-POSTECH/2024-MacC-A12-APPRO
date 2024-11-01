@@ -58,7 +58,7 @@ struct TutorialView: View {
 }
     
 #Preview(windowStyle: .plain) {
-    var appState = AppState()
+    let appState = AppState()
     appState.tutorialManager = TutorialManager.sampleTutorialManager
     return TutorialView()
         .environment(appState)

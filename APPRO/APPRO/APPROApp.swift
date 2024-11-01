@@ -22,6 +22,10 @@ struct APPROApp: App {
         WindowGroup(id: appState.stretchingPartsWindowID) {
             StretchingPartsView()
                 .environment(appState)
+                .onAppear {
+                    dismissWindow(id: appState.stretchingTutorialWindowID)
+                    dismissWindow(id: appState.stretchingProcessWindowID)
+                }
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
@@ -54,6 +58,10 @@ struct APPROApp: App {
         WindowGroup(id: appState.stretchingProcessWindowID) {
             StretchingProcessView()
                 .environment(appState)
+                .onAppear {
+                    dismissWindow(id: appState.stretchingPartsWindowID)
+                    dismissWindow(id: appState.stretchingProcessWindowID)
+                }
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
@@ -64,6 +72,9 @@ struct APPROApp: App {
         WindowGroup(id: appState.stretchingTutorialWindowID) {
             TutorialView()
                 .environment(appState)
+                .onAppear {
+                    dismissWindow(id: appState.stretchingPartsWindowID)
+                }
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
