@@ -25,11 +25,6 @@ struct APPROApp: App {
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
-        .defaultWindowPlacement { content, context in
-            guard let stretchingProcessWindow = context.windows.first(where: { $0.id == appState.stretchingProcessWindowID }) else { return .init(.none) }
-            
-            return .init(.leading(stretchingProcessWindow))
-        }
         .onChange(of: appState.appPhase) { _, newPhase in
             switch newPhase {
             case .choosingStretchingPart:
@@ -46,12 +41,20 @@ struct APPROApp: App {
             }
         }
         .windowStyle(.plain)
-        .defaultWindowPlacement { _, context in
-            guard let stretchingPartsWindow = context.windows.first(where: { $0.id == appState.stretchingPartsWindowID }) else { return .init(.none) }
-            
-            return .init(.trailing(stretchingPartsWindow))
-        }
         .windowResizability(.contentSize)
+        .defaultWindowPlacement { _, _ in
+            return WindowPlacement(.utilityPanel)
+        }
+        
+        WindowGroup(id: appState.stretchingTutorialWindowID) {
+            TutorialView()
+                .environment(appState)
+        }
+        .windowStyle(.plain)
+        .windowResizability(.contentSize)
+        .defaultWindowPlacement { _, _ in
+            return WindowPlacement(.utilityPanel)
+        }
         
         ImmersiveSpace(id: appState.immersiveSpaceID) {
             // TODO: 각 스트레칭에 따른 뷰 추가

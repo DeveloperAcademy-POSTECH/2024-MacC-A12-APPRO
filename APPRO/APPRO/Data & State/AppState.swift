@@ -14,6 +14,7 @@ final class AppState {
     
     let stretchingPartsWindowID = "StretchingPartsWindow"
     let stretchingProcessWindowID = "StretchingProcessWindow"
+    let stretchingTutorialWindowID = "StretchingTutorialWindow"
     let immersiveSpaceID = "StretchingSpace"
     
     var appPhase: AppPhase = .choosingStretchingPart
