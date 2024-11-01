@@ -34,6 +34,11 @@ final class ShoulderStretchingViewModel {
     private(set) var expectedNextNumber = 0
     var isColliding = false
     
+    deinit {
+        dump("\(self) deinited")
+        session.stop()
+    }
+    
     func resetExpectedNextNumber() {
         expectedNextNumber = 0
     }
