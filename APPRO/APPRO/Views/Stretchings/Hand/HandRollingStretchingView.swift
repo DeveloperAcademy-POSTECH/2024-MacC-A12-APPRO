@@ -23,19 +23,11 @@ struct HandRollingStretchingView: View {
             viewModel.addEntity(content)
             
             if viewModel.isRightHandInFist {
-                guard let rightGuideRing = content.entities.first(where: {$0.name == "Ring_Right"}) else { return }
-                rightGuideRing.transform = viewModel.calArmTransform(rightGuideRing.transform, chirality: .right)
-                
-                guard let rightGuideSphere = content.entities.first(where: {$0.name == "GuideSphere_Right"}) else { return }
-                rightGuideSphere.position = viewModel.calculateIntersectionWithWristRingPlane(chirality: .right) ?? rightGuideSphere.position
+                viewModel.updateGuideComponentsTransform(content, chirality: .right)
             }
             
             if viewModel.isLeftHandInFist {
-                guard let leftGuideRing = content.entities.first(where: {$0.name == "Ring_Left"}) else { return }
-                leftGuideRing.transform = viewModel.calArmTransform(leftGuideRing.transform, chirality: .left)
-                
-                guard let leftGuideSphere = content.entities.first(where: {$0.name == "GuideSphere_Left"}) else { return }
-                leftGuideSphere.position = viewModel.calculateIntersectionWithWristRingPlane(chirality: .left) ?? leftGuideSphere.position
+                viewModel.updateGuideComponentsTransform(content, chirality: .left)
             }
         }
         .task {
@@ -50,7 +42,7 @@ struct HandRollingStretchingView: View {
         .onChange(of: viewModel.rightLaunchState, initial: false) { _, currentLaunchState in
             if currentLaunchState {
                 Task {
-                    viewModel.rightRotationForLaunchName = viewModel.rightRotationCount
+                    viewModel.rightRotationForLaunchNumber = viewModel.rightRotationCount
                     try? await viewModel.rightEntities.append(viewModel.generateLaunchObj(chirality: .right))
                 }
                 
@@ -63,7 +55,7 @@ struct HandRollingStretchingView: View {
         .onChange(of: viewModel.leftLaunchState, initial: false) { _, currentLaunchState in
             if currentLaunchState {
                 Task {
-                    viewModel.leftRotationForLaunchName = viewModel.leftRotationCount
+                    viewModel.leftRotationForLaunchNumber = viewModel.leftRotationCount
                     try? await viewModel.leftEntities.append(viewModel.generateLaunchObj(chirality: .left))
                 }
                 

@@ -6,9 +6,9 @@
 //
 
 import SwiftUI
-import ARKit
 import RealityKit
 import RealityKitContent
+import ARKit
 
 @Observable
 @MainActor
@@ -46,11 +46,11 @@ final class HandRollingStretchingViewModel {
     
     let radius: Float = 0.1
     
-    var rightRotationForLaunchName : Int = 0
+    var rightRotationForLaunchNumber : Int = 0
     var rightRotationCount: Int = 0
     var rightRotationCollisionArray = [ false, false, false, false]
     
-    var leftRotationForLaunchName : Int = 0
+    var leftRotationForLaunchNumber : Int = 0
     var leftRotationCount: Int = 0
     var leftRotationCollisionArray = [ false, false, false, false]
     

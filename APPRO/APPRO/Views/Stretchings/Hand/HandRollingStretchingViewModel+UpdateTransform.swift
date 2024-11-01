@@ -12,6 +12,17 @@ import RealityKitContent
 
 extension HandRollingStretchingViewModel {
     
+    func updateGuideComponentsTransform(_ content: RealityViewContent, chirality:  Chirality) {
+        
+        let chiralityString = chirality == .right ? "Right" : "Left"
+        
+        guard let rightGuideRing = content.entities.first(where: {$0.name == "Ring_\(chiralityString)"}) else { return }
+        rightGuideRing.transform = calArmTransform(rightGuideRing.transform, chirality: chirality)
+        
+        guard let rightGuideSphere = content.entities.first(where: {$0.name == "GuideSphere_\(chiralityString)"}) else { return }
+        rightGuideSphere.position = calculateIntersectionWithWristRingPlane(chirality: chirality) ?? rightGuideSphere.position
+    }
+    
     func calArmTransform(_ beforeTransform: Transform, chirality : Chirality) -> Transform {
         guard let anchor = chirality == .right ? latestHandTracking.right : latestHandTracking.left else { return beforeTransform }
         let joint = anchor.handSkeleton?.joint(.forearmArm)
