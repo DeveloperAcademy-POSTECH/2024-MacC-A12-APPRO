@@ -58,16 +58,8 @@ struct TutorialView: View {
 }
     
 #Preview(windowStyle: .plain) {
-    let sampleTutorial = TutorialManager()
     var appState = AppState()
-    
-    sampleTutorial.initializeSteps([
-        .init(instruction: "This is step 1", isCompleted: { true }),
-        .init(instruction: "This is step 2", isCompleted: { true }),
-        .init(instruction: "This is step 3", isCompleted: { true })
-    ])
-    appState.tutorialManager = sampleTutorial
-    
+    appState.tutorialManager = TutorialManager.sampleTutorialManager
     return TutorialView()
         .environment(appState)
 }
