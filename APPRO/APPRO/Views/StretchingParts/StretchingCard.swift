@@ -11,11 +11,11 @@ struct StretchingCard: View {
     
     @Environment(AppState.self) private var appState
     
-    let stretching: Stretching
+    let stretching: StretchingPart
     
     var body: some View {
         Button(action: {
-            appState.appPhase = .isStretching(stretching)
+            appState.appPhase = .tutorial
         }) {
             VStack {
                 Spacer()

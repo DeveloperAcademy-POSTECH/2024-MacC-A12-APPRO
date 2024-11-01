@@ -19,14 +19,7 @@ final class AppState {
     
     var appPhase: AppPhase = .choosingStretchingPart
     
-    var currentStretching: Stretching? {
-        if case .isStretching(let stretching) = appPhase {
-            return stretching
-        } else {
-            return nil
-        }
-    }
-    
+    var currentStretchingPart: StretchingPart? = nil
     var tutorialManager: TutorialManager? = nil
     
     var doneCount = 0
