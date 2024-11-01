@@ -30,14 +30,35 @@ final class ShoulderStretchingViewModel {
     var rightHandTransform = Transform()
     private(set) var numberOfObjects: Int = 8
     private var lastStarEntityTransform = Transform() //ShoulderTimer의 위치를 잡기 위한 변수
+    var shoulderTimerEntity = Entity()
+    private(set) var expectedNextNumber = 0
+    var isColliding = false
     
+    deinit {
+        dump("\(self) deinited")
+        session.stop()
+    }
     
+    func resetExpectedNextNumber() {
+        expectedNextNumber = 0
+    }
+    
+    func addExpectedNextNumber() {
+        expectedNextNumber += 1
+    }
     
     func resetModelEntities() {
         modelEntities.forEach { entity in
             entity.removeFromParent()
         }
         modelEntities = []
+    }
+    
+    func resetHandEntities() {
+        handEntities.forEach { entity in
+            entity.removeFromParent()
+        }
+        handEntities = []
     }
     
     // 어깨 중심을 기준으로 포물선 경로의 좌표를 생성하는 함수
@@ -162,4 +183,66 @@ final class ShoulderStretchingViewModel {
         }
     }
     
+    func playAnimation(animationEntity: Entity) {
+        for animation in animationEntity.availableAnimations {
+            let animation = animation.repeat(count: 1)
+            let controller = animationEntity.playAnimation(animation, transitionDuration: 0.0, startsPaused: false)
+        }
+    }
+    
+    func playEmitter(eventEntity: Entity) {
+        guard let particleEntity = eventEntity.findEntity(named: "ParticleEmitter"), var particleEmitterComponent = particleEntity.components[ParticleEmitterComponent.self] else {
+            debugPrint("particle Emitter component not found")
+            return
+        }
+        eventEntity.components.remove(ParticleEmitterComponent.self)
+        particleEmitterComponent.isEmitting = true
+        particleEmitterComponent.simulationState = .stop
+        particleEmitterComponent.simulationState = .play
+        
+        eventEntity.components.set([particleEmitterComponent])
+    }
+    
+    func playSpatialAudio(_ entity: Entity) async {
+        guard let audioEntity = entity.findEntity(named: "SpatialAudio"), let indexString = entity.name.split(separator: "-").last, let idx = Int(indexString) else { return }
+        guard let resource = try? await AudioFileResource(named: "/Root/StarAudio_\((idx % 5) + 1)_wav",
+                                                          from: "Shoulder/StarScene.usda",
+                                                          in: realityKitContentBundle) else {
+            debugPrint("audio not found")
+            return
+        }
+        
+        let audioPlayer = audioEntity.prepareAudio(resource)
+        audioPlayer.play()
+    }
+    
+    func changeMatreialColor(entity: Entity) {
+        guard let modelEntity = entity as? ModelEntity else {
+            debugPrint("not a model entity")
+            return
+        }
+        
+        // TODO: 불켜진 Star 모델 색상 변경
+        let newMeterial = SimpleMaterial(color: .yellow, isMetallic: false)
+        guard let mesh = modelEntity.components[ModelComponent.self]?.mesh else {
+            debugPrint("no mesh found")
+            return
+        }
+         
+        let modelComponent = ModelComponent(mesh: mesh, materials: [newMeterial])
+        modelEntity.components.set(modelComponent)
+    }
+    
+    func addShoulderTimerEntity() {
+        Task {
+            if let rootEntity = try? await Entity(named: "Shoulder/ShoulderTimerScene.usda", in: realityKitContentBundle) {
+                shoulderTimerEntity.name = "ShoulderTimerEntity"
+                shoulderTimerEntity = rootEntity
+                shoulderTimerEntity.transform = lastStarEntityTransform
+                shoulderTimerEntity.scale *= 2
+                contentEntity.addChild(shoulderTimerEntity)
+                playAnimation(animationEntity: shoulderTimerEntity)
+            }
+        }
+    }
 }

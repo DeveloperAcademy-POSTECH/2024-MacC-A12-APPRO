@@ -83,6 +83,7 @@ extension ShoulderStretchingViewModel {
                 isFistShowing = false
             } else if !isFistShowing && fingersDistance < 0.05 {
                 resetModelEntities()
+                resetExpectedNextNumber()
                 guard
                     let fistJoint = rightHandAnchor.handSkeleton?.joint(.middleFingerMetacarpal),
                     fistJoint.isTracked else {
