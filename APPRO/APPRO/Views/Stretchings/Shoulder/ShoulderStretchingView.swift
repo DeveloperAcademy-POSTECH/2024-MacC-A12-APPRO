@@ -33,22 +33,15 @@ struct ShoulderStretchingView: View {
     }
     
     func subscribeToCollisionEvents(content: RealityViewContent) {
-        // 충돌 시작 감지
-        _ = content.subscribe(to: CollisionEvents.Began.self, on: viewModel.rightHandModelEntity.rocketEntity) { collisionEvent in
-            setCollisionAction(collisionEvent: collisionEvent, isRight: true)
-        }
-        
-        _ = content.subscribe(to: CollisionEvents.Began.self, on: viewModel.leftHandModelEntity.rocketEntity) { collisionEvent in
-            setCollisionAction(collisionEvent: collisionEvent, isRight: false)
         guard let rightCollisionModel = viewModel.handRocketEntity.findEntity(named: "RocketCollisionModel") as? ModelEntity else { return }
+
+            // 충돌 시작 감지
+        _ = content.subscribe(to: CollisionEvents.Began.self, on: rightCollisionModel) { collisionEvent in
+            setCollisionAction(collisionEvent: collisionEvent)
         }
         
         // 충돌 종료 감지
-        _ = content.subscribe(to: CollisionEvents.Ended.self, on: viewModel.rightHandModelEntity.rocketEntity) { collisionEvent in
-            handleCollisionEnd(collisionEvent: collisionEvent)
-        }
-        
-        _ = content.subscribe(to: CollisionEvents.Ended.self, on: viewModel.leftHandModelEntity.rocketEntity) { collisionEvent in
+        _ = content.subscribe(to: CollisionEvents.Ended.self, on: rightCollisionModel) { collisionEvent in
             handleCollisionEnd(collisionEvent: collisionEvent)
         }
         
