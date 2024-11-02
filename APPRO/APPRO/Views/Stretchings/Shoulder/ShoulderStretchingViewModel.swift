@@ -21,20 +21,26 @@ final class ShoulderStretchingViewModel {
     let session = ARKitSession()
     var handTrackingProvider = HandTrackingProvider()
     var latestHandTracking: HandsUpdates = .init(left: nil, right: nil)
-    let rightHandModelEntity = HandModelEntity()
-    let leftHandModelEntity = HandModelEntity()
+    let handModelEntity = HandModelEntity()
+    var entryRocketEntity = Entity()
+    var handRocketEntity = Entity()
+    var shoulderTimerEntity = Entity()
     
     var isFistShowing: Bool = false
     var isFirstPositioning: Bool = true
     var isRightDone: Bool = false
+    var isEntryEnd = false
+
     var rightHandTransform = Transform()
+    var entryRocketTransForm = Transform()
+    private var shoulderTimerPoint = SIMD3<Float>()
+
     // 별 모델 + 타이머
     private(set) var numberOfObjects: Int = 9
-    private var lastStarEntityTransform = Transform() //ShoulderTimer의 위치를 잡기 위한 변수
-    private var shoulderTimerPoint = SIMD3<Float>()
-    var timerController: AnimationPlaybackController?
-    var shoulderTimerEntity = Entity()
     private(set) var expectedNextNumber = 0
+    private(set) var timerController: AnimationPlaybackController?
+    
+
     
     deinit {
         dump("\(self) deinited")
