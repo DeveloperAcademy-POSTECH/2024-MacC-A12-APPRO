@@ -140,8 +140,9 @@ final class ShoulderStretchingViewModel {
     }
     
     func createEntitiesOnEllipticalArc(handTransform: Transform) {
+        resetExpectedNextNumber()
         // 손의 현재 위치를 파라미터로 받아서 어깨 기준으로 포물선을 계산 + 오른손보다 조금 옆으로 이동
-        let rightHandTranslation = SIMD3<Float>(x: handTransform.translation.x + 0.05, y: handTransform.translation.y, z: handTransform.translation.z)
+        let rightHandTranslation = SIMD3<Float>(x: handTransform.translation.x + 0.1, y: handTransform.translation.y, z: handTransform.translation.z)
         // 원점과 handTranslation의 x축 차이에 따라 oppositeHandTranslation을 계산
         let leftHandTranslation = simd_float3(-rightHandTranslation.x, rightHandTranslation.y, rightHandTranslation.z)
         
@@ -153,23 +154,21 @@ final class ShoulderStretchingViewModel {
 //        let isRightSide = handTranslation.x > 0
         
         if !isRightDone {
-            // 오른쪽 손에 대한 포물선 경로 계산 (150도)
             let rightPoints = generateUniformEllipseArcPoints(
                 centerPosition: rightShoulderPosition,
                 numPoints: numberOfObjects,
                 startPoint: rightHandTranslation,  // 오른쪽 손의 위치를 시작점으로 설정
-                arcSpan: 150.0,
+                arcSpan: 180.0,
                 isRightSide: true
             )
             
             addModelsToPoints(isRightSide: true, points: rightPoints)
         } else {
-            // 왼쪽 손에 대한 포물선 경로 계산 (150도)
             let leftPoints = generateUniformEllipseArcPoints(
                 centerPosition: leftShoulderPosition,  // 반대쪽 어깨 기준 위치
                 numPoints: numberOfObjects,
                 startPoint: leftHandTranslation,  // 반대쪽 손의 위치를 시작점으로 설정
-                arcSpan: 150.0,
+                arcSpan: 180.0,
                 isRightSide: false  // 왼손과 오른손 구분
             )
                         
