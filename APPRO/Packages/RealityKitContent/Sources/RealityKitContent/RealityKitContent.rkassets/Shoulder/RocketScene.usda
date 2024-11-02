@@ -10,7 +10,10 @@
 
 def Xform "Root"
 {
-    reorder nameChildren = ["Rocket", "Rocket"]
+    reorder nameChildren = ["Rocket", "RocketCollisionModel"]
+    float3 xformOp:scale = (8, 8, 8)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
     def "Rocket" (
         active = true
         customData = {
@@ -141,6 +144,55 @@ def Xform "Root"
                     }
                 }
             }
+        }
+    }
+
+    def Cube "RocketCollisionModel" (
+        active = true
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Root/RocketCollisionModel/DefaultMaterial>
+        double size = 0.2
+        float3 xformOp:scale = (1, 0.9, 1.8)
+        float3 xformOp:translate = (-0.05, 0, 0.03)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Material "DefaultMaterial"
+        {
+            token outputs:surface.connect = </Root/RocketCollisionModel/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+
+            def Shader "DefaultSurfaceShader"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (1, 1, 1)
+                float inputs:roughness = 0.75
+                token outputs:surface
+            }
+        }
+
+        def RealityKitComponent "Collider"
+        {
+            uint group = 1
+            uniform token info:id = "RealityKit.Collider"
+            uint mask = 4294967295
+            token type = "Default"
+
+            def RealityKitStruct "Shape"
+            {
+                float3 extent = (0.2, 0.2, 0.2)
+                token shapeType = "Box"
+
+                def RealityKitStruct "pose"
+                {
+                }
+            }
+        }
+
+        def RealityKitComponent "HierarchicalFade"
+        {
+            uniform token info:id = "RealityKit.HierarchicalFade"
+            float opacity = 0
         }
     }
 }
