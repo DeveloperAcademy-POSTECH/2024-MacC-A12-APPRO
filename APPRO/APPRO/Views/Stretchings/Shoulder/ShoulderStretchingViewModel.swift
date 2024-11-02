@@ -156,9 +156,6 @@ final class ShoulderStretchingViewModel {
         let rightShoulderPosition = simd_float3(rightHandTranslation.x, rightHandTranslation.y, 0.0)
         let leftShoulderPosition = simd_float3(-rightShoulderPosition.x, rightHandTranslation.y, 0.0)
         
-        // 손이 원점 기준으로 오른쪽에 있는지 왼쪽에 있는지에 따라 isRightSide를 결정
-//        let isRightSide = handTranslation.x > 0
-        
         if !isRightDone {
             let rightPoints = generateUniformEllipseArcPoints(
                 centerPosition: rightShoulderPosition,
@@ -254,8 +251,19 @@ final class ShoulderStretchingViewModel {
                 
                 contentEntity.addChild(shoulderTimerEntity)
                 modelEntities.append(shoulderTimerEntity)
-//                playAnimation(animationEntity: shoulderTimerEntity)
             }
+        }
+    }
+    
+    func setEntryRocket() async {
+        if let rootEntity = try? await Entity(named: "Shoulder/RocketScene.usda", in: realityKitContentBundle) {
+            entryRocketEntity = rootEntity
+            entryRocketEntity.name = "EntryRocket"
+            entryRocketEntity.position = .init(x: 0, y: 1, z: -1)
+            entryRocketEntity.transform.scale = .init(x: 0.1, y: 0.1, z: 0.1)
+            entryRocketEntity.transform.rotation = .init(angle: .pi/2, axis: .init(x: 0, y: 1, z: 0))
+            entryRocketTransForm = entryRocketEntity.transform
+            contentEntity.addChild(entryRocketEntity)
         }
     }
 }
