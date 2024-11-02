@@ -40,6 +40,7 @@ struct ShoulderStretchingView: View {
         
         _ = content.subscribe(to: CollisionEvents.Began.self, on: viewModel.leftHandModelEntity.rocketEntity) { collisionEvent in
             setCollisionAction(collisionEvent: collisionEvent, isRight: false)
+        guard let rightCollisionModel = viewModel.handRocketEntity.findEntity(named: "RocketCollisionModel") as? ModelEntity else { return }
         }
         
         // 충돌 종료 감지
