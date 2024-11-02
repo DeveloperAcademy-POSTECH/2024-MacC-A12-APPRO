@@ -93,7 +93,12 @@ extension ShoulderStretchingViewModel {
                     rightHandAnchor.originFromAnchorTransform, fistJoint.anchorFromJointTransform
                 )
                 self.rightHandTransform = Transform(matrix: mulitypliedMatrix)
-                
+                if !isEntryEnd {
+                    self.rightHandTransform.scale = .init(x: 0.1, y: 0.1, z: 0.1)
+                    playEntryRocketAnimation()
+                    isEntryEnd = true
+                    return
+                }
                 createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
                 isFistShowing = true
             } else {
