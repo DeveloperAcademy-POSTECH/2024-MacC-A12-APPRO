@@ -14,7 +14,7 @@ extension HandRollingStretchingViewModel {
     
     func generateLaunchObj(chirality: Chirality) async throws -> Entity {
         if let custom3DObject = try? await Entity(named: "Hand/spiral_new", in: realityKitContentBundle) {
-            custom3DObject.name = "Spiral_\(chirality)_\(rightRotationForLaunchName)"
+            custom3DObject.name = "Spiral_\(chirality)_\(rightRotationForLaunchNumber)"
             
             custom3DObject.components.set(GroundingShadowComponent(castsShadow: true))
             custom3DObject.components.set(InputTargetComponent())
