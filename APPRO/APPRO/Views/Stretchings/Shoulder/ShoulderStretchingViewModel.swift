@@ -283,4 +283,9 @@ final class ShoulderStretchingViewModel {
             debugPrint("Error generating animation: \(error)")
         }
     }
+    
+    func setHandRocketEntity() {
+        handRocketEntity = entryRocketEntity.clone(recursive: true)
+        handRocketEntity.name = "rightHandRocket"
+    }
 }
