@@ -16,6 +16,7 @@ struct StretchingCard: View {
     var body: some View {
         Button(action: {
             appState.appPhase = .tutorial
+            appState.currentStretchingPart = stretching
         }) {
             VStack {
                 Spacer()
