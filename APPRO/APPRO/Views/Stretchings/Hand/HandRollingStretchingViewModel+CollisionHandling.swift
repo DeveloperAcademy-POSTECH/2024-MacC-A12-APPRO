@@ -70,13 +70,22 @@ extension HandRollingStretchingViewModel {
          Spiral Name Pattern : ex) Spiral_right_1
          */
         let spiralChiralityAndScore = getStringBehindFirstUnderscore(spiralEntity.name)
-        var targetChiralityAndScore = getStringBehindFirstUnderscore(targetEntity.name)
+        let targetChiralityAndScore = getStringBehindFirstUnderscore(targetEntity.name)
         
         if spiralChiralityAndScore == targetChiralityAndScore {
-            let scoreOfTarget = targetChiralityAndScore.popLast()
-            score += Int(String(scoreOfTarget!))!
-            spiralEntity.removeFromParent()
-            targetEntity.removeFromParent()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                
+                spiralEntity.removeFromParent()
+                targetEntity.removeFromParent()
+                
+                if spiralChiralityAndScore.starts(with: "left")  {
+                    guard let index = self.leftTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
+                    self.leftTargetEntities.remove(at: index)
+                } else {
+                    guard let index = self.rightTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
+                    self.rightTargetEntities.remove(at: index)
+                }
+            }
         }
     }
     

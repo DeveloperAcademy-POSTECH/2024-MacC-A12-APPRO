@@ -36,6 +36,9 @@ final class HandRollingStretchingViewModel {
     var leftEntities: [Entity] = []
     var rightEntities: [Entity] = []
     
+    var leftTargetEntities : [Entity] = []
+    var rightTargetEntities : [Entity] = []
+    
     var showGuideRing: Bool = false
     
     var rightGuideRing = Entity()
@@ -69,11 +72,11 @@ final class HandRollingStretchingViewModel {
         leftGuideRing = await generateGuideRing(chirality: .left)
         leftGuideSphere = generateGuideSphere(chirality: .left)
         
-        rightTargets = await bringTargetEntities([2,1,4], chirality: .right)
-        rightTargets.forEach { content.add($0)}
+        rightTargetEntities = await bringTargetEntities([2,1,4], chirality: .right)
+        rightTargetEntities.forEach { content.add($0)}
         
-        leftTargets = await bringTargetEntities([4,2,1], chirality: .left)
-        leftTargets.forEach { content.add($0)}
+        leftTargetEntities = await bringTargetEntities([4,2,1], chirality: .left)
+        leftTargetEntities.forEach { content.add($0)}
     }
     
     func addEntity(_ content: RealityViewContent) {
@@ -123,19 +126,19 @@ final class HandRollingStretchingViewModel {
         var result: [Entity] = []
         
         for targetScore in targetRotationCounts {
-            guard let greenTargetEntity = try? await Entity(named: resourceUrl, in: realityKitContentBundle) else { return [] }
+            guard let targetEntity = try? await Entity(named: resourceUrl, in: realityKitContentBundle) else { return [] }
             let entityName = chirality == .left ? "BlueTarget_left_\(targetScore)" :"GreenTarget_right_\(targetScore)"
             
-            greenTargetEntity.name = entityName
-            greenTargetEntity.transform = targetTransforms.removeFirst()
+            targetEntity.name = entityName
+            targetEntity.transform = targetTransforms.removeFirst()
             
             for index in 1...5  {
                 if index != targetScore {
-                    let entity = greenTargetEntity.findEntity(named: "Text_\(index)")
+                    let entity = targetEntity.findEntity(named: "Text_\(index)")
                     entity?.isEnabled = false
                 }
             }
-            result.append(greenTargetEntity)
+            result.append(targetEntity)
         }
         return result
     }
@@ -147,16 +150,16 @@ final class HandRollingStretchingViewModel {
         let originalTransform = greenTargetEntity.transform
         
         var transform_1 = originalTransform
-        transform_1.translation = .init(x: -0.4, y: 1.2, z: -0.5)
+        transform_1.translation = .init(x: -0.6, y: 1.2, z: -0.5)
         transform_1.rotation = getRotationCalculator(transform_1.rotation, rotationX: 0, rotationY: -1/6 * .pi, rotationZ: 0)
         
         var transform_2  = originalTransform
-        transform_2.translation = .init(x: -0.7, y: 1.4, z: -1.0)
-        transform_2.rotation = getRotationCalculator(transform_2.rotation, rotationX: -1/6 * .pi, rotationY: -1/6 * .pi, rotationZ: 0)
+        transform_2.translation = .init(x: -0.5, y: 1.4, z: -1.0)
+        transform_2.rotation = getRotationCalculator(transform_2.rotation, rotationX: 1/6 * .pi, rotationY: -1/6 * .pi, rotationZ: 0)
         
         var transform_3  = originalTransform
         transform_3.translation = .init(x: 0.6, y: 1.4, z: -0.7)
-        transform_3.rotation = getRotationCalculator(transform_3.rotation, rotationX: -1/6 * .pi, rotationY: 1/6 * .pi, rotationZ: 1/3 * .pi)
+        transform_3.rotation = getRotationCalculator(transform_3.rotation, rotationX: 1/6 * .pi, rotationY: 1/6 * .pi, rotationZ: 1/3 * .pi)
         
         
         return [transform_1, transform_2, transform_3]
@@ -178,6 +181,7 @@ final class HandRollingStretchingViewModel {
         var transform_3  = originalTransform
         transform_3.translation = .init(x: 0.7, y: 1.0, z: -0.6)
         transform_3.rotation = getRotationCalculator(transform_3.rotation, rotationX: -1/6 * .pi, rotationY: 1/6 * .pi, rotationZ: 1/3 * .pi)
+        transform_3.scale = transform_3.scale * 1.5 // TODO: check and adjust
         
         
         return [transform_1, transform_2, transform_3]

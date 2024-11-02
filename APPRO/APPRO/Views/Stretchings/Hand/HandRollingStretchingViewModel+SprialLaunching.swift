@@ -14,7 +14,8 @@ extension HandRollingStretchingViewModel {
     
     func generateLaunchObj(chirality: Chirality) async throws -> Entity {
         if let custom3DObject = try? await Entity(named: "Hand/spiral_new", in: realityKitContentBundle) {
-            custom3DObject.name = "Spiral_\(chirality)_\(rightRotationForLaunchNumber)"
+            let rotationNumber = chirality == .left ? leftRotationForLaunchNumber : rightRotationForLaunchNumber
+            custom3DObject.name = "Spiral_\(chirality)_\(rotationNumber)"
             
             custom3DObject.components.set(GroundingShadowComponent(castsShadow: true))
             custom3DObject.components.set(InputTargetComponent())
@@ -23,16 +24,23 @@ extension HandRollingStretchingViewModel {
             custom3DObject.scale = .init(repeating: 0.01)
             
             let physicsMaterial = PhysicsMaterialResource.generate(
-                staticFriction: 10.00,
-                dynamicFriction: 10.00,
-                restitution: 10.0
+                staticFriction: 0.01,
+                dynamicFriction: 0.01,
+                restitution: 1.5
             )
             
             var physicsBody = PhysicsBodyComponent(massProperties: .default, material: physicsMaterial, mode: .dynamic)
             physicsBody.isAffectedByGravity = false
             physicsBody.massProperties.mass = 0.01
             
-            custom3DObject.transform = chirality == .right ? rightGuideRing.transform : leftGuideRing.transform
+            let startingCriteria = chirality == .right ? rightGuideRing : leftGuideRing
+            custom3DObject.transform = startingCriteria.transform
+            
+            let forwardDirection = startingCriteria.transform.matrix.columns.0 // x axis
+            let direction = simd_float3(forwardDirection.x, forwardDirection.y, forwardDirection.z)
+            let adjustedTranslation = chirality == .left ? startingCriteria.position - direction * 0.25 : startingCriteria.position + direction * 0.25
+            
+            custom3DObject.transform.translation = adjustedTranslation
             
             if let modelEntity = custom3DObject.findEntity(named: "Spiral") as? ModelEntity {
                 modelEntity.components[PhysicsBodyComponent.self] = physicsBody
@@ -91,6 +99,11 @@ extension HandRollingStretchingViewModel {
         let animation = try AnimationResource.generate(with: goInDirection)
         
         entity.playAnimation(animation, transitionDuration: 2)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            entity.removeFromParent()
+        }
+        
         try await playAppearAudio(entity)
     }
 }

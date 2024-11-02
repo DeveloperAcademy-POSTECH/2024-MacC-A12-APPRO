@@ -61,6 +61,7 @@ struct APPROApp: App {
                 EmptyView()
             case .wrist:
                 HandRollingStretchingView()
+                    .environment(appState)
             default:
                 EmptyView()
             }

@@ -12,6 +12,7 @@ import ARKit
 
 struct HandRollingStretchingView: View {
     @State var viewModel = HandRollingStretchingViewModel()
+    @Environment(AppState.self) private var appState
     
     var body: some View {
         RealityView { content in
@@ -84,8 +85,19 @@ struct HandRollingStretchingView: View {
                 viewModel.leftGuideSphere.removeFromParent()
                 viewModel.leftEntities.removeAll()
             }
-        }.onAppear {
-            print("Immersive View is on the stage")
+        }
+        .onChange(of: viewModel.leftTargetEntities.count, initial: false ) { oldNumber, newNumber in
+            if oldNumber > newNumber {
+                viewModel.score += 1
+            }
+        }
+        .onChange(of: viewModel.rightTargetEntities.count, initial: false ) { oldNumber, newNumber in
+            if oldNumber > newNumber {
+                viewModel.score += 1
+            }
+        }
+        .onChange(of: viewModel.score, initial: false ) { _, changedScore  in
+            appState.doneCount = changedScore
         }
     }
 }
