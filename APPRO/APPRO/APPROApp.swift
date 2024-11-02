@@ -34,25 +34,17 @@ struct APPROApp: App {
             
             return WindowPlacement(.above(previousWindow))
         }
-        .onChange(of: appState.appPhase) { _, newPhase in
+        .onChange(of: appState.appPhase.isImmersed) { _, isImmersed in
             Task {
-                switch newPhase {
-                case .choosingStretchingPart:
-                    await configureStretchingPartsScene()
-                case .stretching:
-                    await configureStretchingScene()
-                case .tutorial:
-                    // TODO: 각 스트레칭 부위별 TutorialManager 분기
-                    let tutorialManager = TutorialManager.sampleTutorialManager
-                    
-                    if tutorialManager.isSkipped {
-                        appState.appPhase = .stretching
-                    } else {
-                        appState.tutorialManager = tutorialManager
-                        await configureTutorialScene()
-                    }
+                if isImmersed {
+                    await openImmersiveSpace(id: appState.immersiveSpaceID)
+                } else {
+                    await dismissImmersiveSpace()
                 }
             }
+        }
+        .onChange(of: appState.appPhase) { _, newPhase in
+            handleAppPhase(newPhase)
         }
         
         WindowGroup(id: appState.stretchingProcessWindowID) {
@@ -60,7 +52,7 @@ struct APPROApp: App {
                 .environment(appState)
                 .onAppear {
                     dismissWindow(id: appState.stretchingPartsWindowID)
-                    dismissWindow(id: appState.stretchingProcessWindowID)
+                    dismissWindow(id: appState.stretchingTutorialWindowID)
                 }
         }
         .windowStyle(.plain)
@@ -75,6 +67,10 @@ struct APPROApp: App {
                 .onAppear {
                     dismissWindow(id: appState.stretchingPartsWindowID)
                 }
+                .onChange(of: appState.tutorialManager?.isCompleted) { _, isCompleted in
+                    appState.currentStretchingPart = appState.tutorialManager!.stretchingPart
+                    appState.appPhase = .stretching
+                }
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
@@ -88,20 +84,23 @@ struct APPROApp: App {
         .immersionStyle(selection: .constant(.mixed), in: .mixed)
     }
     
-    private func configureStretchingPartsScene() async {
-        openWindow(id: appState.stretchingPartsWindowID)
-        await dismissImmersiveSpace()
-    }
-    
-    private func configureStretchingScene() async {
-        openWindow(id: appState.stretchingProcessWindowID)
-        await openImmersiveSpace(id: appState.immersiveSpaceID)
-    }
-    
-    private func configureTutorialScene() async {
-        openWindow(id: appState.stretchingTutorialWindowID)
-        await openImmersiveSpace(id: appState.immersiveSpaceID)
-        
+    private func handleAppPhase(_ appPhase: AppPhase) {
+        switch appPhase {
+        case .choosingStretchingPart:
+            openWindow(id: appState.stretchingPartsWindowID)
+        case .stretching:
+            openWindow(id: appState.stretchingProcessWindowID)
+        case .tutorial:
+            // TODO: 각 스트레칭 부위별 TutorialManager 분기
+            let tutorialManager = TutorialManager.sampleTutorialManager
+            
+            if tutorialManager.isSkipped {
+                appState.appPhase = .stretching
+            } else {
+                appState.tutorialManager = tutorialManager
+                openWindow(id: appState.stretchingTutorialWindowID)
+            }
+        }
     }
     
 }
