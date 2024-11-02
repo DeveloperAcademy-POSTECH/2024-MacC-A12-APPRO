@@ -47,12 +47,17 @@ struct ShoulderStretchingView: View {
         
         // 애니메이션 종료 감지
         _ = content.subscribe(to: AnimationEvents.PlaybackCompleted.self, on: nil) { animationEvent in
-            animationEvent.playbackController.entity?.removeFromParent()
-            executeCollisionAction()
+            if animationEvent.playbackController.entity?.name == "EntryRocket" {
+                viewModel.entryRocketEntity.removeFromParent()
+                viewModel.addRightHandAnchor()
+            }else {
+                animationEvent.playbackController.entity?.removeFromParent()
+                executeCollisionAction()
+            }
         }
     }
     
-    func setCollisionAction(collisionEvent: CollisionEvents.Began, isRight: Bool) {
+    func setCollisionAction(collisionEvent: CollisionEvents.Began) {
         
         let collidedModelEntity = collisionEvent.entityB
         
@@ -62,7 +67,7 @@ struct ShoulderStretchingView: View {
             return
         }
         
-        let entityName = isRight ? "rightModelEntity" : "leftModelEntity"
+        let entityName = viewModel.isRightDone ? "leftModelEntity" : "rightModelEntity"
         
         // 충돌시 particle, audio 실행
         viewModel.playEmitter(eventEntity: collidedModelEntity)
