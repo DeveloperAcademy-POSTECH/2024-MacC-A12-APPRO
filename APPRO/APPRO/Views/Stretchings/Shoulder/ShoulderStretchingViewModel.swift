@@ -179,7 +179,8 @@ final class ShoulderStretchingViewModel {
     func playAnimation(animationEntity: Entity) {
         for animation in animationEntity.availableAnimations {
             let animation = animation.repeat(count: 1)
-            let controller = animationEntity.playAnimation(animation, transitionDuration: 0.0, startsPaused: false)
+            timerController = animationEntity.playAnimation(animation, transitionDuration: 0.0, startsPaused: false)
+            break
         }
     }
     
@@ -231,10 +232,23 @@ final class ShoulderStretchingViewModel {
             if let rootEntity = try? await Entity(named: "Shoulder/ShoulderTimerScene.usda", in: realityKitContentBundle) {
                 shoulderTimerEntity.name = "ShoulderTimerEntity"
                 shoulderTimerEntity = rootEntity
-                shoulderTimerEntity.transform = lastStarEntityTransform
-                shoulderTimerEntity.scale *= 2
+                shoulderTimerEntity.position = shoulderTimerPoint
+                // 스케일이 너무 큼
+                shoulderTimerEntity.scale *= 0.1
+                let angle = isRightDone ? -Float.pi/2 : -Float.pi/6
+                shoulderTimerEntity.transform.rotation = simd_quatf(angle: angle, axis: SIMD3<Float>(0, 1, 0))
+                
+                var clearMaterial = PhysicallyBasedMaterial()
+                clearMaterial.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(floatLiteral: 0))
+                let collisionModelEntity = ModelEntity(mesh: .generateSphere(radius: 10), materials: [clearMaterial])
+                collisionModelEntity.generateCollisionShapes(recursive: false)
+                collisionModelEntity.name = "Timer"
+             
+                shoulderTimerEntity.addChild(collisionModelEntity)
+                
                 contentEntity.addChild(shoulderTimerEntity)
-                playAnimation(animationEntity: shoulderTimerEntity)
+                modelEntities.append(shoulderTimerEntity)
+//                playAnimation(animationEntity: shoulderTimerEntity)
             }
         }
     }
