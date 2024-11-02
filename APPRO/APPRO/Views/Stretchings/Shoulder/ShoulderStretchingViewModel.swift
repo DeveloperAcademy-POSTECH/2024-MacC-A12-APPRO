@@ -266,4 +266,21 @@ final class ShoulderStretchingViewModel {
             contentEntity.addChild(entryRocketEntity)
         }
     }
+    
+    func playEntryRocketAnimation() {
+        let goInDirection = FromToByAnimation<Transform> (
+            name: "EntryRocket",
+            from: entryRocketTransForm,
+            to: rightHandTransform,
+            duration: 2,
+            bindTarget: .transform
+        )
+        
+        do {
+            let animation = try AnimationResource.generate(with: goInDirection)
+            entryRocketEntity.playAnimation(animation, transitionDuration: 2)
+        } catch {
+            debugPrint("Error generating animation: \(error)")
+        }
+    }
 }
