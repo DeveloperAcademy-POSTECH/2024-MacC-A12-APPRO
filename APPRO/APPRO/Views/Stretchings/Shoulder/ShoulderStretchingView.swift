@@ -15,6 +15,8 @@ struct ShoulderStretchingView: View {
     var body: some View {
         RealityView { content in
             content.add(viewModel.contentEntity)
+            await viewModel.setEntryRocket()
+            viewModel.setHandRocketEntity()
             subscribeToCollisionEvents(content: content)
         } update: { content in
             viewModel.computeTransformHandTracking()
@@ -22,7 +24,7 @@ struct ShoulderStretchingView: View {
         .upperLimbVisibility(.hidden)
         .ignoresSafeArea()
         .onAppear() {
-            viewModel.addRightHandAnchor()
+           
         }
         .task {
             await viewModel.startHandTrackingSession()
