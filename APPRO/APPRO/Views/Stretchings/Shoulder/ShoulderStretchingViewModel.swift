@@ -109,6 +109,12 @@ final class ShoulderStretchingViewModel {
         
         for (idx, point) in points.enumerated() {
             Task {
+                // 마지막 인덱스 일때
+                if idx == numberOfObjects - 1 {
+                    shoulderTimerPoint = point
+                    return
+                }
+                
                 if let starEntity = try? await Entity(named: "Shoulder/StarScene.usda", in: realityKitContentBundle) {
                     guard let starModelEntity = starEntity.findEntity(named: "Star") as? ModelEntity else { return }
                     
@@ -128,20 +134,6 @@ final class ShoulderStretchingViewModel {
                     
                     modelEntities.append(starModelEntity)
                     contentEntity.addChild(starModelEntity)
-                    
-                    // 마지막 인덱스 일때
-                    if idx == numberOfObjects - 1 {
-                        lastStarEntityTransform = starModelEntity.transform
-                        let translation = lastStarEntityTransform.translation
-                        
-                        if isRightSide {
-                            lastStarEntityTransform.translation = SIMD3<Float>(x: translation.x + 0.2, y: translation.y, z: translation.z + 0.1)
-                            lastStarEntityTransform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(0, 1, 0))
-                        } else {
-                            lastStarEntityTransform.translation = SIMD3<Float>(x: translation.x - 0.2, y: translation.y, z: translation.z + 0.2)
-                            lastStarEntityTransform.rotation = simd_quatf(angle: -.pi, axis: SIMD3<Float>(0, 1, 0))
-                        }
-                    }
                 }
             }
         }
