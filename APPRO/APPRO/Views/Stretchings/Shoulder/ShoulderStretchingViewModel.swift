@@ -28,11 +28,13 @@ final class ShoulderStretchingViewModel {
     var isFirstPositioning: Bool = true
     var isRightDone: Bool = false
     var rightHandTransform = Transform()
-    private(set) var numberOfObjects: Int = 8
+    // 별 모델 + 타이머
+    private(set) var numberOfObjects: Int = 9
     private var lastStarEntityTransform = Transform() //ShoulderTimer의 위치를 잡기 위한 변수
+    private var shoulderTimerPoint = SIMD3<Float>()
+    var timerController: AnimationPlaybackController?
     var shoulderTimerEntity = Entity()
     private(set) var expectedNextNumber = 0
-    var isColliding = false
     
     deinit {
         dump("\(self) deinited")
