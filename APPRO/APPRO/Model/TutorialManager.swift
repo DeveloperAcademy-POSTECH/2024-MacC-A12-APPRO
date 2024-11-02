@@ -15,13 +15,16 @@ class TutorialManager {
     
     private(set) var steps: [TutorialStep] = []
     private var currentStepIndex = 0
+    private var userDefulatsKey: String {
+        "\(stretchingPart)TutorialSkipped"
+    }
     
     init(stretching: StretchingPart) {
         self.stretchingPart = stretching
     }
     
     var isSkipped: Bool {
-        UserDefaults.standard.bool(forKey: "\(stretchingPart)TutorialSkipped")
+        UserDefaults.standard.bool(forKey: userDefulatsKey)
     }
     
     var isCompleted: Bool {
@@ -41,6 +44,7 @@ class TutorialManager {
     }
     
     func skip() {
+        UserDefaults.standard.setValue(true, forKey: userDefulatsKey)
         currentStepIndex = steps.count
     }
     
