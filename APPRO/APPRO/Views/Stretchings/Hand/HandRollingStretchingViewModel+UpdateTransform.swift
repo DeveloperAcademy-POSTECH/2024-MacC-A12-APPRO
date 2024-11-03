@@ -27,6 +27,8 @@ extension HandRollingStretchingViewModel {
         guard let anchor = chirality == .right ? latestHandTracking.right : latestHandTracking.left else { return beforeTransform }
         let joint = anchor.handSkeleton?.joint(.forearmArm)
         
+        let smoothingFactor: Float = 0.05
+        
         if ((joint?.isTracked) != nil) {
             var t = matrix_multiply(anchor.originFromAnchorTransform, (joint?.anchorFromJointTransform)!)
             
@@ -35,11 +37,22 @@ extension HandRollingStretchingViewModel {
             
             let ringLocation = chirality == .right ? simd_float3(x: t.columns.3.x, y: t.columns.3.y , z: t.columns.3.z ) + ( directionVector * 0.4 ) : simd_float3(x: t.columns.3.x, y: t.columns.3.y , z: t.columns.3.z ) - ( directionVector * 0.4 )
             
-            t.columns.3.x = ringLocation.x
-            t.columns.3.y = ringLocation.y
-            t.columns.3.z = ringLocation.z
             
-            return Transform(matrix: t)
+            t.columns.3.x = applyLinearInterpolation(current: ringLocation.x, previous: beforeTransform.translation.x, factor: smoothingFactor)
+            t.columns.3.y = applyLinearInterpolation(current: ringLocation.y, previous: beforeTransform.translation.y, factor: smoothingFactor)
+            t.columns.3.z = applyLinearInterpolation(current: ringLocation.z, previous: beforeTransform.translation.z, factor: smoothingFactor)
+            
+            var newTransform = Transform(matrix: t)
+            
+            let currentRotation = newTransform.rotation
+            
+            let weight: Float = 0.1
+            let smoothedRotation = simd_normalize(simd_slerp(beforeTransform.rotation, currentRotation, smoothingFactor))
+            let weightedRotation = simd_slerp(smoothedRotation, currentRotation, weight)
+            
+            newTransform.rotation = smoothedRotation
+            
+            return newTransform
         }
         return beforeTransform
     }
@@ -100,5 +113,9 @@ extension HandRollingStretchingViewModel {
         // 원 경계에 해당하는 지점 계산
         let pointOnBoundary = wristRingPosition + directionVector * radius
         return pointOnBoundary
+    }
+    
+    private func applyLinearInterpolation (current : Float, previous : Float, factor:Float) -> Float {
+        return previous + (current - previous) * factor
     }
 }
