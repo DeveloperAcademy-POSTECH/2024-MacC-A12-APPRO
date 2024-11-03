@@ -58,7 +58,7 @@ struct APPROApp: App {
             case .eyes:
                 EmptyView()
             case .shoulder:
-                EmptyView()
+                ShoulderStretchingView()
             case .wrist:
                 HandRollingStretchingView()
             default:

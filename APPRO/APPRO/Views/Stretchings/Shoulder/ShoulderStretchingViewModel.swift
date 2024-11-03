@@ -28,11 +28,13 @@ final class ShoulderStretchingViewModel {
     var isFirstPositioning: Bool = true
     var isRightDone: Bool = false
     var rightHandTransform = Transform()
-    private(set) var numberOfObjects: Int = 8
+    // 별 모델 + 타이머
+    private(set) var numberOfObjects: Int = 9
     private var lastStarEntityTransform = Transform() //ShoulderTimer의 위치를 잡기 위한 변수
+    private var shoulderTimerPoint = SIMD3<Float>()
+    var timerController: AnimationPlaybackController?
     var shoulderTimerEntity = Entity()
     private(set) var expectedNextNumber = 0
-    var isColliding = false
     
     deinit {
         dump("\(self) deinited")
@@ -107,6 +109,12 @@ final class ShoulderStretchingViewModel {
         
         for (idx, point) in points.enumerated() {
             Task {
+                // 마지막 인덱스 일때
+                if idx == numberOfObjects - 1 {
+                    shoulderTimerPoint = point
+                    return
+                }
+                
                 if let starEntity = try? await Entity(named: "Shoulder/StarScene.usda", in: realityKitContentBundle) {
                     guard let starModelEntity = starEntity.findEntity(named: "Star") as? ModelEntity else { return }
                     
@@ -126,28 +134,15 @@ final class ShoulderStretchingViewModel {
                     
                     modelEntities.append(starModelEntity)
                     contentEntity.addChild(starModelEntity)
-                    
-                    // 마지막 인덱스 일때
-                    if idx == numberOfObjects - 1 {
-                        lastStarEntityTransform = starModelEntity.transform
-                        let translation = lastStarEntityTransform.translation
-                        
-                        if isRightSide {
-                            lastStarEntityTransform.translation = SIMD3<Float>(x: translation.x + 0.2, y: translation.y, z: translation.z + 0.1)
-                            lastStarEntityTransform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(0, 1, 0))
-                        } else {
-                            lastStarEntityTransform.translation = SIMD3<Float>(x: translation.x - 0.2, y: translation.y, z: translation.z + 0.2)
-                            lastStarEntityTransform.rotation = simd_quatf(angle: -.pi, axis: SIMD3<Float>(0, 1, 0))
-                        }
-                    }
                 }
             }
         }
     }
     
     func createEntitiesOnEllipticalArc(handTransform: Transform) {
+        resetExpectedNextNumber()
         // 손의 현재 위치를 파라미터로 받아서 어깨 기준으로 포물선을 계산 + 오른손보다 조금 옆으로 이동
-        let rightHandTranslation = SIMD3<Float>(x: handTransform.translation.x + 0.05, y: handTransform.translation.y, z: handTransform.translation.z)
+        let rightHandTranslation = SIMD3<Float>(x: handTransform.translation.x + 0.1, y: handTransform.translation.y, z: handTransform.translation.z)
         // 원점과 handTranslation의 x축 차이에 따라 oppositeHandTranslation을 계산
         let leftHandTranslation = simd_float3(-rightHandTranslation.x, rightHandTranslation.y, rightHandTranslation.z)
         
@@ -159,23 +154,21 @@ final class ShoulderStretchingViewModel {
 //        let isRightSide = handTranslation.x > 0
         
         if !isRightDone {
-            // 오른쪽 손에 대한 포물선 경로 계산 (150도)
             let rightPoints = generateUniformEllipseArcPoints(
                 centerPosition: rightShoulderPosition,
                 numPoints: numberOfObjects,
                 startPoint: rightHandTranslation,  // 오른쪽 손의 위치를 시작점으로 설정
-                arcSpan: 150.0,
+                arcSpan: 180.0,
                 isRightSide: true
             )
             
             addModelsToPoints(isRightSide: true, points: rightPoints)
         } else {
-            // 왼쪽 손에 대한 포물선 경로 계산 (150도)
             let leftPoints = generateUniformEllipseArcPoints(
                 centerPosition: leftShoulderPosition,  // 반대쪽 어깨 기준 위치
                 numPoints: numberOfObjects,
                 startPoint: leftHandTranslation,  // 반대쪽 손의 위치를 시작점으로 설정
-                arcSpan: 150.0,
+                arcSpan: 180.0,
                 isRightSide: false  // 왼손과 오른손 구분
             )
                         
@@ -186,7 +179,8 @@ final class ShoulderStretchingViewModel {
     func playAnimation(animationEntity: Entity) {
         for animation in animationEntity.availableAnimations {
             let animation = animation.repeat(count: 1)
-            let controller = animationEntity.playAnimation(animation, transitionDuration: 0.0, startsPaused: false)
+            timerController = animationEntity.playAnimation(animation, transitionDuration: 0.0, startsPaused: false)
+            break
         }
     }
     
@@ -238,10 +232,23 @@ final class ShoulderStretchingViewModel {
             if let rootEntity = try? await Entity(named: "Shoulder/ShoulderTimerScene.usda", in: realityKitContentBundle) {
                 shoulderTimerEntity.name = "ShoulderTimerEntity"
                 shoulderTimerEntity = rootEntity
-                shoulderTimerEntity.transform = lastStarEntityTransform
-                shoulderTimerEntity.scale *= 2
+                shoulderTimerEntity.position = shoulderTimerPoint
+                // 스케일이 너무 큼
+                shoulderTimerEntity.scale *= 0.1
+                let angle = isRightDone ? -Float.pi/2 : -Float.pi/6
+                shoulderTimerEntity.transform.rotation = simd_quatf(angle: angle, axis: SIMD3<Float>(0, 1, 0))
+                
+                var clearMaterial = PhysicallyBasedMaterial()
+                clearMaterial.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(floatLiteral: 0))
+                let collisionModelEntity = ModelEntity(mesh: .generateSphere(radius: 10), materials: [clearMaterial])
+                collisionModelEntity.generateCollisionShapes(recursive: false)
+                collisionModelEntity.name = "Timer"
+             
+                shoulderTimerEntity.addChild(collisionModelEntity)
+                
                 contentEntity.addChild(shoulderTimerEntity)
-                playAnimation(animationEntity: shoulderTimerEntity)
+                modelEntities.append(shoulderTimerEntity)
+//                playAnimation(animationEntity: shoulderTimerEntity)
             }
         }
     }

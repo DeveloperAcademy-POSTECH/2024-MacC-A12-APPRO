@@ -12,14 +12,14 @@ struct HandModelEntity {
     let thumbIntermediateBaseModelEntity: ModelEntity
     let indexFingerTipModelEntity: ModelEntity
     let rocketEntity: ModelEntity
-    
+
     init() {
         var clearMaterial = PhysicallyBasedMaterial()
-        clearMaterial.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(scale: 0))
+        clearMaterial.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(floatLiteral: 0))
         var fingerModelEntity = ModelEntity()
         var markerModelEntity = ModelEntity()
         
-        markerModelEntity = ModelEntity(mesh: .generateSphere(radius: 0.05), materials: [clearMaterial])
+        markerModelEntity = ModelEntity(mesh: .generateSphere(radius: 1), materials: [clearMaterial])
         markerModelEntity.generateCollisionShapes(recursive: true)
         markerModelEntity.name = "Marker"
         
@@ -29,14 +29,15 @@ struct HandModelEntity {
         self.thumbIntermediateBaseModelEntity = fingerModelEntity
         self.indexFingerTipModelEntity = fingerModelEntity
         self.rocketEntity = markerModelEntity
-        
         setupRocketEntity()
     }
     
     private func setupRocketEntity() {
-        Task {
+        Task { @MainActor in
             if let rootEntity = try? await Entity(named: "Shoulder/RocketScene.usda", in: realityKitContentBundle) {
-                await rocketEntity.addChild(rootEntity)
+                rootEntity.scale *= 8.0
+                rootEntity.name = "RocketEntity"
+                rocketEntity.addChild(rootEntity)
             }
         }
     }
