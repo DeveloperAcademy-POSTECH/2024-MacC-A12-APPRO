@@ -48,10 +48,11 @@ extension ShoulderStretchingViewModel {
             }
             
             //right
-            rightHandModelEntity.thumbIntermediateBaseModelEntity.transform = getTransform(rightHandAnchor, .thumbIntermediateBase, rightHandModelEntity.thumbIntermediateBaseModelEntity.transform)
-            rightHandModelEntity.indexFingerTipModelEntity.transform = getTransform(rightHandAnchor, .indexFingerTip, rightHandModelEntity.indexFingerTipModelEntity.transform)
+            handModelEntity.thumbIntermediateBaseModelEntity.transform = getTransform(rightHandAnchor, .thumbIntermediateBase, handModelEntity.thumbIntermediateBaseModelEntity.transform)
+            handModelEntity.indexFingerTipModelEntity.transform = getTransform(rightHandAnchor, .indexFingerTip, handModelEntity.indexFingerTipModelEntity.transform)
             
-            rightHandModelEntity.rocketEntity.transform = getTransform(rightHandAnchor, .middleFingerMetacarpal, rightHandModelEntity.rocketEntity.transform)
+            handRocketEntity.transform = getTransform(rightHandAnchor, .middleFingerMetacarpal, handRocketEntity.transform)
+            
             
             if !isFirstPositioning {
                 //TODO: isFirstPositioning 이 false가 된 후에는 isFistShowing을 확인할 필요가 없음
@@ -92,7 +93,12 @@ extension ShoulderStretchingViewModel {
                     rightHandAnchor.originFromAnchorTransform, fistJoint.anchorFromJointTransform
                 )
                 self.rightHandTransform = Transform(matrix: mulitypliedMatrix)
-                
+                if !isEntryEnd {
+                    self.rightHandTransform.scale = .init(x: 0.1, y: 0.1, z: 0.1)
+                    playEntryRocketAnimation()
+                    isEntryEnd = true
+                    return
+                }
                 createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
                 isFistShowing = true
             } else {
@@ -107,10 +113,10 @@ extension ShoulderStretchingViewModel {
                 return
             }
             //left
-            leftHandModelEntity.thumbIntermediateBaseModelEntity.transform = getTransform(leftHandAnchor, .thumbIntermediateBase, leftHandModelEntity.thumbIntermediateBaseModelEntity.transform)
-            leftHandModelEntity.indexFingerTipModelEntity.transform = getTransform(leftHandAnchor, .indexFingerTip, leftHandModelEntity.indexFingerTipModelEntity.transform)
-            leftHandModelEntity.rocketEntity.transform = getTransform(leftHandAnchor, .middleFingerMetacarpal, leftHandModelEntity.rocketEntity.transform)
-            leftHandModelEntity.rocketEntity.transform.rotation *= simd_quatf(angle: .pi, axis: SIMD3<Float>(0, 1, 0))
+            handModelEntity.thumbIntermediateBaseModelEntity.transform = getTransform(leftHandAnchor, .thumbIntermediateBase, handModelEntity.thumbIntermediateBaseModelEntity.transform)
+            handModelEntity.indexFingerTipModelEntity.transform = getTransform(leftHandAnchor, .indexFingerTip, handModelEntity.indexFingerTipModelEntity.transform)
+            handRocketEntity.transform = getTransform(leftHandAnchor, .middleFingerMetacarpal, handRocketEntity.transform)
+            handRocketEntity.transform.rotation *= simd_quatf(angle: .pi, axis: SIMD3<Float>(0, 1, 0))
             
             
             if !isFistShowing {
@@ -139,9 +145,9 @@ extension ShoulderStretchingViewModel {
     
     func addRightHandAnchor() {
         let modelEntities = [
-            rightHandModelEntity.indexFingerTipModelEntity,
-            rightHandModelEntity.thumbIntermediateBaseModelEntity,
-            rightHandModelEntity.rocketEntity
+            handModelEntity.indexFingerTipModelEntity,
+            handModelEntity.thumbIntermediateBaseModelEntity,
+            handRocketEntity
         ]
         
         for entity in modelEntities {
@@ -152,9 +158,9 @@ extension ShoulderStretchingViewModel {
     
     func addLeftHandAnchor() {
         let modelEntities = [
-            leftHandModelEntity.indexFingerTipModelEntity,
-            leftHandModelEntity.thumbIntermediateBaseModelEntity,
-            leftHandModelEntity.rocketEntity
+            handModelEntity.indexFingerTipModelEntity,
+            handModelEntity.thumbIntermediateBaseModelEntity,
+            handRocketEntity
         ]
         
         for entity in modelEntities {

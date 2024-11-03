@@ -21,20 +21,26 @@ final class ShoulderStretchingViewModel {
     let session = ARKitSession()
     var handTrackingProvider = HandTrackingProvider()
     var latestHandTracking: HandsUpdates = .init(left: nil, right: nil)
-    let rightHandModelEntity = HandModelEntity()
-    let leftHandModelEntity = HandModelEntity()
+    let handModelEntity = HandModelEntity()
+    var entryRocketEntity = Entity()
+    var handRocketEntity = Entity()
+    var shoulderTimerEntity = Entity()
+    private var starModelEntity: ModelEntity?
     
     var isFistShowing: Bool = false
     var isFirstPositioning: Bool = true
     var isRightDone: Bool = false
+    var isEntryEnd = false
+
     var rightHandTransform = Transform()
+    var entryRocketTransForm = Transform()
+    private var shoulderTimerPoint = SIMD3<Float>()
+
     // 별 모델 + 타이머
     private(set) var numberOfObjects: Int = 9
-    private var lastStarEntityTransform = Transform() //ShoulderTimer의 위치를 잡기 위한 변수
-    private var shoulderTimerPoint = SIMD3<Float>()
-    var timerController: AnimationPlaybackController?
-    var shoulderTimerEntity = Entity()
     private(set) var expectedNextNumber = 0
+    private(set) var timerController: AnimationPlaybackController?
+
     
     deinit {
         dump("\(self) deinited")
@@ -61,6 +67,25 @@ final class ShoulderStretchingViewModel {
             entity.removeFromParent()
         }
         handEntities = []
+    }
+    
+    func loadStarModelEntity() async {
+        if let starEntity = try? await Entity(named: "Shoulder/StarScene.usda", in: realityKitContentBundle) {
+            guard let starModelEntity = starEntity.findEntity(named: "Star") as? ModelEntity else { return }
+            
+            //TODO: 에셋자체를 회색으로 바꾸거나 UIColor로 디자인 색상 지정
+            let material = SimpleMaterial(color: .gray, isMetallic: false)
+            guard let mesh = starModelEntity.components[ModelComponent.self]?.mesh else {
+                debugPrint("no mesh found")
+                return
+            }
+            let modelComponent = ModelComponent(mesh: mesh, materials: [material])
+            starModelEntity.components.set(modelComponent)
+            
+            starModelEntity.generateCollisionShapes(recursive: false)
+            
+            self.starModelEntity = starModelEntity
+        }
     }
     
     // 어깨 중심을 기준으로 포물선 경로의 좌표를 생성하는 함수
@@ -108,34 +133,17 @@ final class ShoulderStretchingViewModel {
         let entityName = isRightSide ? "rightModelEntity" : "leftModelEntity"
         
         for (idx, point) in points.enumerated() {
-            Task {
                 // 마지막 인덱스 일때
                 if idx == numberOfObjects - 1 {
                     shoulderTimerPoint = point
                     return
                 }
-                
-                if let starEntity = try? await Entity(named: "Shoulder/StarScene.usda", in: realityKitContentBundle) {
-                    guard let starModelEntity = starEntity.findEntity(named: "Star") as? ModelEntity else { return }
-                    
-                    //TODO: 에셋자체를 회색으로 바꾸거나 UIColor로 디자인 색상 지정
-                    let material = SimpleMaterial(color: .gray, isMetallic: false)
-                    guard let mesh = starModelEntity.components[ModelComponent.self]?.mesh else {
-                        debugPrint("no mesh found")
-                        return
-                    }
-                    let modelComponent = ModelComponent(mesh: mesh, materials: [material])
-                    starModelEntity.components.set(modelComponent)
-
-                    starModelEntity.generateCollisionShapes(recursive: false)
-                    starModelEntity.name = "\(entityName)-\(idx)"
-                    starModelEntity.position = point
-                    starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
-                    
-                    modelEntities.append(starModelEntity)
-                    contentEntity.addChild(starModelEntity)
-                }
-            }
+            guard let starModelEntity = self.starModelEntity?.clone(recursive: true) else { return }
+                starModelEntity.name = "\(entityName)-\(idx)"
+                starModelEntity.position = point
+                starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
+                modelEntities.append(starModelEntity)
+                contentEntity.addChild(starModelEntity)
         }
     }
     
@@ -149,9 +157,6 @@ final class ShoulderStretchingViewModel {
         // 어깨 중심 위치 (어깨는 손의 위치에 맞추어 설정)
         let rightShoulderPosition = simd_float3(rightHandTranslation.x, rightHandTranslation.y, 0.0)
         let leftShoulderPosition = simd_float3(-rightShoulderPosition.x, rightHandTranslation.y, 0.0)
-        
-        // 손이 원점 기준으로 오른쪽에 있는지 왼쪽에 있는지에 따라 isRightSide를 결정
-//        let isRightSide = handTranslation.x > 0
         
         if !isRightDone {
             let rightPoints = generateUniformEllipseArcPoints(
@@ -248,8 +253,41 @@ final class ShoulderStretchingViewModel {
                 
                 contentEntity.addChild(shoulderTimerEntity)
                 modelEntities.append(shoulderTimerEntity)
-//                playAnimation(animationEntity: shoulderTimerEntity)
             }
         }
+    }
+    
+    func setEntryRocket() async {
+        if let rootEntity = try? await Entity(named: "Shoulder/RocketScene.usda", in: realityKitContentBundle) {
+            entryRocketEntity = rootEntity
+            entryRocketEntity.name = "EntryRocket"
+            entryRocketEntity.position = .init(x: 0, y: 1, z: -1)
+            entryRocketEntity.transform.scale = .init(x: 0.1, y: 0.1, z: 0.1)
+            entryRocketEntity.transform.rotation = .init(angle: .pi/2, axis: .init(x: 0, y: 1, z: 0))
+            entryRocketTransForm = entryRocketEntity.transform
+            contentEntity.addChild(entryRocketEntity)
+        }
+    }
+    
+    func playEntryRocketAnimation() {
+        let goInDirection = FromToByAnimation<Transform> (
+            name: "EntryRocket",
+            from: entryRocketTransForm,
+            to: rightHandTransform,
+            duration: 2,
+            bindTarget: .transform
+        )
+        
+        do {
+            let animation = try AnimationResource.generate(with: goInDirection)
+            entryRocketEntity.playAnimation(animation, transitionDuration: 2)
+        } catch {
+            debugPrint("Error generating animation: \(error)")
+        }
+    }
+    
+    func setHandRocketEntity() {
+        handRocketEntity = entryRocketEntity.clone(recursive: true)
+        handRocketEntity.name = "handRocket"
     }
 }
