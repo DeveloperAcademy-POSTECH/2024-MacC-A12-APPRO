@@ -79,7 +79,7 @@ struct APPROApp: App {
         }
         
         ImmersiveSpace(id: appState.immersiveSpaceID) {
-            switch appState.currentStretching {
+            switch appState.currentStretchingPart {
             case .eyes:
                 EmptyView()
             case .shoulder:

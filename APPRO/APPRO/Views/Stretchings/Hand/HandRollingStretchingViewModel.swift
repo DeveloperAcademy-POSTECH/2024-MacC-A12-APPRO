@@ -121,7 +121,7 @@ final class HandRollingStretchingViewModel {
     
     func bringTargetEntities (_ targetRotationCounts: [Int], chirality: Chirality) async -> [Entity] {
         var targetTransforms = chirality == .left ? await getLeftHandTargetTransform() : await getRightHandTargetTransform()
-        let resourceUrl = chirality == .left ? "Hand/target_blue" : "Hand/target_green"
+        let resourceUrl = chirality == .left ? "Hand/target_new_blue" : "Hand/target_new_green"
         
         var result: [Entity] = []
         
@@ -145,7 +145,7 @@ final class HandRollingStretchingViewModel {
     
     
     private func getRightHandTargetTransform() async -> [Transform] {
-        guard let greenTargetEntity = try? await Entity(named: "Hand/target_green", in: realityKitContentBundle) else { return [Transform()] }
+        guard let greenTargetEntity = try? await Entity(named: "Hand/target_new_green", in: realityKitContentBundle) else { return [Transform()] }
         
         let originalTransform = greenTargetEntity.transform
         
@@ -166,7 +166,7 @@ final class HandRollingStretchingViewModel {
     }
     
     private func getLeftHandTargetTransform() async -> [Transform] {
-        guard let greenTargetEntity = try? await Entity(named: "Hand/target_blue", in: realityKitContentBundle) else { return [Transform()] }
+        guard let greenTargetEntity = try? await Entity(named: "Hand/target_new_blue", in: realityKitContentBundle) else { return [Transform()] }
         
         let originalTransform = greenTargetEntity.transform
         
