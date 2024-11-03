@@ -25,6 +25,7 @@ final class ShoulderStretchingViewModel {
     var entryRocketEntity = Entity()
     var handRocketEntity = Entity()
     var shoulderTimerEntity = Entity()
+    private var starModelEntity: ModelEntity?
     
     var isFistShowing: Bool = false
     var isFirstPositioning: Bool = true
@@ -39,7 +40,6 @@ final class ShoulderStretchingViewModel {
     private(set) var numberOfObjects: Int = 9
     private(set) var expectedNextNumber = 0
     private(set) var timerController: AnimationPlaybackController?
-    
 
     
     deinit {
@@ -67,6 +67,25 @@ final class ShoulderStretchingViewModel {
             entity.removeFromParent()
         }
         handEntities = []
+    }
+    
+    func loadStarModelEntity() async {
+        if let starEntity = try? await Entity(named: "Shoulder/StarScene.usda", in: realityKitContentBundle) {
+            guard let starModelEntity = starEntity.findEntity(named: "Star") as? ModelEntity else { return }
+            
+            //TODO: 에셋자체를 회색으로 바꾸거나 UIColor로 디자인 색상 지정
+            let material = SimpleMaterial(color: .gray, isMetallic: false)
+            guard let mesh = starModelEntity.components[ModelComponent.self]?.mesh else {
+                debugPrint("no mesh found")
+                return
+            }
+            let modelComponent = ModelComponent(mesh: mesh, materials: [material])
+            starModelEntity.components.set(modelComponent)
+            
+            starModelEntity.generateCollisionShapes(recursive: false)
+            
+            self.starModelEntity = starModelEntity
+        }
     }
     
     // 어깨 중심을 기준으로 포물선 경로의 좌표를 생성하는 함수
@@ -114,34 +133,17 @@ final class ShoulderStretchingViewModel {
         let entityName = isRightSide ? "rightModelEntity" : "leftModelEntity"
         
         for (idx, point) in points.enumerated() {
-            Task {
                 // 마지막 인덱스 일때
                 if idx == numberOfObjects - 1 {
                     shoulderTimerPoint = point
                     return
                 }
-                
-                if let starEntity = try? await Entity(named: "Shoulder/StarScene.usda", in: realityKitContentBundle) {
-                    guard let starModelEntity = starEntity.findEntity(named: "Star") as? ModelEntity else { return }
-                    
-                    //TODO: 에셋자체를 회색으로 바꾸거나 UIColor로 디자인 색상 지정
-                    let material = SimpleMaterial(color: .gray, isMetallic: false)
-                    guard let mesh = starModelEntity.components[ModelComponent.self]?.mesh else {
-                        debugPrint("no mesh found")
-                        return
-                    }
-                    let modelComponent = ModelComponent(mesh: mesh, materials: [material])
-                    starModelEntity.components.set(modelComponent)
-
-                    starModelEntity.generateCollisionShapes(recursive: false)
-                    starModelEntity.name = "\(entityName)-\(idx)"
-                    starModelEntity.position = point
-                    starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
-                    
-                    modelEntities.append(starModelEntity)
-                    contentEntity.addChild(starModelEntity)
-                }
-            }
+            guard let starModelEntity = self.starModelEntity?.clone(recursive: true) else { return }
+                starModelEntity.name = "\(entityName)-\(idx)"
+                starModelEntity.position = point
+                starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
+                modelEntities.append(starModelEntity)
+                contentEntity.addChild(starModelEntity)
         }
     }
     
