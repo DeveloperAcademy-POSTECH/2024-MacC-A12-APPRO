@@ -14,7 +14,7 @@ struct StretchingProcessView: View {
     @Environment(\.scenePhase) private var scenePhase
     
     var body: some View {
-        if let stretching = appState.currentStretching {
+        if let stretchingPart = appState.currentStretchingPart {
             VStack(spacing: 20) {
                 ZStack(alignment: .center) {
                     HStack {
@@ -25,11 +25,11 @@ struct StretchingProcessView: View {
                         
                         Spacer()
                     }
-                    Text("\(stretching.title) Stretch")
+                    Text("\(stretchingPart.title) Stretch")
                         .font(.largeTitle)
                 }
                 
-                if stretching == .eyes || stretching == .wrist {
+                if stretchingPart == .eyes || stretchingPart == .wrist {
                     Text("Score")
                         .font(.title)
                         .opacity(0.96)
@@ -71,7 +71,8 @@ struct StretchingProcessView: View {
 #Preview(windowStyle: .plain) {
     let appState = AppState()
     
-    appState.appPhase = .isStretching(.shoulder)
+    appState.appPhase = .stretching
+    appState.currentStretchingPart = .shoulder
     
     return StretchingProcessView()
         .environment(appState)

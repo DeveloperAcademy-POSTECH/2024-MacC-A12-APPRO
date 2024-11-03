@@ -14,23 +14,19 @@ final class AppState {
     
     let stretchingPartsWindowID = "StretchingPartsWindow"
     let stretchingProcessWindowID = "StretchingProcessWindow"
+    let stretchingTutorialWindowID = "StretchingTutorialWindow"
     let immersiveSpaceID = "StretchingSpace"
     
     var appPhase: AppPhase = .choosingStretchingPart
     
-    var currentStretching: Stretching? {
-        if case .isStretching(let stretching) = appPhase {
-            return stretching
-        } else {
-            return nil
-        }
-    }
+    var currentStretchingPart: StretchingPart? = nil
+    var tutorialManager: TutorialManager? = nil
     
     var doneCount = 0
     private(set) var maxCount = 0
     
     func resetStretchingCount() {
-        if let stretching = currentStretching {
+        if let stretching = currentStretchingPart {
             doneCount = 0
             maxCount = (stretching == .eyes || stretching == .wrist) ? 12 : 3
         } else {
