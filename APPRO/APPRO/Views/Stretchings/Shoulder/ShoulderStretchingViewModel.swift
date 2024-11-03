@@ -288,6 +288,6 @@ final class ShoulderStretchingViewModel {
     
     func setHandRocketEntity() {
         handRocketEntity = entryRocketEntity.clone(recursive: true)
-        handRocketEntity.name = "rightHandRocket"
+        handRocketEntity.name = "handRocket"
     }
 }

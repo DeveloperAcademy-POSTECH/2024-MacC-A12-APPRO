@@ -23,8 +23,8 @@ struct ShoulderStretchingView: View {
         }
         .upperLimbVisibility(.hidden)
         .ignoresSafeArea()
-        .onAppear() {
-           
+        .task {
+            await viewModel.loadStarModelEntity()
         }
         .task {
             await viewModel.startHandTrackingSession()
