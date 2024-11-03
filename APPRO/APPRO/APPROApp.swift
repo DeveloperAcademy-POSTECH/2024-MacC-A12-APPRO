@@ -22,36 +22,61 @@ struct APPROApp: App {
         WindowGroup(id: appState.stretchingPartsWindowID) {
             StretchingPartsView()
                 .environment(appState)
+                .onAppear {
+                    dismissWindow(id: appState.stretchingTutorialWindowID)
+                    dismissWindow(id: appState.stretchingProcessWindowID)
+                }
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
-        .defaultWindowPlacement { content, context in
-            guard let stretchingProcessWindow = context.windows.first(where: { $0.id == appState.stretchingProcessWindowID }) else { return .init(.none) }
+        .defaultWindowPlacement { _, context in
+            guard let previousWindow = context.windows.first else { return WindowPlacement(.none) }
             
-            return .init(.leading(stretchingProcessWindow))
+            return WindowPlacement(.above(previousWindow))
+        }
+        .onChange(of: appState.appPhase.isImmersed) { _, isImmersed in
+            Task {
+                if isImmersed {
+                    await openImmersiveSpace(id: appState.immersiveSpaceID)
+                } else {
+                    await dismissImmersiveSpace()
+                }
+            }
         }
         .onChange(of: appState.appPhase) { _, newPhase in
-            switch newPhase {
-            case .choosingStretchingPart:
-                configureChoosingStretchingPartScene()
-            case .isStretching(_):
-                configureStretchingScene()
-            }
+            handleAppPhase(newPhase)
         }
         
         WindowGroup(id: appState.stretchingProcessWindowID) {
-            if appState.currentStretching != nil {
-                StretchingProcessView()
-                    .environment(appState)
-            }
+            StretchingProcessView()
+                .environment(appState)
+                .onAppear {
+                    dismissWindow(id: appState.stretchingPartsWindowID)
+                    dismissWindow(id: appState.stretchingTutorialWindowID)
+                }
         }
         .windowStyle(.plain)
-        .defaultWindowPlacement { _, context in
-            guard let stretchingPartsWindow = context.windows.first(where: { $0.id == appState.stretchingPartsWindowID }) else { return .init(.none) }
-            
-            return .init(.trailing(stretchingPartsWindow))
-        }
         .windowResizability(.contentSize)
+        .defaultWindowPlacement { _, _ in
+            return WindowPlacement(.utilityPanel)
+        }
+        
+        WindowGroup(id: appState.stretchingTutorialWindowID) {
+            TutorialView()
+                .environment(appState)
+                .onAppear {
+                    dismissWindow(id: appState.stretchingPartsWindowID)
+                }
+                .onChange(of: appState.tutorialManager?.isCompleted) { _, isCompleted in
+                    appState.currentStretchingPart = appState.tutorialManager!.stretchingPart
+                    appState.appPhase = .stretching
+                }
+        }
+        .windowStyle(.plain)
+        .windowResizability(.contentSize)
+        .defaultWindowPlacement { _, _ in
+            return WindowPlacement(.utilityPanel)
+        }
         
         ImmersiveSpace(id: appState.immersiveSpaceID) {
             switch appState.currentStretching {
@@ -68,19 +93,22 @@ struct APPROApp: App {
         .immersionStyle(selection: .constant(.mixed), in: .mixed)
     }
     
-    private func configureChoosingStretchingPartScene() {
-        Task {
+    private func handleAppPhase(_ appPhase: AppPhase) {
+        switch appPhase {
+        case .choosingStretchingPart:
             openWindow(id: appState.stretchingPartsWindowID)
-            dismissWindow(id: appState.stretchingProcessWindowID)
-            await dismissImmersiveSpace()
-        }
-    }
-    
-    private func configureStretchingScene() {
-        Task {
+        case .stretching:
             openWindow(id: appState.stretchingProcessWindowID)
-            await openImmersiveSpace(id: appState.immersiveSpaceID)
-            dismissWindow(id: appState.stretchingPartsWindowID)
+        case .tutorial:
+            // TODO: 각 스트레칭 부위별 TutorialManager 분기
+            let tutorialManager = TutorialManager.sampleTutorialManager
+            
+            if tutorialManager.isSkipped {
+                appState.appPhase = .stretching
+            } else {
+                appState.tutorialManager = tutorialManager
+                openWindow(id: appState.stretchingTutorialWindowID)
+            }
         }
     }
     

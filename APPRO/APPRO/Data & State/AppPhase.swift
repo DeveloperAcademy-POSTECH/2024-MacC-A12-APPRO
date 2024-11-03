@@ -10,13 +10,14 @@ import Foundation
 enum AppPhase: Sendable, Equatable {
     
     case choosingStretchingPart
-    case isStretching(Stretching)
+    case tutorial
+    case stretching
     
     var isImmersed: Bool {
         switch self {
         case .choosingStretchingPart:
             return false
-        case .isStretching:
+        case .tutorial, .stretching:
             return true
         }
     }
