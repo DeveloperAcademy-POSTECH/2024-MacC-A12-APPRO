@@ -15,8 +15,7 @@
     "objectMetadataList" : [
       [
         "1D572CEB-057A-41C3-B575-04C37501A3C0",
-        "Root",
-        "Sphere_Right"
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -24,7 +23,8 @@
       },
       [
         "1D572CEB-057A-41C3-B575-04C37501A3C0",
-        "Root"
+        "Root",
+        "Sphere_Right"
       ],
       {
         "isExpanded" : true,
@@ -43,37 +43,6 @@
         "1D572CEB-057A-41C3-B575-04C37501A3C0",
         "Root",
         "Sphere_Left"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      }
-    ]
-  },
-  "40999400-94CF-4EA8-9DAF-D6FEAE63B933" : {
-    "objectMetadataList" : [
-      [
-        "40999400-94CF-4EA8-9DAF-D6FEAE63B933",
-        "Root",
-        "star",
-        "_______"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "40999400-94CF-4EA8-9DAF-D6FEAE63B933",
-        "Root"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "40999400-94CF-4EA8-9DAF-D6FEAE63B933",
-        "Root",
-        "star"
       ],
       {
         "isExpanded" : true,
@@ -106,6 +75,15 @@
     "objectMetadataList" : [
       [
         "645E6206-B47E-4056-8323-678B5F5EE1BA",
+        "root",
+        "wrist_ring"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "645E6206-B47E-4056-8323-678B5F5EE1BA",
         "root"
       ],
       {
@@ -115,7 +93,7 @@
       [
         "645E6206-B47E-4056-8323-678B5F5EE1BA",
         "root",
-        "wrist_ring"
+        "_materials"
       ],
       {
         "isExpanded" : true,
@@ -126,6 +104,16 @@
         "root",
         "wrist_ring",
         "ring_collide1"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "645E6206-B47E-4056-8323-678B5F5EE1BA",
+        "root",
+        "_materials",
+        "Material_001"
       ],
       {
         "isExpanded" : true,
@@ -166,6 +154,77 @@
       }
     ]
   },
+  "77D00E37-70BB-4AB7-965D-A5B92718CF39" : {
+    "objectMetadataList" : [
+      [
+        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
+        "root",
+        "target_blue",
+        "Cylinder_002"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
+        "root",
+        "target_blue"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
+        "root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      }
+    ]
+  },
+  "81AB5445-6831-4214-BA19-7D51459B6C0E" : {
+    "objectMetadataList" : [
+      [
+        "81AB5445-6831-4214-BA19-7D51459B6C0E",
+        "root",
+        "target_green"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "81AB5445-6831-4214-BA19-7D51459B6C0E",
+        "root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "81AB5445-6831-4214-BA19-7D51459B6C0E",
+        "root",
+        "target_green",
+        "Cylinder_002"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "81AB5445-6831-4214-BA19-7D51459B6C0E",
+        "root",
+        "_materials"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      }
+    ]
+  },
   "95052448-183C-40B5-9E52-3717AF9B48FA" : {
     "objectMetadataList" : [
       [
@@ -196,9 +255,7 @@
       },
       [
         "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
-        "root",
-        "Empty",
-        "Spiral_0"
+        "root"
       ],
       {
         "isExpanded" : true,
@@ -206,39 +263,9 @@
       },
       [
         "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
-        "root"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      }
-    ]
-  },
-  "ADCB3503-BD59-4B77-AEB0-CA9E6B440C86" : {
-    "objectMetadataList" : [
-      [
-        "ADCB3503-BD59-4B77-AEB0-CA9E6B440C86",
-        "Root",
-        "shoulderrocketsmall",
-        "Materials"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "ADCB3503-BD59-4B77-AEB0-CA9E6B440C86",
-        "Root",
-        "shoulderrocketsmall",
-        "rocket"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "ADCB3503-BD59-4B77-AEB0-CA9E6B440C86",
-        "Root"
+        "root",
+        "Empty",
+        "Spiral_0"
       ],
       {
         "isExpanded" : true,

@@ -79,7 +79,7 @@ extension HandRollingStretchingViewModel {
         let forwardDirection = multiplication.columns.0 // x axis
         let direction = simd_float3(forwardDirection.x, forwardDirection.y, forwardDirection.z)
         
-        let moveTargetPosition = chirality == .left ? entity.position - direction * 1.0 : entity.position + direction * 1.0
+        let moveTargetPosition = chirality == .left ? entity.position - direction * 1.5 : entity.position + direction * 1.5
         
         var shortTransform = entity.transform
         shortTransform.scale = .init(repeating: 0.1)

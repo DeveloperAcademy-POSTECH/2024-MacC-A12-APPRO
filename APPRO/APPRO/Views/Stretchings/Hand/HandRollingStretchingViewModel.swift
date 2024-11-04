@@ -94,18 +94,7 @@ final class HandRollingStretchingViewModel {
         guideRingEntity.name = chirality == .right ?  "Ring_Right" : "Ring_Left"
         
         if chirality == .left {
-            guard let modelEntity = guideRingEntity.findEntity(named: "Torus") else {return guideRingEntity}
-            
-            guard var modelComponent = modelEntity.components[ModelComponent.self],
-                  var shaderGraphMaterial = modelComponent.materials.first as? ShaderGraphMaterial
-            else { return guideRingEntity }
-            
-            do {
-                try shaderGraphMaterial.setParameter(name: "RingColor", value: .int(1))
-                modelComponent.materials = [shaderGraphMaterial]
-                modelEntity.components.set(modelComponent)
-            } catch {}
-            
+            getDifferentRingColor(guideRingEntity, intChangeTo: 1)
         }
         
         return guideRingEntity
@@ -115,13 +104,14 @@ final class HandRollingStretchingViewModel {
         let guideSphereEntity = ModelEntity(mesh: .generateSphere(radius: 0.02), materials: [SimpleMaterial(color: .red, roughness: 0.0, isMetallic: false)]) // var to let
         guideSphereEntity.name = chirality == .right ? "GuideSphere_Right" : "GuideSphere_Left"
         guideSphereEntity.generateCollisionShapes(recursive: false)
+        guideSphereEntity.scale = .init(repeating: 0.7)
         
         return guideSphereEntity
     }
     
     func bringTargetEntities (_ targetRotationCounts: [Int], chirality: Chirality) async -> [Entity] {
         var targetTransforms = chirality == .left ? await getLeftHandTargetTransform() : await getRightHandTargetTransform()
-        let resourceUrl = chirality == .left ? "Hand/target_blue" : "Hand/target_green"
+        let resourceUrl = chirality == .left ? "Hand/target_new_blue" : "Hand/target_new_green"
         
         var result: [Entity] = []
         
@@ -145,7 +135,7 @@ final class HandRollingStretchingViewModel {
     
     
     private func getRightHandTargetTransform() async -> [Transform] {
-        guard let greenTargetEntity = try? await Entity(named: "Hand/target_green", in: realityKitContentBundle) else { return [Transform()] }
+        guard let greenTargetEntity = try? await Entity(named: "Hand/target_new_green", in: realityKitContentBundle) else { return [Transform()] }
         
         let originalTransform = greenTargetEntity.transform
         
@@ -166,7 +156,7 @@ final class HandRollingStretchingViewModel {
     }
     
     private func getLeftHandTargetTransform() async -> [Transform] {
-        guard let greenTargetEntity = try? await Entity(named: "Hand/target_blue", in: realityKitContentBundle) else { return [Transform()] }
+        guard let greenTargetEntity = try? await Entity(named: "Hand/target_new_blue", in: realityKitContentBundle) else { return [Transform()] }
         
         let originalTransform = greenTargetEntity.transform
         
@@ -198,6 +188,20 @@ final class HandRollingStretchingViewModel {
         let rotationZQuat = simd_quatf(angle: rotationZ, axis: localZAxis)
         
         return currentRotation * rotationXQuat * rotationYQuat * rotationZQuat
+    }
+    
+    func getDifferentRingColor(_ ringEntity : Entity, intChangeTo: Int32) {
+        guard let modelEntity = ringEntity.findEntity(named: "Torus") else {return }
+
+        guard var modelComponent = modelEntity.components[ModelComponent.self],
+              var shaderGraphMaterial = modelComponent.materials.first as? ShaderGraphMaterial
+        else { return  }
+
+        do {
+            try shaderGraphMaterial.setParameter(name: "RingColor", value: .int(intChangeTo) )
+            modelComponent.materials = [shaderGraphMaterial]
+            modelEntity.components.set(modelComponent)
+        } catch {}
     }
 }
 

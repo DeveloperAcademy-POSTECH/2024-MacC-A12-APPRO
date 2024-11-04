@@ -53,9 +53,9 @@ extension HandRollingStretchingViewModel {
                 }
             }
             
-            if entityA.name == "Spiral" && entityB.name == "Cylinder_009" {
+            if entityA.name == "Spiral" && entityB.name == "Cylinder_002" {
                 self.spiralCollisionHandler(spiral: entityA, target: entityB)
-            } else if entityB.name == "Spiral" && entityA.name == "Cylinder_009" {
+            } else if entityB.name == "Spiral" && entityA.name == "Cylinder_002" {
                 self.spiralCollisionHandler(spiral: entityB, target: entityA)
             }
         }
