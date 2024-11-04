@@ -86,6 +86,15 @@ struct HandRollingStretchingView: View {
                 viewModel.leftEntities.removeAll()
             }
         }
+        .onChange(of: viewModel.rightRotationCount, initial: false) { _, newValue in
+            let colorValueChangedTo = min (newValue * 2, 6)
+            viewModel.getDifferentRingColor(viewModel.rightGuideRing, intChangeTo: Int32(colorValueChangedTo))
+            
+        }
+        .onChange(of: viewModel.leftRotationCount, initial: false ) { _, newValue in
+            let colorValueChangedTo = min (newValue * 2 + 1, 7)
+            viewModel.getDifferentRingColor(viewModel.leftGuideRing, intChangeTo: Int32(colorValueChangedTo))
+        }
         .onChange(of: viewModel.leftTargetEntities.count, initial: false ) { oldNumber, newNumber in
             if oldNumber > newNumber {
                 viewModel.score += 1
