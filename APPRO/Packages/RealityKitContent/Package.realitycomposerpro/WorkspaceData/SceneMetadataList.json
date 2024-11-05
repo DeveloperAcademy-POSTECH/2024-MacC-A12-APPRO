@@ -93,15 +93,6 @@
       [
         "645E6206-B47E-4056-8323-678B5F5EE1BA",
         "root",
-        "_materials"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "645E6206-B47E-4056-8323-678B5F5EE1BA",
-        "root",
         "wrist_ring",
         "ring_collide1"
       ],
@@ -114,6 +105,15 @@
         "root",
         "_materials",
         "Material_001"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "645E6206-B47E-4056-8323-678B5F5EE1BA",
+        "root",
+        "_materials"
       ],
       {
         "isExpanded" : true,
@@ -158,6 +158,45 @@
     "objectMetadataList" : [
       [
         "77D00E37-70BB-4AB7-965D-A5B92718CF39",
+        "root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
+        "root",
+        "_materials"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
+        "root",
+        "_materials",
+        "blue_body"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
+        "root",
+        "target_blue",
+        "Cylinder_002",
+        "blue_line"
+      ],
+      {
+        "disallowsFraming" : false,
+        "isExpanded" : false,
+        "isLocked" : false
+      },
+      [
+        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
         "root",
         "target_blue",
         "Cylinder_002"
@@ -177,7 +216,19 @@
       },
       [
         "77D00E37-70BB-4AB7-965D-A5B92718CF39",
-        "root"
+        "root",
+        "SkyDome"
+      ],
+      {
+        "disallowsFraming" : true,
+        "isExpanded" : false,
+        "isLocked" : false
+      },
+      [
+        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
+        "root",
+        "_materials",
+        "blue_line"
       ],
       {
         "isExpanded" : true,
@@ -190,7 +241,18 @@
       [
         "81AB5445-6831-4214-BA19-7D51459B6C0E",
         "root",
-        "target_green"
+        "_materials",
+        "green_line"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "81AB5445-6831-4214-BA19-7D51459B6C0E",
+        "root",
+        "_materials",
+        "green_body"
       ],
       {
         "isExpanded" : true,
@@ -209,6 +271,15 @@
         "root",
         "target_green",
         "Cylinder_002"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "81AB5445-6831-4214-BA19-7D51459B6C0E",
+        "root",
+        "target_green"
       ],
       {
         "isExpanded" : true,
@@ -246,15 +317,6 @@
     "objectMetadataList" : [
       [
         "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
-        "root",
-        "Empty"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
         "root"
       ],
       {
@@ -266,6 +328,15 @@
         "root",
         "Empty",
         "Spiral_0"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
+        "root",
+        "Empty"
       ],
       {
         "isExpanded" : true,
