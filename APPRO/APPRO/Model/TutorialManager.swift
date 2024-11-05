@@ -13,11 +13,12 @@ class TutorialManager {
     
     let stretchingPart: StretchingPart
     
-    private(set) var steps: [TutorialStep] = []
+    private(set) var steps: [TutorialStep] = [.init(instruction: "default", isCompleted: { true })]
     private var currentStepIndex = 0
     private var userDefulatsKey: String {
         "\(stretchingPart)TutorialSkipped"
     }
+    var isNextEnabled: Bool = false
     
     init(stretching: StretchingPart) {
         self.stretchingPart = stretching
@@ -41,13 +42,13 @@ class TutorialManager {
     
     func advanceToNextStep() {
         currentStepIndex += 1
+        isNextEnabled = false
     }
     
     func skip() {
         UserDefaults.standard.setValue(true, forKey: userDefulatsKey)
         currentStepIndex = steps.count
     }
-    
 }
 
 extension TutorialManager {

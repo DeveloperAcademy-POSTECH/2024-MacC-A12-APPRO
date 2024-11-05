@@ -9,8 +9,8 @@ import SwiftUI
 
 struct TutorialView: View {
     
-    @Environment(AppState.self) private var appState
-    
+    @Environment(AppState.self) var appState
+    @Environment(\.scenePhase) var scenePhase
     @State private var showSkipAlert = false
     
     var body: some View {
@@ -39,7 +39,7 @@ struct TutorialView: View {
                     tutorialManager.advanceToNextStep()
                 }
                 .font(.title3)
-                .disabled(!tutorialManager.currentStep.isCompleted())
+                .disabled(!tutorialManager.isNextEnabled)
             }
             .frame(width: 800, height: 300)
             .padding(32)
@@ -52,6 +52,16 @@ struct TutorialView: View {
                 Text("Start the content right away.\nNever show tutorial again.")
             }
             .glassBackgroundEffect()
+            .onChange(of: scenePhase) { _, scenePhase in
+                switch scenePhase {
+                case .inactive, .background:
+                    appState.appPhase = .choosingStretchingPart
+                default:
+                    break
+                }
+            }
+        } else {
+            Text("No Tutorial is Available")
         }
     }
     
