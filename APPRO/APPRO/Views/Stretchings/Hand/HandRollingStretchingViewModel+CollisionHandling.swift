@@ -132,9 +132,7 @@ extension HandRollingStretchingViewModel {
     private func getWrongTargetColorChange (_ targetEntity: ModelEntity, chirality: Chirality, intChangeTo: Int32) {
         guard var modelComponent = targetEntity.components[ModelComponent.self] else { return }
         
-        guard let shaderGraphMaterial = modelComponent.materials as? [ShaderGraphMaterial] else {
-            print("there is no material for this entity \(targetEntity)")
-            return }
+        guard let shaderGraphMaterial = modelComponent.materials as? [ShaderGraphMaterial] else { return }
         
         var materialArray: [ShaderGraphMaterial] = []
         
@@ -143,9 +141,7 @@ extension HandRollingStretchingViewModel {
                 var shaderMaterial = material
                 try shaderMaterial.setParameter(name: "TargetColor", value: .int(intChangeTo) )
                 materialArray.append(shaderMaterial)
-            } catch {
-                print("Couldnot find Model Entity")
-            }
+            } catch {}
         }
         
         modelComponent.materials = materialArray
