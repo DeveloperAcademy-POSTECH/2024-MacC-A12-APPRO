@@ -25,6 +25,7 @@ struct ShoulderStretchingTutorialView: View {
     @State private var isColliding: Bool = false
     @State private var currentStep: ShoulderTutorialStep = .step0
     @State private var realityContent: RealityViewContent?
+    @State private var hasStarModelCreated: Bool = false
     
     var body: some View {
         RealityView { content in
@@ -33,6 +34,7 @@ struct ShoulderStretchingTutorialView: View {
             viewModel.contentEntity.addChild(textEntity)
             realityContent = content
             checkTutorialStep(content: content)
+
         } update: { content in
             switch currentStep {
             case .step0:
@@ -42,6 +44,7 @@ struct ShoulderStretchingTutorialView: View {
                 // TODO: minimumDistance 조정 필요
                 viewModel.computEntryRocketForTutorial(minimumDistance: 0.4)
             case .step2, .step3:
+                viewModel.computeTransformForTutorial()
             }
         }
         .onAppear() {
@@ -72,6 +75,15 @@ struct ShoulderStretchingTutorialView: View {
             guard let content = realityContent else { return }
             checkTutorialStep(content: content)
         }
+        // step2에서 Star 모델이 생성이 됨을 감지 하기 위한 로직
+        .onChange(of: viewModel.modelEntities) { oldValue, newValue in
+            if currentStep == .step2 && !hasStarModelCreated && !newValue.isEmpty {
+                hasStarModelCreated = true
+                appState.tutorialManager?.isNextEnabled = true
+            }
+        }
+    }
+    
     // 각 단계에서 넘어갈때 한번만 실행 되는 메서드
     func checkTutorialStep(content: RealityViewContent) {
         switch currentStep {
@@ -92,9 +104,11 @@ struct ShoulderStretchingTutorialView: View {
                     currentStep = .step1
                 }
             }
+            
             // 엔트리 로켓 띄워지고 손뻗으라는 가이드 or 주먹을 쥐고 별을 생성할 수 있고 경로를 재설정 할 수 있다는 가이드
         case .step1, .step2:
             break
+
             // 별을 순차적으로 터치해서 마지막에 타이머에서 5초 안내
             // step3로 갔을때 별을 다시 생성
         case .step3:
@@ -189,3 +203,4 @@ struct ShoulderStretchingTutorialView: View {
 #Preview {
     ShoulderStretchingView()
 }
+
