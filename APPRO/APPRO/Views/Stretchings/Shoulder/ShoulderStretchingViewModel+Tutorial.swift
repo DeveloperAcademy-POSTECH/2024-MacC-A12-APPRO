@@ -34,4 +34,42 @@ extension ShoulderStretchingViewModel {
             isEntryEnd = true
         }
     }
+    
+    func computeTransformForTutorial() {
+        guard let rightHandAnchor = latestHandTracking.right,
+              rightHandAnchor.isTracked else {
+            return
+        }
+        
+        //right
+        handModelEntity.thumbIntermediateBaseModelEntity.transform = getTransform(rightHandAnchor, .thumbIntermediateBase, handModelEntity.thumbIntermediateBaseModelEntity.transform)
+        handModelEntity.indexFingerTipModelEntity.transform = getTransform(rightHandAnchor, .indexFingerTip, handModelEntity.indexFingerTipModelEntity.transform)
+        
+        handRocketEntity.transform = getTransform(rightHandAnchor, .middleFingerMetacarpal, handRocketEntity.transform)
+        
+        guard
+            let jointA = rightHandAnchor.handSkeleton?.joint(.thumbIntermediateBase),
+            let jointB = rightHandAnchor.handSkeleton?.joint(.indexFingerIntermediateTip) else { return  }
+        
+        guard jointA.isTracked && jointB.isTracked else { return }
+        
+        let jointATransfrom = matrix_multiply(
+            rightHandAnchor.originFromAnchorTransform, jointA.anchorFromJointTransform
+        ).columns.3.xyz
+        
+        let jointBTransfrom = matrix_multiply(
+            rightHandAnchor.originFromAnchorTransform, jointB.anchorFromJointTransform
+        ).columns.3.xyz
+        
+        let fingersDistance = distance(jointATransfrom, jointBTransfrom)
+        
+        if isFistShowing && fingersDistance > 0.1 {
+            isFistShowing = false
+        } else if !isFistShowing && fingersDistance < 0.05 {
+            reCreateRightStars()
+        } else {
+            return
+        }
+    }
+    
 }
