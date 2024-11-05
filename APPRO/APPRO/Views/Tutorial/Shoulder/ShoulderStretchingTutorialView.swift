@@ -8,6 +8,13 @@
 import SwiftUI
 import RealityKit
 
+
+enum ShoulderTutorialStep: Int, CaseIterable {
+    case step0
+    case step1
+    case step2
+    case step3
+}
 struct ShoulderStretchingTutorialView: View {
     @Environment(AppState.self) var appState: AppState
     @State private var viewModel = ShoulderStretchingViewModel()
