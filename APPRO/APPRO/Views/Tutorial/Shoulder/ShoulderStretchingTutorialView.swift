@@ -34,6 +34,15 @@ struct ShoulderStretchingTutorialView: View {
             realityContent = content
             checkTutorialStep(content: content)
         } update: { content in
+            switch currentStep {
+            case .step0:
+                break
+            case .step1:
+                // 팔의 위치를 감지해서 실행해야해서 update 클로저로 실행
+                // TODO: minimumDistance 조정 필요
+                viewModel.computEntryRocketForTutorial(minimumDistance: 0.4)
+            case .step2, .step3:
+            }
         }
         .onAppear() {
             dismissWindow(id: appState.stretchingPartsWindowID)
@@ -129,6 +138,8 @@ struct ShoulderStretchingTutorialView: View {
             if animationEvent.playbackController.entity?.name == "EntryRocket" {
                 viewModel.entryRocketEntity.removeFromParent()
                 viewModel.addRightHandAnchor()
+                // step1 next 버튼 활성화
+                appState.tutorialManager?.isNextEnabled = true
             }else {
                 animationEvent.playbackController.entity?.removeFromParent()
                 
