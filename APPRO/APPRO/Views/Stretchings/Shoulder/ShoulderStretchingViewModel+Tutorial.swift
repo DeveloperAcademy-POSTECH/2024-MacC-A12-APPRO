@@ -72,4 +72,22 @@ extension ShoulderStretchingViewModel {
         }
     }
     
+    func reCreateRightStars() {
+        guard let rightHandAnchor = latestHandTracking.right,
+              rightHandAnchor.isTracked else {
+            return
+        }
+        resetModelEntities()
+        guard
+            let fistJoint = rightHandAnchor.handSkeleton?.joint(.middleFingerMetacarpal),
+            fistJoint.isTracked else {
+            return
+        }
+        let mulitypliedMatrix = matrix_multiply(
+            rightHandAnchor.originFromAnchorTransform, fistJoint.anchorFromJointTransform
+        )
+        self.rightHandTransform = Transform(matrix: mulitypliedMatrix)
+        createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
+        isFistShowing = true
+    }
 }
