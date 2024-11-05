@@ -157,6 +157,8 @@ struct ShoulderStretchingTutorialView: View {
             }else {
                 animationEvent.playbackController.entity?.removeFromParent()
                 
+                //TODO: 튜토리얼 종료 로직 구현
+                appState.tutorialManager?.isNextEnabled = true
             }
         }
     }
@@ -184,6 +186,7 @@ struct ShoulderStretchingTutorialView: View {
             viewModel.addExpectedNextNumber()
             
             // 마지막 엔터티 감지
+            // step3일때만 마지막 엔터티를 충돌했을때 타이머가 추가되게 함
             if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 2)") && currentStep == .step3{
                 viewModel.addShoulderTimerEntity()
             }
