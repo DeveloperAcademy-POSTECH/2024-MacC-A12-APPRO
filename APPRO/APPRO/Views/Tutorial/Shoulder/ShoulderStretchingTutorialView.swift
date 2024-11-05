@@ -65,6 +65,32 @@ struct ShoulderStretchingTutorialView: View {
         }
     // 각 단계에서 넘어갈때 한번만 실행 되는 메서드
     func checkTutorialStep(content: RealityViewContent) {
+        switch currentStep {
+            // 주변 주의 안내 문구
+        case .step0:
+            guard let textEntity = viewModel.contentEntity.findEntity(named: "warning") else { return }
+            withAnimation {
+                textEntity.isEnabled = true
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                Task {
+                    textEntity.removeFromParent()
+                    openWindow(id: appState.stretchingTutorialWindowID)
+                    await viewModel.setEntryRocket()
+                    viewModel.setHandRocketEntity()
+                    subscribeToCollisionEvents(content: content)
+                    currentStep = .step1
+                }
+            }
+            // 엔트리 로켓 띄워지고 손뻗으라는 가이드 or 주먹을 쥐고 별을 생성할 수 있고 경로를 재설정 할 수 있다는 가이드
+        case .step1, .step2:
+            break
+            // 별을 순차적으로 터치해서 마지막에 타이머에서 5초 안내
+            // step3로 갔을때 별을 다시 생성
+        case .step3:
+            viewModel.reCreateRightStars()
+        }
     }
     
     func createTextEntity(_ text: String) -> ModelEntity {
@@ -84,6 +110,7 @@ struct ShoulderStretchingTutorialView: View {
         textEntity.position = .init(x: -width/2, y: 1, z: -3)
         return textEntity
     }
+    
     func subscribeToCollisionEvents(content: RealityViewContent) {
         guard let rightCollisionModel = viewModel.handRocketEntity.findEntity(named: "RocketCollisionModel") as? ModelEntity else { return }
 
