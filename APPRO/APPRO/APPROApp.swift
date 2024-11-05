@@ -83,7 +83,11 @@ struct APPROApp: App {
             case .eyes:
                 EmptyView()
             case .shoulder:
-                ShoulderStretchingView()
+                if let manager = appState.tutorialManager, manager.isSkipped {
+                    ShoulderStretchingView()
+                } else {
+                    ShoulderStretchingTutorialView()
+                }
             case .wrist:
                 HandRollingStretchingView()
                     .environment(appState)
@@ -91,6 +95,7 @@ struct APPROApp: App {
                 EmptyView()
             }
         }
+        .environment(appState)
         .immersionStyle(selection: .constant(.mixed), in: .mixed)
     }
     
@@ -102,14 +107,24 @@ struct APPROApp: App {
             openWindow(id: appState.stretchingProcessWindowID)
         case .tutorial:
             // TODO: 각 스트레칭 부위별 TutorialManager 분기
-            let tutorialManager = TutorialManager.sampleTutorialManager
-            
-            if tutorialManager.isSkipped {
-                appState.appPhase = .stretching
-            } else {
-                appState.tutorialManager = tutorialManager
-                openWindow(id: appState.stretchingTutorialWindowID)
+//            let tutorialManager = TutorialManager.sampleTutorialManager
+            switch appState.currentStretchingPart {
+            case .eyes:
+                break
+            case .shoulder:
+                let shoulderTutorialManager = TutorialManager(stretching: .shoulder)
+                appState.tutorialManager = shoulderTutorialManager
+            case .wrist:
+                break
+            default:
+                break
             }
+//            if tutorialManager.isSkipped {
+//                appState.appPhase = .stretching
+//            } else {
+//                appState.tutorialManager = tutorialManager
+//                openWindow(id: appState.stretchingTutorialWindowID)
+//            }
         }
     }
     
