@@ -54,24 +54,23 @@ extension HandRollingStretchingViewModel {
         return Entity()
     }
     
-    func playSpatialAudio(_ entity: Entity, spatialAudioName: String, resourceLocation: String, resourceFrom: String) async throws {
-        guard let entity = entity.findEntity(named: spatialAudioName),
+    func findResourceAndPlay(_ entity: Entity, spatialAudioName: String, resourceLocation: String, resourceFrom: String) async throws {
+        print(entity.children)
+        guard let audioEntity = entity.findEntity(named: spatialAudioName),
               let resource = try? await AudioFileResource(named: resourceLocation,
                                                           from: resourceFrom,
-                                                          in: realityKitContentBundle) else { return }
+                                                          in: realityKitContentBundle) else {
+            print("No Audio Resource Found:  \(resourceLocation) / \(resourceFrom)")
+            return }
         
-        let audioPlayer = entity.prepareAudio(resource)
+        let audioPlayer = audioEntity.prepareAudio(resource)
         audioPlayer.play()
     }
     
-    func playAppearAudio(_ entity: Entity) async throws {
-        try await playSpatialAudio(entity, spatialAudioName: "AppearSpatialAudio", resourceLocation:"/Root/spiral_come_out_wav", resourceFrom: "spiral_consistent.usd")
-    }
-    
-    func playCollisionAudio(_ modelEntity: ModelEntity) async throws {
-        guard let entity = modelEntity.parent?.parent?.parent else { return }
-        
-        try await playSpatialAudio(entity, spatialAudioName: "CollisionSpatialAudio", resourceLocation: "/Root/spiral_collide_wav", resourceFrom: "spiral_consistent.usd")
+    func playSpatialAudio(_ entity: Entity, audioInfo: AudioFindHelper) async throws {
+        let audioInfoDetail = audioInfo.detail
+        print(audioInfoDetail)
+        try await findResourceAndPlay(entity, spatialAudioName: audioInfoDetail.spatialAudioName, resourceLocation: audioInfoDetail.resourceLocation, resourceFrom: audioInfoDetail.resourceFrom)
     }
     
     func animating(entity : Entity, chirality : Chirality) async throws {
@@ -104,6 +103,6 @@ extension HandRollingStretchingViewModel {
             entity.removeFromParent()
         }
         
-        try await playAppearAudio(entity)
+        try await playSpatialAudio(entity, audioInfo: AudioFindHelper.handSprialAppear)
     }
 }

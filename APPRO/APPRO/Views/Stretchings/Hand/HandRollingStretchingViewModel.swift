@@ -25,7 +25,7 @@ final class HandRollingStretchingViewModel {
     
     let threshold: Float = 0.1
     
-    let frameInterval = 3
+    let frameInterval = 1
     var frameIndex = 0
     
     //RealityViewContent
@@ -126,7 +126,6 @@ final class HandRollingStretchingViewModel {
         return result
     }
     
-    
     private func getRightHandTargetTransform() async -> [Transform] {
         guard let greenTargetEntity = try? await Entity(named: "Hand/target_new_green", in: realityKitContentBundle) else { return [Transform()] }
         
@@ -169,7 +168,6 @@ final class HandRollingStretchingViewModel {
         
         return [transform_1, transform_2, transform_3]
     }
-    
     
     private func getRotationCalculator(_ currentRotation: simd_quatf, rotationX: Float, rotationY: Float, rotationZ: Float) -> simd_quatf {
         let localXAxis = normalize(currentRotation.act(SIMD3<Float>(1, 0, 0)))

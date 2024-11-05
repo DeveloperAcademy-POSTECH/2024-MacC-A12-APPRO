@@ -11,6 +11,39 @@
       }
     ]
   },
+  "0D0E93FA-D526-443F-A7DE-082D9C5682E6" : {
+    "objectMetadataList" : [
+      [
+        "0D0E93FA-D526-443F-A7DE-082D9C5682E6",
+        "root",
+        "FloatingSpatialAudio"
+      ],
+      {
+        "isExpanded" : false,
+        "isLocked" : false,
+        "selectedAudioFilePrim" : {
+          "string" : "\/root\/hand_starting_wav"
+        }
+      },
+      [
+        "0D0E93FA-D526-443F-A7DE-082D9C5682E6",
+        "root",
+        "main"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "0D0E93FA-D526-443F-A7DE-082D9C5682E6",
+        "root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      }
+    ]
+  },
   "1D572CEB-057A-41C3-B575-04C37501A3C0" : {
     "objectMetadataList" : [
       [
@@ -76,33 +109,6 @@
       [
         "645E6206-B47E-4056-8323-678B5F5EE1BA",
         "root",
-        "wrist_ring"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "645E6206-B47E-4056-8323-678B5F5EE1BA",
-        "root"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "645E6206-B47E-4056-8323-678B5F5EE1BA",
-        "root",
-        "wrist_ring",
-        "ring_collide1"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "645E6206-B47E-4056-8323-678B5F5EE1BA",
-        "root",
         "_materials",
         "Material_001"
       ],
@@ -113,7 +119,30 @@
       [
         "645E6206-B47E-4056-8323-678B5F5EE1BA",
         "root",
-        "_materials"
+        "AppearSpatialAudio"
+      ],
+      {
+        "isExpanded" : false,
+        "isLocked" : false,
+        "selectedAudioFilePrim" : {
+          "string" : "\/root\/ring_appear_wav"
+        }
+      },
+      [
+        "645E6206-B47E-4056-8323-678B5F5EE1BA",
+        "root",
+        "RotationSpatialAudio"
+      ],
+      {
+        "isExpanded" : false,
+        "isLocked" : false,
+        "selectedAudioFilePrim" : {
+          "string" : "\/root\/_1_rotation_wav"
+        }
+      },
+      [
+        "645E6206-B47E-4056-8323-678B5F5EE1BA",
+        "root"
       ],
       {
         "isExpanded" : true,
@@ -158,16 +187,9 @@
     "objectMetadataList" : [
       [
         "77D00E37-70BB-4AB7-965D-A5B92718CF39",
-        "root"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
         "root",
-        "_materials"
+        "_materials",
+        "blue_line"
       ],
       {
         "isExpanded" : true,
@@ -197,9 +219,7 @@
       },
       [
         "77D00E37-70BB-4AB7-965D-A5B92718CF39",
-        "root",
-        "target_blue",
-        "Cylinder_002"
+        "root"
       ],
       {
         "isExpanded" : true,
@@ -208,11 +228,14 @@
       [
         "77D00E37-70BB-4AB7-965D-A5B92718CF39",
         "root",
-        "target_blue"
+        "AppearSpatialAudio"
       ],
       {
-        "isExpanded" : true,
-        "isLocked" : false
+        "isExpanded" : false,
+        "isLocked" : false,
+        "selectedAudioFilePrim" : {
+          "string" : "\/root\/target_appear_mp3"
+        }
       },
       [
         "77D00E37-70BB-4AB7-965D-A5B92718CF39",
@@ -227,8 +250,17 @@
       [
         "77D00E37-70BB-4AB7-965D-A5B92718CF39",
         "root",
-        "_materials",
-        "blue_line"
+        "target_blue"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
+        "root",
+        "target_blue",
+        "Cylinder_002"
       ],
       {
         "isExpanded" : true,
@@ -242,7 +274,7 @@
         "81AB5445-6831-4214-BA19-7D51459B6C0E",
         "root",
         "_materials",
-        "green_line"
+        "green_body"
       ],
       {
         "isExpanded" : true,
@@ -251,12 +283,14 @@
       [
         "81AB5445-6831-4214-BA19-7D51459B6C0E",
         "root",
-        "_materials",
-        "green_body"
+        "AppearSpatialAudio"
       ],
       {
-        "isExpanded" : true,
-        "isLocked" : false
+        "isExpanded" : false,
+        "isLocked" : false,
+        "selectedAudioFilePrim" : {
+          "string" : "\/root\/target_appear_mp3"
+        }
       },
       [
         "81AB5445-6831-4214-BA19-7D51459B6C0E",
@@ -279,6 +313,15 @@
       [
         "81AB5445-6831-4214-BA19-7D51459B6C0E",
         "root",
+        "_materials"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "81AB5445-6831-4214-BA19-7D51459B6C0E",
+        "root",
         "target_green"
       ],
       {
@@ -288,7 +331,8 @@
       [
         "81AB5445-6831-4214-BA19-7D51459B6C0E",
         "root",
-        "_materials"
+        "_materials",
+        "green_line"
       ],
       {
         "isExpanded" : true,
@@ -317,11 +361,32 @@
     "objectMetadataList" : [
       [
         "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
+        "root",
+        "Empty"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
         "root"
       ],
       {
         "isExpanded" : true,
         "isLocked" : false
+      },
+      [
+        "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
+        "root",
+        "AppearSpatialAudio"
+      ],
+      {
+        "isExpanded" : false,
+        "isLocked" : false,
+        "selectedAudioFilePrim" : {
+          "string" : "\/root\/spiral_launch_wav"
+        }
       },
       [
         "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
@@ -336,7 +401,7 @@
       [
         "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
         "root",
-        "Empty"
+        "_materials"
       ],
       {
         "isExpanded" : true,

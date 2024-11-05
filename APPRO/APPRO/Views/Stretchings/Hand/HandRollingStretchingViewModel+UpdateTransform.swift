@@ -50,7 +50,7 @@ extension HandRollingStretchingViewModel {
             let smoothedRotation = simd_normalize(simd_slerp(beforeTransform.rotation, currentRotation, smoothingFactor))
             let weightedRotation = simd_slerp(smoothedRotation, currentRotation, weight)
             
-            newTransform.rotation = smoothedRotation
+            newTransform.rotation = weightedRotation
             
             return newTransform
         }
@@ -106,8 +106,15 @@ extension HandRollingStretchingViewModel {
             return intersection3D
         }
         
-        rightGuideSphere.scale = .init(repeating: 1)
-        leftGuideSphere.scale = .init(repeating: 1)
+        if rightGuideSphere.scale.x < 1  {
+            rightGuideSphere.scale = .init(repeating: 1)
+        }
+            
+        if leftGuideSphere.scale.x < 1 {
+            leftGuideSphere.scale = .init(repeating: 1)
+        }
+        
+        
         
         let directionVector = normalize(intersection3D - wristRingPosition)
         // 원 경계에 해당하는 지점 계산
@@ -117,5 +124,15 @@ extension HandRollingStretchingViewModel {
     
     private func applyLinearInterpolation (current : Float, previous : Float, factor:Float) -> Float {
         return previous + (current - previous) * factor
+    }
+    
+    func playRotationChangeRingSound(_ newValue: Int) async {
+        if newValue >= 3 {
+            try? await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationThreeTimes)
+        } else if newValue == 2 {
+            try? await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationTwice)
+        } else if newValue == 1 {
+            try? await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationOnce)
+        }
     }
 }

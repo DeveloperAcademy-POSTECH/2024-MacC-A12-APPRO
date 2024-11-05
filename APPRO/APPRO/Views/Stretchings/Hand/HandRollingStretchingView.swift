@@ -70,6 +70,9 @@ struct HandRollingStretchingView: View {
             if isHandFistShape {
                 viewModel.rightEntities.append(viewModel.rightGuideRing)
                 viewModel.rightEntities.append(viewModel.rightGuideSphere)
+                Task {
+                    try? await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
+                }
             } else {
                 viewModel.rightGuideRing.removeFromParent()
                 viewModel.rightGuideSphere.removeFromParent()
@@ -80,6 +83,9 @@ struct HandRollingStretchingView: View {
             if isHandFistShape {
                 viewModel.leftEntities.append(viewModel.leftGuideRing)
                 viewModel.leftEntities.append(viewModel.leftGuideSphere)
+                Task {
+                    try? await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
+                }
             } else {
                 viewModel.leftGuideRing.removeFromParent()
                 viewModel.leftGuideSphere.removeFromParent()
@@ -89,11 +95,16 @@ struct HandRollingStretchingView: View {
         .onChange(of: viewModel.rightRotationCount, initial: false) { _, newValue in
             let colorValueChangedTo = min (newValue * 2, 6)
             viewModel.getDifferentRingColor(viewModel.rightGuideRing, intChangeTo: Int32(colorValueChangedTo))
-            
+            Task {
+                await viewModel.playRotationChangeRingSound(newValue)
+            }
         }
         .onChange(of: viewModel.leftRotationCount, initial: false ) { _, newValue in
             let colorValueChangedTo = min (newValue * 2 + 1, 7)
             viewModel.getDifferentRingColor(viewModel.leftGuideRing, intChangeTo: Int32(colorValueChangedTo))
+            Task {
+                await viewModel.playRotationChangeRingSound(newValue)
+            }
         }
         .onChange(of: viewModel.leftTargetEntities.count, initial: false ) { oldNumber, newNumber in
             if oldNumber > newNumber {
@@ -107,6 +118,20 @@ struct HandRollingStretchingView: View {
         }
         .onChange(of: viewModel.score, initial: false ) { _, changedScore  in
             appState.doneCount = changedScore
+        }
+        .onChange(of: viewModel.rightGuideSphere.scale.x, initial: false ) { oldScale, newScale in
+            if newScale > oldScale {
+                Task {
+                    try? await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: .handGuideSphereAppear)
+                }
+            }
+        }
+        .onChange(of: viewModel.leftGuideSphere.scale.x, initial: false ) { oldScale, newScale in
+            if newScale > oldScale {
+                Task {
+                    try? await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: .handGuideSphereAppear)
+                }
+            }
         }
     }
 }
