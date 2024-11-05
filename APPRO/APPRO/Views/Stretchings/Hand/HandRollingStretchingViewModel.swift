@@ -101,10 +101,9 @@ final class HandRollingStretchingViewModel {
     }
     
     func generateGuideSphere(chirality : Chirality)-> ModelEntity  {
-        let guideSphereEntity = ModelEntity(mesh: .generateSphere(radius: 0.02), materials: [SimpleMaterial(color: .red, roughness: 0.0, isMetallic: false)]) // var to let
+        let guideSphereEntity = ModelEntity(mesh: .generateSphere(radius: 0.015), materials: [SimpleMaterial(color: .red, roughness: 0.0, isMetallic: false)]) // var to let
         guideSphereEntity.name = chirality == .right ? "GuideSphere_Right" : "GuideSphere_Left"
         guideSphereEntity.generateCollisionShapes(recursive: false)
-        guideSphereEntity.scale = .init(repeating: 0.7)
         
         return guideSphereEntity
     }
@@ -122,12 +121,6 @@ final class HandRollingStretchingViewModel {
             targetEntity.name = entityName
             targetEntity.transform = targetTransforms.removeFirst()
             
-            for index in 1...5  {
-                if index != targetScore {
-                    let entity = targetEntity.findEntity(named: "Text_\(index)")
-                    entity?.isEnabled = false
-                }
-            }
             result.append(targetEntity)
         }
         return result

@@ -15,6 +15,7 @@ final class AppState {
     let stretchingPartsWindowID = "StretchingPartsWindow"
     let stretchingProcessWindowID = "StretchingProcessWindow"
     let stretchingTutorialWindowID = "StretchingTutorialWindow"
+    let stretchingEndWindowId = "StretchingEndWindow"
     let immersiveSpaceID = "StretchingSpace"
     
     var appPhase: AppPhase = .choosingStretchingPart
@@ -28,7 +29,7 @@ final class AppState {
     func resetStretchingCount() {
         if let stretching = currentStretchingPart {
             doneCount = 0
-            maxCount = (stretching == .eyes || stretching == .wrist) ? 12 : 3
+            maxCount = stretching.maxCount
         } else {
             dump("resetStretchingCount unexpectedly called")
         }

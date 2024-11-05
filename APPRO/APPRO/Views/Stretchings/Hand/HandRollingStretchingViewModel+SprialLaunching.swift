@@ -92,7 +92,7 @@ extension HandRollingStretchingViewModel {
             name: "launchFromWrist",
             from: shortTransform,
             to: newTransform,
-            duration: 2,
+            duration: 0.5,
             bindTarget: .transform
         )
         

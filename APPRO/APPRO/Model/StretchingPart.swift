@@ -26,6 +26,17 @@ enum StretchingPart: String, Identifiable, CaseIterable {
         }
     }
     
+    var maxCount: Int {
+        switch self {
+        case .eyes:
+            12
+        case .wrist:
+            6
+        case .shoulder:
+            3
+        }
+    }
+    
     var backgroundImageName: String {
         "\(self)_background"
     }
