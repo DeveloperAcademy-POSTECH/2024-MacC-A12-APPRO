@@ -21,7 +21,7 @@ class TutorialManager {
     
     init(stretching: StretchingPart, steps: [TutorialStep]) {
         self.stretchingPart = stretching
-        self.steps = steps
+        self.steps = stretching.tutorialInstructions.map { .init(instruction: $0) }
     }
     
     var isSkipped: Bool {
