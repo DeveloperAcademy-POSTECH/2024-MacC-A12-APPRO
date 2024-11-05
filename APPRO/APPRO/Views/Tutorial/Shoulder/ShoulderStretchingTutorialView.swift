@@ -15,7 +15,11 @@ enum ShoulderTutorialStep: Int, CaseIterable {
     case step2
     case step3
 }
+
 struct ShoulderStretchingTutorialView: View {
+    
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
     @Environment(AppState.self) var appState: AppState
     @State private var viewModel = ShoulderStretchingViewModel()
     @State private var isColliding: Bool = false
@@ -26,6 +30,7 @@ struct ShoulderStretchingTutorialView: View {
         } update: { content in
         }
         .onAppear() {
+            dismissWindow(id: appState.stretchingPartsWindowID)
         }
         .upperLimbVisibility(.hidden)
         .ignoresSafeArea()
