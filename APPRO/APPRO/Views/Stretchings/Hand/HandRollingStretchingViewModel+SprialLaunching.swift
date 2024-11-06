@@ -80,7 +80,6 @@ extension HandRollingStretchingViewModel {
     
     func playSpatialAudio(_ entity: Entity, audioInfo: AudioFindHelper) async throws {
         let audioInfoDetail = audioInfo.detail
-        print(audioInfoDetail)
         try await findResourceAndPlay(entity, spatialAudioName: audioInfoDetail.spatialAudioName, resourceLocation: audioInfoDetail.resourceLocation, resourceFrom: audioInfoDetail.resourceFrom)
     }
     
