@@ -16,6 +16,10 @@ struct HandRollingStretchingView: View {
     
     var body: some View {
         RealityView { content in
+            if viewModel.isStartingObjectVisible {
+                await viewModel.generateStartingObject(content)
+            }
+            
             await viewModel.makeFirstEntitySetting(content)
             viewModel.addEntity(content)
             viewModel.bringCollisionHandler(content)
@@ -68,8 +72,13 @@ struct HandRollingStretchingView: View {
         }
         .onChange(of: viewModel.isRightHandInFist, initial: false) { _, isHandFistShape in
             if isHandFistShape {
+                if viewModel.isStartingObjectVisible { viewModel.isStartingObjectVisible = false}
+                
                 viewModel.rightEntities.append(viewModel.rightGuideRing)
                 viewModel.rightEntities.append(viewModel.rightGuideSphere)
+                Task {
+                    try? await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
+                }
             } else {
                 viewModel.rightGuideRing.removeFromParent()
                 viewModel.rightGuideSphere.removeFromParent()
@@ -80,6 +89,9 @@ struct HandRollingStretchingView: View {
             if isHandFistShape {
                 viewModel.leftEntities.append(viewModel.leftGuideRing)
                 viewModel.leftEntities.append(viewModel.leftGuideSphere)
+                Task {
+                    try? await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
+                }
             } else {
                 viewModel.leftGuideRing.removeFromParent()
                 viewModel.leftGuideSphere.removeFromParent()
@@ -89,24 +101,59 @@ struct HandRollingStretchingView: View {
         .onChange(of: viewModel.rightRotationCount, initial: false) { _, newValue in
             let colorValueChangedTo = min (newValue * 2, 6)
             viewModel.getDifferentRingColor(viewModel.rightGuideRing, intChangeTo: Int32(colorValueChangedTo))
-            
+            Task {
+                await viewModel.playRotationChangeRingSound(newValue)
+            }
         }
         .onChange(of: viewModel.leftRotationCount, initial: false ) { _, newValue in
             let colorValueChangedTo = min (newValue * 2 + 1, 7)
             viewModel.getDifferentRingColor(viewModel.leftGuideRing, intChangeTo: Int32(colorValueChangedTo))
+            Task {
+                await viewModel.playRotationChangeRingSound(newValue)
+            }
         }
-        .onChange(of: viewModel.leftTargetEntities.count, initial: false ) { oldNumber, newNumber in
-            if oldNumber > newNumber {
+        .onChange(of: viewModel.rightHitCount, initial: false ) { oldNumber, newNumber in
+            if oldNumber < newNumber {
                 viewModel.score += 1
             }
         }
-        .onChange(of: viewModel.rightTargetEntities.count, initial: false ) { oldNumber, newNumber in
-            if oldNumber > newNumber {
+        .onChange(of: viewModel.leftHitCount, initial: false ) { oldNumber, newNumber in
+            if oldNumber < newNumber {
                 viewModel.score += 1
             }
         }
         .onChange(of: viewModel.score, initial: false ) { _, changedScore  in
             appState.doneCount = changedScore
+        }
+        .onChange(of: viewModel.rightGuideSphere.scale.x, initial: false ) { oldScale, newScale in
+            if newScale > oldScale {
+                Task {
+                    try? await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: .handGuideSphereAppear)
+                }
+            }
+        }
+        .onChange(of: viewModel.leftGuideSphere.scale.x, initial: false ) { oldScale, newScale in
+            if newScale > oldScale {
+                Task {
+                    try? await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: .handGuideSphereAppear)
+                }
+            }
+        }
+        .onChange(of: viewModel.isStartingObjectVisible, initial: false) {_, newValue in
+            if !newValue {
+                viewModel.getRidOfStartingObject()
+            }
+        }
+        .onChange(of: viewModel.startObject, initial: false) {_, newValue in
+            if newValue.name == "StartingObject" {
+                Task {
+                    do {
+                        try await viewModel.playSpatialAudio(newValue, audioInfo: .handStartAppear)
+                    } catch {
+                        print(error)
+                    }
+                }
+            }
         }
     }
 }
