@@ -160,15 +160,16 @@ final class HandRollingStretchingViewModel {
         let originalTransform = greenTargetEntity.transform
         
         var transform_1 = originalTransform
-        transform_1.translation = .init(x: -0.6, y: 1.2, z: -0.5)
-        transform_1.rotation = getRotationCalculator(transform_1.rotation, rotationX: 0, rotationY: -1/6 * .pi, rotationZ: 0)
+        transform_1.translation = .init(x: -0.7, y: 1.0, z: -0.5)
+        transform_1.rotation = getRotationCalculator(transform_1.rotation, rotationX: 1/7 * .pi, rotationY: -1/3 * .pi, rotationZ: 0)
+        transform_1.scale = transform_1.scale * 0.8
         
         var transform_2  = originalTransform
-        transform_2.translation = .init(x: -0.5, y: 1.4, z: -1.0)
+        transform_2.translation = .init(x: -0.6, y: 1.4, z: -1.0)
         transform_2.rotation = getRotationCalculator(transform_2.rotation, rotationX: 1/6 * .pi, rotationY: -1/6 * .pi, rotationZ: 0)
         
         var transform_3  = originalTransform
-        transform_3.translation = .init(x: 0.6, y: 1.4, z: -0.7)
+        transform_3.translation = .init(x: 0.6, y: 1.6, z: -0.7)
         transform_3.rotation = getRotationCalculator(transform_3.rotation, rotationX: 1/6 * .pi, rotationY: 1/6 * .pi, rotationZ: 1/3 * .pi)
         
         
@@ -182,16 +183,18 @@ final class HandRollingStretchingViewModel {
         
         var transform_1 = originalTransform
         transform_1.translation = .init(x: -0.2, y: 1.4, z: -1.0)
-        transform_1.rotation = getRotationCalculator(transform_1.rotation, rotationX: 0, rotationY: -1/6 * .pi, rotationZ: 0)
+        transform_1.rotation = getRotationCalculator(transform_1.rotation, rotationX: 1/6 * .pi, rotationY: 0, rotationZ: 0)
+        transform_1.scale = transform_1.scale * 0.9
         
         var transform_2  = originalTransform
         transform_2.translation = .init(x: 0.2, y: 1.4, z: -1.0)
         transform_2.rotation = getRotationCalculator(transform_2.rotation, rotationX: 1/6 * .pi, rotationY: 1/6 * .pi, rotationZ: 0)
+        transform_1.scale = transform_1.scale * 0.8
         
         var transform_3  = originalTransform
         transform_3.translation = .init(x: 0.7, y: 1.0, z: -0.6)
         transform_3.rotation = getRotationCalculator(transform_3.rotation, rotationX: -1/6 * .pi, rotationY: 1/6 * .pi, rotationZ: 1/3 * .pi)
-        transform_3.scale = transform_3.scale * 1.5 // TODO: check and adjust
+        transform_3.scale = transform_3.scale * 1.2
         
         
         return [transform_1, transform_2, transform_3]

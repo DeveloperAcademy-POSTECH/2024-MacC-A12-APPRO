@@ -108,7 +108,7 @@ extension HandRollingStretchingViewModel {
         
         let animation = try AnimationResource.generate(with: goInDirection)
         
-        entity.playAnimation(animation, transitionDuration: 2)
+        entity.playAnimation(animation, transitionDuration: 0.5)
         
         try await playSpatialAudio(entity, audioInfo: AudioFindHelper.handSprialAppear)
     }
