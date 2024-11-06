@@ -28,7 +28,7 @@ enum AudioFindHelper {
 extension AudioFindHelper {
     var detail: AudioInfo {
         switch self {
-        case .handStartAppear: return AudioInfo(spatialAudioName: "AppearSpatialAudio", resourceLocation: "/root/hand_starting_wav", resourceFrom: "Hand/main_obj_applied.usd")
+        case .handStartAppear: return AudioInfo(spatialAudioName: "FloatingSpatialAudio", resourceLocation: "/root/hand_starting_wav", resourceFrom: "Hand/main_obj_applied.usd")
         case .handSprialAppear: return AudioInfo(spatialAudioName: "AppearSpatialAudio", resourceLocation: "/root/spiral_launch_wav", resourceFrom: "Hand/spiral_new.usd")
         case .handGuideRingAppear: return AudioInfo(spatialAudioName: "AppearSpatialAudio", resourceLocation: "/root/ring_appear_wav", resourceFrom: "Hand/wrist_ring.usd")
         case .handGuideSphereAppear: return AudioInfo(spatialAudioName: "AppearSpatialAudio", resourceLocation: "/root/guide_sphere_appear_wav", resourceFrom: "Hand/wrist_ring.usd")
@@ -40,7 +40,6 @@ extension AudioFindHelper {
         case .handTargetHitWrong(let chirality): return AudioInfo(spatialAudioName: "AppearSpatialAudio", resourceLocation: "/root/target_error_wav", resourceFrom: "Hand/target_new_\(getBlueOrGreen(chirality)).usd")
         }
     }
-    
     
     private func getBlueOrGreen(_ chirality: Chirality) -> String {
         if chirality == .left {

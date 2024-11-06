@@ -20,6 +20,9 @@ final class HandRollingStretchingViewModel {
     
     var latestHandTracking: HandsUpdates = .init(left: nil, right: nil)
     
+    var isStartingObjectVisible = true
+    var startObject: Entity = Entity()
+    
     var isRightHandInFist = false
     var isLeftHandInFist = false
     
@@ -60,9 +63,6 @@ final class HandRollingStretchingViewModel {
     var rightLaunchState = false
     var leftLaunchState = false
     
-    var rightTargets = [Entity()]
-    var leftTargets = [Entity()]
-    
     var leftHitCount = 0
     var rightHitCount = 0
     
@@ -76,10 +76,8 @@ final class HandRollingStretchingViewModel {
         leftGuideSphere = generateGuideSphere(chirality: .left)
         
         rightTargetEntities = await bringTargetEntities([2,1,4], chirality: .right)
-        rightTargetEntities.forEach { content.add($0)}
         
         leftTargetEntities = await bringTargetEntities([4,2,1], chirality: .left)
-        leftTargetEntities.forEach { content.add($0)}
     }
     
     func addEntity(_ content: RealityViewContent) {
@@ -90,6 +88,33 @@ final class HandRollingStretchingViewModel {
         for entity in leftEntities {
             content.add(entity)
         }
+        
+        if !isStartingObjectVisible {
+            for entity in rightTargetEntities {
+                content.add(entity)
+            }
+            
+            for entity in leftTargetEntities {
+                content.add(entity)
+            }
+        }
+    }
+    
+    func generateStartingObject(_ content: RealityViewContent) async {
+        guard let entity = try? await Entity(named: "Hand/main_obj_applied", in: realityKitContentBundle) else { return }
+        entity.name = "StartingObject"
+        
+        startObject = entity
+        startObject.transform.translation = .init(x: 0, y: 1.4, z: -1.0)
+        
+        guard let animation = startObject.availableAnimations.first else {return}
+        startObject.playAnimation(animation.repeat(duration: .infinity), transitionDuration: 6.9, startsPaused: false)
+        
+        content.add(entity)
+    }
+    
+    func getRidOfStartingObject () {
+        startObject.removeFromParent()
     }
     
     func generateGuideRing(chirality : Chirality) async  -> Entity  {

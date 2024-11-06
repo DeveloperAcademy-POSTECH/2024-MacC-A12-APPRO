@@ -48,7 +48,7 @@ extension HandRollingStretchingViewModel {
             
             try await animating(entity: custom3DObject, chirality: chirality)
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 if chirality == .right {
                     guard let indexOfEntity = self.rightEntities.firstIndex(where: { $0.name == custom3DObject.name}) else { return }
                     self.rightEntities.remove(at: indexOfEntity)
@@ -67,7 +67,6 @@ extension HandRollingStretchingViewModel {
     }
     
     func findResourceAndPlay(_ entity: Entity, spatialAudioName: String, resourceLocation: String, resourceFrom: String) async throws {
-        print(entity.children)
         guard let audioEntity = entity.findEntity(named: spatialAudioName),
               let resource = try? await AudioFileResource(named: resourceLocation,
                                                           from: resourceFrom,
@@ -110,8 +109,6 @@ extension HandRollingStretchingViewModel {
         let animation = try AnimationResource.generate(with: goInDirection)
         
         entity.playAnimation(animation, transitionDuration: 2)
-        
-        
         
         try await playSpatialAudio(entity, audioInfo: AudioFindHelper.handSprialAppear)
     }

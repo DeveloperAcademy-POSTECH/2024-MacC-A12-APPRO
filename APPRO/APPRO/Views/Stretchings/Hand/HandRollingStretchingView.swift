@@ -16,6 +16,10 @@ struct HandRollingStretchingView: View {
     
     var body: some View {
         RealityView { content in
+            if viewModel.isStartingObjectVisible {
+                await viewModel.generateStartingObject(content)
+            }
+            
             await viewModel.makeFirstEntitySetting(content)
             viewModel.addEntity(content)
             viewModel.bringCollisionHandler(content)
@@ -68,6 +72,8 @@ struct HandRollingStretchingView: View {
         }
         .onChange(of: viewModel.isRightHandInFist, initial: false) { _, isHandFistShape in
             if isHandFistShape {
+                if viewModel.isStartingObjectVisible { viewModel.isStartingObjectVisible = false}
+                
                 viewModel.rightEntities.append(viewModel.rightGuideRing)
                 viewModel.rightEntities.append(viewModel.rightGuideSphere)
                 Task {
@@ -130,6 +136,22 @@ struct HandRollingStretchingView: View {
             if newScale > oldScale {
                 Task {
                     try? await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: .handGuideSphereAppear)
+                }
+            }
+        }
+        .onChange(of: viewModel.isStartingObjectVisible, initial: false) {_, newValue in
+            if !newValue {
+                viewModel.getRidOfStartingObject()
+            }
+        }
+        .onChange(of: viewModel.startObject, initial: false) {_, newValue in
+            if newValue.name == "StartingObject" {
+                Task {
+                    do {
+                        try await viewModel.playSpatialAudio(newValue, audioInfo: .handStartAppear)
+                    } catch {
+                        print(error)
+                    }
                 }
             }
         }

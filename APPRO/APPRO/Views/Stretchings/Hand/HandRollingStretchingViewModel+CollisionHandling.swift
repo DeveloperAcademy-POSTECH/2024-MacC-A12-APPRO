@@ -91,7 +91,7 @@ extension HandRollingStretchingViewModel {
             try? await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitRight(chirality: targetChiralityValue))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.removeTargetFromArrayAndContext(targetEntity: targetEntity, isLeft: spiralChiralityAndScore.starts(with: "left"), canBeCountedAsScore: true)
+                self.removeTargetFromArrayAndContext(targetEntity: targetEntity, chirality: targetChiralityValue, canBeCountedAsScore: true)
             }
         } else {
             getWrongTargetColorChange(target as! ModelEntity, chirality: targetChiralityValue, intChangeTo: 1)
@@ -99,15 +99,15 @@ extension HandRollingStretchingViewModel {
             try? await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitWrong(chirality: targetChiralityValue))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4 ) {
-                self.removeTargetFromArrayAndContext(targetEntity: targetEntity, isLeft: spiralChiralityAndScore.starts(with: "left"), canBeCountedAsScore: false)
+                self.removeTargetFromArrayAndContext(targetEntity: targetEntity, chirality: targetChiralityValue, canBeCountedAsScore: false)
             }
         }
     }
     
-    private func removeTargetFromArrayAndContext (targetEntity: Entity, isLeft: Bool, canBeCountedAsScore: Bool) {
+    private func removeTargetFromArrayAndContext (targetEntity: Entity, chirality: Chirality, canBeCountedAsScore: Bool) {
         targetEntity.removeFromParent()
         
-        if isLeft  {
+        if chirality == .left  {
             guard let index = leftTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
             leftTargetEntities.remove(at: index)
             if canBeCountedAsScore {
