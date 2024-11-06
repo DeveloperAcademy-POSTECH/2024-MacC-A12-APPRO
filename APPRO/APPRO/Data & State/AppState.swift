@@ -21,7 +21,6 @@ final class AppState {
     var appPhase: AppPhase = .choosingStretchingPart
     
     var currentStretchingPart: StretchingPart? = nil
-    var tutorialManager: TutorialManager? = nil
     
     var doneCount = 0
     private(set) var maxCount = 0

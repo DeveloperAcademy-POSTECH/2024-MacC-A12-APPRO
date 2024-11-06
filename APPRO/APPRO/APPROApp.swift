@@ -22,10 +22,6 @@ struct APPROApp: App {
         WindowGroup(id: appState.stretchingPartsWindowID) {
             StretchingPartsView()
                 .environment(appState)
-                .onAppear {
-                    dismissWindow(id: appState.stretchingTutorialWindowID)
-                    dismissWindow(id: appState.stretchingProcessWindowID)
-                }
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
@@ -38,78 +34,52 @@ struct APPROApp: App {
             Task {
                 if isImmersed {
                     await openImmersiveSpace(id: appState.immersiveSpaceID)
+                    dismissWindow(id: appState.stretchingPartsWindowID)
                 } else {
                     await dismissImmersiveSpace()
                 }
             }
         }
         .onChange(of: appState.appPhase) { _, newPhase in
-            handleAppPhase(newPhase)
-        }
-        
-        WindowGroup(id: appState.stretchingProcessWindowID) {
-            StretchingProcessView()
-                .environment(appState)
-                .onAppear {
-                    dismissWindow(id: appState.stretchingPartsWindowID)
-                    dismissWindow(id: appState.stretchingTutorialWindowID)
-                }
-        }
-        .windowStyle(.plain)
-        .windowResizability(.contentSize)
-        .defaultWindowPlacement { _, _ in
-            return WindowPlacement(.utilityPanel)
-        }
-        
-        WindowGroup(id: appState.stretchingTutorialWindowID) {
-            TutorialView()
-                .environment(appState)
-                .onAppear {
-                    dismissWindow(id: appState.stretchingPartsWindowID)
-                }
-                .onChange(of: appState.tutorialManager?.isCompleted) { _, isCompleted in
-                    appState.currentStretchingPart = appState.tutorialManager!.stretchingPart
-                    appState.appPhase = .stretching
-                }
-        }
-        .windowStyle(.plain)
-        .windowResizability(.contentSize)
-        .defaultWindowPlacement { _, _ in
-            return WindowPlacement(.utilityPanel)
+            if newPhase == .choosingStretchingPart {
+                openWindow(id: appState.stretchingPartsWindowID)
+            }
         }
         
         ImmersiveSpace(id: appState.immersiveSpaceID) {
-            switch appState.currentStretchingPart {
-            case .eyes:
-                EmptyView()
-            case .shoulder:
-                ShoulderStretchingView()
-            case .wrist:
-                HandRollingStretchingView()
-                    .environment(appState)
-            default:
-                EmptyView()
+            if let stretchingPart = appState.currentStretchingPart {
+                if appState.appPhase == .tutorial && !TutorialManager.isSkipped(part: stretchingPart) {
+                    tutorialImmersiveView(part: stretchingPart)
+                } else {
+                    stretchingImmersiveView(part: stretchingPart)
+                }
             }
         }
         .immersionStyle(selection: .constant(.mixed), in: .mixed)
     }
     
-    private func handleAppPhase(_ appPhase: AppPhase) {
-        switch appPhase {
-        case .choosingStretchingPart:
-            openWindow(id: appState.stretchingPartsWindowID)
-        case .stretching:
-            openWindow(id: appState.stretchingProcessWindowID)
-        case .tutorial:
-            // TODO: 각 스트레칭 부위별 TutorialManager 분기
-            let tutorialManager = TutorialManager.sampleTutorialManager
-            
-            if tutorialManager.isSkipped {
-                appState.appPhase = .stretching
-            } else {
-                appState.tutorialManager = tutorialManager
-                openWindow(id: appState.stretchingTutorialWindowID)
-            }
+    @ViewBuilder
+    private func stretchingImmersiveView(part: StretchingPart) -> some View {
+        switch part {
+        case .eyes:
+            EmptyView()
+        case .shoulder:
+            ShoulderStretchingView()
+        case .wrist:
+            HandRollingStretchingView()
+                .environment(appState)
+        }
+    }
+    
+    @ViewBuilder
+    private func tutorialImmersiveView(part: StretchingPart) -> some View {
+        switch part {
+        case .eyes:
+            EyeTutorialImmersiveView()
+        case .shoulder:
+            EmptyView()
+        case .wrist:
+            EmptyView()
         }
     }
     
