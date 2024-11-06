@@ -63,6 +63,9 @@ final class HandRollingStretchingViewModel {
     var rightTargets = [Entity()]
     var leftTargets = [Entity()]
     
+    var leftHitCount = 0
+    var rightHitCount = 0
+    
     var score = 0
     
     func makeFirstEntitySetting (_ content: RealityViewContent) async {

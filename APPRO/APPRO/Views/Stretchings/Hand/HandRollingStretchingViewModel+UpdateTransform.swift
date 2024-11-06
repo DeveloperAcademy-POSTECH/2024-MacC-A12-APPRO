@@ -45,12 +45,9 @@ extension HandRollingStretchingViewModel {
             var newTransform = Transform(matrix: t)
             
             let currentRotation = newTransform.rotation
-            
-            let weight: Float = 0.1
             let smoothedRotation = simd_normalize(simd_slerp(beforeTransform.rotation, currentRotation, smoothingFactor))
-            let weightedRotation = simd_slerp(smoothedRotation, currentRotation, weight)
             
-            newTransform.rotation = weightedRotation
+            newTransform.rotation = smoothedRotation
             
             return newTransform
         }

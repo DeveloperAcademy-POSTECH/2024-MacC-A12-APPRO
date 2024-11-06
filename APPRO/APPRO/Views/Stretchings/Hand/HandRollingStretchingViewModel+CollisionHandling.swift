@@ -91,15 +91,7 @@ extension HandRollingStretchingViewModel {
             try? await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitRight(chirality: targetChiralityValue))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                targetEntity.removeFromParent()
-                
-                if spiralChiralityAndScore.starts(with: "left")  {
-                    guard let index = self.leftTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
-                    self.leftTargetEntities.remove(at: index)
-                } else {
-                    guard let index = self.rightTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
-                    self.rightTargetEntities.remove(at: index)
-                }
+                self.removeTargetFromArrayAndContext(targetEntity: targetEntity, isLeft: spiralChiralityAndScore.starts(with: "left"), canBeCountedAsScore: true)
             }
         } else {
             getWrongTargetColorChange(target as! ModelEntity, chirality: targetChiralityValue, intChangeTo: 1)
@@ -107,20 +99,30 @@ extension HandRollingStretchingViewModel {
             try? await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitWrong(chirality: targetChiralityValue))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4 ) {
-                
-                targetEntity.removeFromParent()
-                
-                // 이걸 안하면 문제가 생기지 않나?
-                //                if spiralChiralityAndScore.starts(with: "left")  {
-                //                    guard let index = self.leftTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
-                //                    self.leftTargetEntities.remove(at: index)
-                //                } else {
-                //                    guard let index = self.rightTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
-                //                    self.rightTargetEntities.remove(at: index)
-                //                }
+                self.removeTargetFromArrayAndContext(targetEntity: targetEntity, isLeft: spiralChiralityAndScore.starts(with: "left"), canBeCountedAsScore: false)
             }
         }
     }
+    
+    private func removeTargetFromArrayAndContext (targetEntity: Entity, isLeft: Bool, canBeCountedAsScore: Bool) {
+        targetEntity.removeFromParent()
+        
+        if isLeft  {
+            guard let index = leftTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
+            leftTargetEntities.remove(at: index)
+            if canBeCountedAsScore {
+                leftHitCount += 1
+            }
+            
+        } else {
+            guard let index = rightTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
+            rightTargetEntities.remove(at: index)
+            if canBeCountedAsScore {
+                rightHitCount += 1
+            }
+        }
+    }
+    
     
     private func getChiralityValue (_ string: String) -> String {
         let regex = try! NSRegularExpression(pattern: "(?<=_)(right|left)(?=_)", options: [])

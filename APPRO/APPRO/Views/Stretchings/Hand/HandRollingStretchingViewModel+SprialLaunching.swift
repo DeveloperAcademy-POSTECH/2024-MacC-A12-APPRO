@@ -48,6 +48,18 @@ extension HandRollingStretchingViewModel {
             
             try await animating(entity: custom3DObject, chirality: chirality)
             
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                if chirality == .right {
+                    guard let indexOfEntity = self.rightEntities.firstIndex(where: { $0.name == custom3DObject.name}) else { return }
+                    self.rightEntities.remove(at: indexOfEntity)
+                } else {
+                    guard let indexOfEntity = self.leftEntities.firstIndex(where: { $0.name == custom3DObject.name}) else { return }
+                    self.leftEntities.remove(at: indexOfEntity)
+                }
+                custom3DObject.removeFromParent()
+                
+            }
+            
             return custom3DObject
         }
         
@@ -99,9 +111,7 @@ extension HandRollingStretchingViewModel {
         
         entity.playAnimation(animation, transitionDuration: 2)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            entity.removeFromParent()
-        }
+        
         
         try await playSpatialAudio(entity, audioInfo: AudioFindHelper.handSprialAppear)
     }
