@@ -7,7 +7,6 @@
 
 import Foundation
 
-@MainActor
 @Observable
 class TutorialManager {
     
@@ -15,21 +14,24 @@ class TutorialManager {
     
     private let steps: [TutorialStep]
     private var currentStepIndex = 0
-    private var userDefulatsKey: String {
-        "\(stretchingPart)TutorialSkipped"
-    }
     
-    init(stretching: StretchingPart, steps: [TutorialStep]) {
+    init(stretching: StretchingPart) {
         self.stretchingPart = stretching
         self.steps = stretching.tutorialInstructions.map { .init(instruction: $0) }
     }
     
-    var isSkipped: Bool {
-        UserDefaults.standard.bool(forKey: userDefulatsKey)
+    var isLastStep: Bool {
+        currentStepIndex == steps.count - 1
     }
     
     var currentStep: TutorialStep? {
         steps[safe: currentStepIndex]
+    }
+    
+    func completeCurrentStep() {
+        guard var currentStep else { return }
+        
+        currentStep.isCompleted = true
     }
     
     func advanceToNextStep() {
@@ -37,8 +39,16 @@ class TutorialManager {
     }
     
     func skip() {
-        UserDefaults.standard.setValue(true, forKey: userDefulatsKey)
+        UserDefaults.standard.setValue(true, forKey: "\(stretchingPart)TutorialSkipped")
         currentStepIndex = steps.count
+    }
+    
+}
+
+extension TutorialManager {
+    
+    static func isSkipped(part: StretchingPart) -> Bool {
+        UserDefaults.standard.bool(forKey: "\(part)TutorialSkipped")
     }
     
 }
