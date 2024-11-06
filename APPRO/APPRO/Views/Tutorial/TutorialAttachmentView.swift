@@ -1,5 +1,5 @@
 //
-//  TutorialView.swift
+//  TutorialAttachmentView.swift
 //  APPRO
 //
 //  Created by 정상윤 on 10/31/24.

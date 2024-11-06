@@ -12,8 +12,7 @@ import ARKit
 
 @Observable
 @MainActor
-final class HandRollingStretchingViewModel {
-    
+final class HandRollingStretchingViewModel: StretchingCounter {
     //AR Session for hand tracking
     let session = ARKitSession()
     var handTracking = HandTrackingProvider()
@@ -23,10 +22,15 @@ final class HandRollingStretchingViewModel {
     var isRightHandInFist = false
     var isLeftHandInFist = false
     
+    let stretchingAttachmentViewID  = "StretchingAttachmentView"
     let threshold: Float = 0.1
     
     let frameInterval = 3
     var frameIndex = 0
+    
+    //StretchingCounter
+    var doneCount = 0
+    var maxCount = StretchingPart.wrist.maxCount
     
     //RealityViewContent
     var orb = ModelEntity()
@@ -62,8 +66,6 @@ final class HandRollingStretchingViewModel {
     
     var rightTargets = [Entity()]
     var leftTargets = [Entity()]
-    
-    var score = 0
     
     func makeFirstEntitySetting (_ content: RealityViewContent) async {
         rightGuideRing = await generateGuideRing(chirality: .right)
@@ -195,6 +197,15 @@ final class HandRollingStretchingViewModel {
             modelComponent.materials = [shaderGraphMaterial]
             modelEntity.components.set(modelComponent)
         } catch {}
+    }
+    
+    func addAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+        guard let stretchingAttachmentView = attachments.entity(for: stretchingAttachmentViewID) else {
+            dump("StretchingAttachmentView not found in attachments!")
+            return
+        }
+        stretchingAttachmentView.position = .init(x: 0, y: 2.0, z: -1.2)
+        content.add(stretchingAttachmentView)
     }
 }
 

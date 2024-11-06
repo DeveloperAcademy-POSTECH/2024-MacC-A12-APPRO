@@ -15,12 +15,13 @@ struct HandRollingStretchingView: View {
     @Environment(AppState.self) private var appState
     
     var body: some View {
-        RealityView { content in
+        RealityView { content, attachments in
             await viewModel.makeFirstEntitySetting(content)
             viewModel.addEntity(content)
             viewModel.bringCollisionHandler(content)
+            viewModel.addAttachmentView(content, attachments)
             
-        } update: { content in
+        } update: { content, attachments in
             viewModel.addEntity(content)
             
             if viewModel.isRightHandInFist {
@@ -29,6 +30,10 @@ struct HandRollingStretchingView: View {
             
             if viewModel.isLeftHandInFist {
                 viewModel.updateGuideComponentsTransform(content, chirality: .left)
+            }
+        } attachments: {
+            Attachment(id: viewModel.stretchingAttachmentViewID) {
+                StretchingAttachmentView(counter: viewModel, stretchingPart: .wrist)
             }
         }
         .task {
@@ -97,16 +102,15 @@ struct HandRollingStretchingView: View {
         }
         .onChange(of: viewModel.leftTargetEntities.count, initial: false ) { oldNumber, newNumber in
             if oldNumber > newNumber {
-                viewModel.score += 1
+                dump(viewModel.doneCount)
+                viewModel.doneCount += 1
             }
         }
         .onChange(of: viewModel.rightTargetEntities.count, initial: false ) { oldNumber, newNumber in
             if oldNumber > newNumber {
-                viewModel.score += 1
+                dump(viewModel.doneCount)
+                viewModel.doneCount += 1
             }
-        }
-        .onChange(of: viewModel.score, initial: false ) { _, changedScore  in
-            appState.doneCount = changedScore
         }
     }
 }
