@@ -47,12 +47,6 @@ struct StretchingAttachmentView: View {
                     }
                 }
             }
-            
-            Button {
-                UserDefaults.standard.setValue(false, forKey: "\(stretchingPart)TutorialSkipped")
-            } label: {
-                Text("Reset the Tutorial's User Default Value")
-            }
         }
         .frame(width: 550)
         .padding(24)
