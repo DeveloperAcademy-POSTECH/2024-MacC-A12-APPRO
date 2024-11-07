@@ -1,8 +1,8 @@
 //
-//  HandRollingStretchingViewModel+CollisionHandling.swift
+//  HandRollingTutorialViewModel.swift
 //  APPRO
 //
-//  Created by marty.academy on 10/31/24.
+//  Created by marty.academy on 11/7/24.
 //
 
 import SwiftUI
@@ -10,7 +10,7 @@ import ARKit
 import RealityKit
 import RealityKitContent
 
-extension HandRollingStretchingViewModel {
+extension HandRollingTutorialViewModel {
     
     func bringCollisionHandler(_ content: RealityViewContent) {
         _ = content.subscribe(to: CollisionEvents.Began.self, on: nil) { collisionEvent in
@@ -34,23 +34,6 @@ extension HandRollingStretchingViewModel {
                 for index in 0..<self.rightRotationCollisionArray.count {
                     self.rightRotationCollisionArray[index] = false
                 }
-                
-            }
-            
-            // rotation recognition handling : left
-            if entityA.name == "GuideSphere_Left" && entityB.name.contains(regex)  {
-                let index: Int = Int(String(entityB.name.last!)) ?? 0
-                self.leftRotationCollisionArray[index] = true
-            } else if entityB.name == "GuideSphere_Left" && entityA.name.contains(regex) {
-                let index: Int = Int(String(entityA.name.last!)) ?? 0
-                self.leftRotationCollisionArray[index] = true
-            }
-            
-            if self.leftRotationCollisionArray.filter({ $0 == false }).isEmpty {
-                self.leftRotationCount += 1
-                for index in 0..<self.leftRotationCollisionArray.count {
-                    self.leftRotationCollisionArray[index] = false
-                }
             }
             
             Task {
@@ -68,7 +51,6 @@ extension HandRollingStretchingViewModel {
                     }
                 }
             }
-            
         }
     }
     
@@ -106,25 +88,15 @@ extension HandRollingStretchingViewModel {
     
     private func removeTargetFromArrayAndContext (targetEntity: Entity, chirality: Chirality, canBeCountedAsScore: Bool) {
         targetEntity.removeFromParent()
-        
-        if chirality == .left  {
-            guard let index = leftTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
-            leftTargetEntities.remove(at: index)
-            if canBeCountedAsScore {
-                leftHitCount += 1
-            }
-            
-        } else {
-            guard let index = rightTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
-            rightTargetEntities.remove(at: index)
-            if canBeCountedAsScore {
-                rightHitCount += 1
-            }
+
+        rightTargetEntity = Entity()
+        if canBeCountedAsScore {
+            rightHitCount += 1
         }
     }
     
     private func getChiralityValue (_ string: String) -> String {
-        let regex = try! NSRegularExpression(pattern: "(?<=_)(right|left)(?=_)", options: [])
+        let regex = try! NSRegularExpression(pattern: "(?<=_)(right|left)", options: [])
         if let match = regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: string.utf16.count)) {
             if let range = Range(match.range(at: 1), in: string) {
                 let result = String(string[range])

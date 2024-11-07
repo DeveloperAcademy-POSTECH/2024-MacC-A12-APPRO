@@ -12,8 +12,8 @@ class TutorialManager {
     
     let stretchingPart: StretchingPart
     
-    private let steps: [TutorialStep]
-    private var currentStepIndex = 0
+    private var steps: [TutorialStep]
+    private(set) var currentStepIndex = 0
     
     init(stretching: StretchingPart) {
         self.stretchingPart = stretching
@@ -30,8 +30,7 @@ class TutorialManager {
     
     func completeCurrentStep() {
         guard var currentStep else { return }
-        
-        currentStep.isCompleted = true
+        steps[currentStepIndex].isCompleted = true
     }
     
     func advanceToNextStep() {
