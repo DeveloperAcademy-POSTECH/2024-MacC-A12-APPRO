@@ -49,21 +49,18 @@ extension HandRollingStretchingViewModel {
         frameIndex += 1
     }
     
-    func isHandinFistShape(chirality: Chirality) ->  Void {
+    func isHandinFistShape(chirality: Chirality) {
         guard let handAnchor = chirality == .right ? latestHandTracking.right : latestHandTracking.left else { return  }
         
         guard
             let thumbJoint = handAnchor.handSkeleton?.joint(.thumbIntermediateBase),
             let indexJoint = handAnchor.handSkeleton?.joint(.indexFingerIntermediateTip),
-            thumbJoint.isTracked && indexJoint.isTracked else {
-            
-            return
-        }
+            thumbJoint.isTracked && indexJoint.isTracked else { return }
         
         let thumbJointOriginalTransform = matrix_multiply(handAnchor.originFromAnchorTransform, thumbJoint.anchorFromJointTransform).columns.3
         let indexJointOriginalTransfrom = matrix_multiply(handAnchor.originFromAnchorTransform, indexJoint.anchorFromJointTransform).columns.3
         
-        let distance = distance( thumbJointOriginalTransform, indexJointOriginalTransfrom)
+        let distance = distance(thumbJointOriginalTransform, indexJointOriginalTransfrom)
         
         let isFistShape = distance <= 0.04
         let isPalmOpened = distance >= 0.09
@@ -74,7 +71,6 @@ extension HandRollingStretchingViewModel {
             } else {
                 isRightHandInFist = isFistShape
             }
-            
         } else {
             if isLeftHandInFist {
                 isLeftHandInFist = !isPalmOpened

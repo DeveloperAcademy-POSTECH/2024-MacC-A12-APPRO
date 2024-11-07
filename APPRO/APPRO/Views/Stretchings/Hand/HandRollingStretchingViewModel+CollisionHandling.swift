@@ -12,7 +12,7 @@ import RealityKitContent
 
 extension HandRollingStretchingViewModel {
     
-    func bringCollisionHandler(_ content: RealityViewContent) -> Void {
+    func bringCollisionHandler(_ content: RealityViewContent) {
         _ = content.subscribe(to: CollisionEvents.Began.self, on: nil) { collisionEvent in
             
             let entityA = collisionEvent.entityA
@@ -53,23 +53,26 @@ extension HandRollingStretchingViewModel {
                 }
             }
             
-            if entityA.name == "Spiral" && entityB.name == "Cylinder_002" {
-                self.spiralCollisionHandler(spiral: entityA, target: entityB)
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 ) {
-                    entityA.removeFromParent()
-                }
-            } else if entityB.name == "Spiral" && entityA.name == "Cylinder_002" {
-                self.spiralCollisionHandler(spiral: entityB, target: entityA)
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 ) {
-                    entityB.removeFromParent()
+            Task {
+                if entityA.name == "Spiral" && entityB.name == "Cylinder_002" {
+                    await self.spiralCollisionHandler(spiral: entityA, target: entityB)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 ) {
+                        entityA.removeFromParent()
+                    }
+                } else if entityB.name == "Spiral" && entityA.name == "Cylinder_002" {
+                    await self.spiralCollisionHandler(spiral: entityB, target: entityA)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 ) {
+                        entityB.removeFromParent()
+                    }
                 }
             }
+            
         }
     }
     
-    private func spiralCollisionHandler(spiral: Entity, target: Entity) {
+    private func spiralCollisionHandler(spiral: Entity, target: Entity) async {
         guard let spiralEntity = spiral.parent?.parent?.parent?.parent else { return }
         guard let targetEntity = target.parent?.parent?.parent else { return }
         
@@ -79,32 +82,47 @@ extension HandRollingStretchingViewModel {
          */
         let spiralChiralityAndScore = getStringBehindFirstUnderscore(spiralEntity.name)
         
-        let targetChirality = getChiralityValue(targetEntity.name)
+        let targetChiralityName = getChiralityValue(targetEntity.name)
+        let targetChiralityValue: Chirality = targetChiralityName == "left" ? .left : .right
         
         // 조건 : 발사체와 과녁의 chirality 가 동일하고, 발사체의 회전수가 3 이상일 것.
-        if  Int(spiralChiralityAndScore.suffix(1)) ?? 0 >= 3 && spiralChiralityAndScore.contains(targetChirality){
+        if  Int(spiralChiralityAndScore.suffix(1)) ?? 0 >= 3 && spiralChiralityAndScore.contains(targetChiralityName){
             try? animateForHittingTarget(targetEntity, spiralEntity: spiralEntity)
+            try? await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitRight(chirality: targetChiralityValue))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                targetEntity.removeFromParent()
-                
-                if spiralChiralityAndScore.starts(with: "left")  {
-                    guard let index = self.leftTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
-                    self.leftTargetEntities.remove(at: index)
-                } else {
-                    guard let index = self.rightTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
-                    self.rightTargetEntities.remove(at: index)
-                }
+                self.removeTargetFromArrayAndContext(targetEntity: targetEntity, chirality: targetChiralityValue, canBeCountedAsScore: true)
             }
         } else {
+            getWrongTargetColorChange(target as! ModelEntity, chirality: targetChiralityValue, intChangeTo: 1)
             try? animateForHittingTarget(targetEntity, spiralEntity: spiralEntity)
-            getWrongTargetColorChange(target as! ModelEntity, chirality: targetChirality == "left" ? .left : .right, intChangeTo: 1)
+            try? await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitWrong(chirality: targetChiralityValue))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4 ) {
-                self.getWrongTargetColorChange(target as! ModelEntity, chirality: targetChirality == "left" ? .left : .right, intChangeTo: 0)
+                self.removeTargetFromArrayAndContext(targetEntity: targetEntity, chirality: targetChiralityValue, canBeCountedAsScore: false)
             }
         }
     }
+    
+    private func removeTargetFromArrayAndContext (targetEntity: Entity, chirality: Chirality, canBeCountedAsScore: Bool) {
+        targetEntity.removeFromParent()
+        
+        if chirality == .left  {
+            guard let index = leftTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
+            leftTargetEntities.remove(at: index)
+            if canBeCountedAsScore {
+                leftHitCount += 1
+            }
+            
+        } else {
+            guard let index = rightTargetEntities.firstIndex(where: {$0.name == targetEntity.name} ) else { return }
+            rightTargetEntities.remove(at: index)
+            if canBeCountedAsScore {
+                rightHitCount += 1
+            }
+        }
+    }
+    
     
     private func getChiralityValue (_ string: String) -> String {
         let regex = try! NSRegularExpression(pattern: "(?<=_)(right|left)(?=_)", options: [])
