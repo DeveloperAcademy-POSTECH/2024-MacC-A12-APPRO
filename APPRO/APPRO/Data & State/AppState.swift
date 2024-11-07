@@ -21,18 +21,5 @@ final class AppState {
     var appPhase: AppPhase = .choosingStretchingPart
     
     var currentStretchingPart: StretchingPart? = nil
-    var tutorialManager: TutorialManager? = nil
-    
-    var doneCount = 0
-    private(set) var maxCount = 0
-    
-    func resetStretchingCount() {
-        if let stretching = currentStretchingPart {
-            doneCount = 0
-            maxCount = stretching.maxCount
-        } else {
-            dump("resetStretchingCount unexpectedly called")
-        }
-    }
     
 }
