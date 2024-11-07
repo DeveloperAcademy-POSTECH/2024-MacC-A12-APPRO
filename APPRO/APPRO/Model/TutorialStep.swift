@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TutorialStep {
+struct TutorialStep: Equatable {
     
     let instruction: String
     var isCompleted: Bool = false
