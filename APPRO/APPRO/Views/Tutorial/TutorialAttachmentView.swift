@@ -65,7 +65,8 @@ struct TutorialAttachmentView: View {
                 Text("Skip Tutorial")
                     .font(.title2)
                 Text("Start the content right away.\nNever show tutorial again.")
-                    .font(.subheadline)
+                    .font(.headline)
+                    .fontWeight(.regular)
                     .foregroundColor(Color(.secondaryLabel))
                     .multilineTextAlignment(.center)
             }
