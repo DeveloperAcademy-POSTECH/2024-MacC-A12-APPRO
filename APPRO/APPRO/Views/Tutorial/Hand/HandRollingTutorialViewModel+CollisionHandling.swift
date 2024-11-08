@@ -81,7 +81,9 @@ extension HandRollingTutorialViewModel {
             try? await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitWrong(chirality: targetChiralityValue))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4 ) {
-                self.getWrongTargetColorChange(target as! ModelEntity, chirality: targetChiralityValue, intChangeTo: 0)
+                if let modelEntity = target as? ModelEntity {
+                    self.getWrongTargetColorChange(modelEntity, chirality: targetChiralityValue, intChangeTo: 0)
+                }
             }
         }
     }
