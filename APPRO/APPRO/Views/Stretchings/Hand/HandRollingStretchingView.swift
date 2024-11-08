@@ -128,9 +128,6 @@ struct HandRollingStretchingView: View {
                 viewModel.doneCount += 1
             }
         }
-        .onChange(of: viewModel.score, initial: false ) { _, changedScore  in
-            appState.doneCount = changedScore
-        }
         .onChange(of: viewModel.rightGuideSphere.scale.x, initial: false ) { oldScale, newScale in
             if newScale > oldScale {
                 Task {
