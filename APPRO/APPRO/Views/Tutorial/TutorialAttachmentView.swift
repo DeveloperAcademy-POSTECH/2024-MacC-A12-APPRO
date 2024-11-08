@@ -11,6 +11,7 @@ struct TutorialAttachmentView: View {
     
     @State private var showSkipAlert = false
     @Bindable var tutorialManager: TutorialManager
+    @Environment(AppState.self) var appState: AppState
     
     var body: some View {
         if let currentStep = tutorialManager.currentStep {
@@ -35,7 +36,13 @@ struct TutorialAttachmentView: View {
                         .lineLimit(3)
                     Spacer()
                     Button(tutorialManager.isLastStep ? "Done" : "Next") {
-                        tutorialManager.advanceToNextStep()
+                        if tutorialManager.isLastStep {
+                            tutorialManager.skip()
+                            appState.appPhase = .stretching
+                        } else {
+                            tutorialManager.advanceToNextStep()
+                        }
+                        
                     }
                     .font(.title3)
                     .disabled(!currentStep.isCompleted)
@@ -81,7 +88,7 @@ struct TutorialAttachmentView: View {
             .frame(maxWidth: .infinity, maxHeight: 44)
             .buttonStyle(.borderless)
         }
-        .frame(width: 320, height: 240)
+        .frame(width: 320, height: tutorialManager.stretchingPart == .wrist ? 270 : 240)
         .padding(20)
         .glassBackgroundEffect()
     }

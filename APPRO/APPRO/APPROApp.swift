@@ -75,13 +75,15 @@ struct APPROApp: App {
     private func tutorialImmersiveView(part: StretchingPart) -> some View {
         switch part {
         case .eyes:
-            EyeTutorialImmersiveView()
+            // TODO: 눈 튜토리얼 몰입 뷰 추가
+            EmptyView()
         case .shoulder:
             // TODO: 어깨 튜토리얼 몰입 뷰 추가
             EmptyView()
         case .wrist:
             // TODO: 손목 튜토리얼 몰입 뷰 추가
-            EmptyView()
+            HandRollingTutorialView()
+                .environment(appState)
         }
     }
     

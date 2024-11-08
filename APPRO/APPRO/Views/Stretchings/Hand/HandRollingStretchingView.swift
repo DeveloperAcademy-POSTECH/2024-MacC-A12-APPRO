@@ -8,11 +8,9 @@
 import SwiftUI
 import RealityKit
 import RealityKitContent
-import ARKit
 
 struct HandRollingStretchingView: View {
     @State var viewModel = HandRollingStretchingViewModel()
-    @Environment(AppState.self) private var appState
     
     var body: some View {
         RealityView { content, attachments in
@@ -117,32 +115,15 @@ struct HandRollingStretchingView: View {
             }
         }
         .onChange(of: viewModel.rightHitCount, initial: false ) { oldNumber, newNumber in
-            if oldNumber > newNumber {
+            if oldNumber < newNumber {
                 dump(viewModel.doneCount)
                 viewModel.doneCount += 1
             }
         }
         .onChange(of: viewModel.leftHitCount, initial: false ) { oldNumber, newNumber in
-            if oldNumber > newNumber {
+            if oldNumber < newNumber {
                 dump(viewModel.doneCount)
                 viewModel.doneCount += 1
-            }
-        }
-        .onChange(of: viewModel.score, initial: false ) { _, changedScore  in
-            appState.doneCount = changedScore
-        }
-        .onChange(of: viewModel.rightGuideSphere.scale.x, initial: false ) { oldScale, newScale in
-            if newScale > oldScale {
-                Task {
-                    try? await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: .handGuideSphereAppear)
-                }
-            }
-        }
-        .onChange(of: viewModel.leftGuideSphere.scale.x, initial: false ) { oldScale, newScale in
-            if newScale > oldScale {
-                Task {
-                    try? await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: .handGuideSphereAppear)
-                }
             }
         }
         .onChange(of: viewModel.isStartingObjectVisible, initial: false) {_, newValue in

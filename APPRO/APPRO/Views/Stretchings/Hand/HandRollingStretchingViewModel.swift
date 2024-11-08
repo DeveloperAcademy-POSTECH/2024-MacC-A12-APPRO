@@ -26,7 +26,6 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     var isLeftHandInFist = false
     
     let stretchingAttachmentViewID  = "StretchingAttachmentView"
-    let threshold: Float = 0.1
     
     let frameInterval = 1
     var frameIndex = 0
@@ -36,17 +35,11 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     var maxCount = StretchingPart.wrist.maxCount
     
     //RealityViewContent
-    var orb = ModelEntity()
-    
-    var indexJointEntity = ModelEntity()
-    
     var leftEntities: [Entity] = []
     var rightEntities: [Entity] = []
     
     var leftTargetEntities : [Entity] = []
     var rightTargetEntities : [Entity] = []
-    
-    var showGuideRing: Bool = false
     
     var rightGuideRing = Entity()
     var rightGuideSphere = ModelEntity()
@@ -237,4 +230,3 @@ final class HandRollingStretchingViewModel: StretchingCounter {
         content.add(stretchingAttachmentView)
     }
 }
-
