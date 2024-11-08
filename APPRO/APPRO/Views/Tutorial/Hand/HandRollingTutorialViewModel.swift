@@ -43,7 +43,8 @@ final class HandRollingTutorialViewModel {
     var rightRotationCollisionArray = [ false, false, false, false]
     
     var rightLaunchState = false
-    var leftLaunchState = false
+    
+    var fistReaderRight: [Bool] = []
     
     var rightHitCount = 0
     
