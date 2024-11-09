@@ -123,13 +123,15 @@ extension HandRollingStretchingViewModel {
         return previous + (current - previous) * factor
     }
     
-    func playRotationChangeRingSound(_ newValue: Int) async {
+    func playRotationChangeRingSound(_ newValue: Int, chirality : Chirality) async {
+        
+        let guideRing = chirality == .left ? leftGuideRing : rightGuideRing
         if newValue >= 3 {
-            try? await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationThreeTimes)
+            try? await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationThreeTimes)
         } else if newValue == 2 {
-            try? await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationTwice)
+            try? await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationTwice)
         } else if newValue == 1 {
-            try? await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationOnce)
+            try? await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationOnce)
         }
     }
 }
