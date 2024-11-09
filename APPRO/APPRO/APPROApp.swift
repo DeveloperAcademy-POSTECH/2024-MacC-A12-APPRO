@@ -81,7 +81,6 @@ struct APPROApp: App {
             // TODO: 어깨 튜토리얼 몰입 뷰 추가
             EmptyView()
         case .wrist:
-            // TODO: 손목 튜토리얼 몰입 뷰 추가
             HandRollingTutorialView()
                 .environment(appState)
         }
