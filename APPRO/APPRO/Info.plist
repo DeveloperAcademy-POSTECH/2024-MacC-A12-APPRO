@@ -20,6 +20,8 @@
 		</dict>
 	</dict>
 	<key>NSHandsTrackingUsageDescription</key>
-	<string></string>
+	<string>This App require Hand Tracking by ARKit Session</string>
+	<key>NSWorldSensingUsageDescription</key>
+	<string>This App require World Tracking by ARKit Session</string>
 </dict>
 </plist>
