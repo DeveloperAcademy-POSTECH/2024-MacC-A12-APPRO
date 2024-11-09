@@ -12,6 +12,17 @@ import RealityKitContent
 
 extension HandRollingTutorialViewModel {
     
+    func updateStartingComponentsTransform(_ content: RealityViewContent) {
+        
+        guard let startingObj = content.entities.first(where: {$0.name == "StartingObject"}) else { return }
+        startingObj.transform.translation = .init(x: -0.15, y: startingHeight, z: -1.5)
+    }
+    
+    func updateTargetComponentTransform(_ content: RealityViewContent) {
+        guard let targetEntity = content.entities.first(where: {$0.name == "GreenTarget_right"}) else { return }
+        targetEntity.transform.translation = .init(x: -0.4, y: startingHeight + 0.25, z: -1.0)
+    }
+    
     func updateGuideComponentsTransform(_ content: RealityViewContent, chirality:  Chirality) {
         
         let chiralityString = chirality == .right ? "Right" : "Left"

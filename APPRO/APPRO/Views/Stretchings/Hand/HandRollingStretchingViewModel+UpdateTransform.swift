@@ -12,6 +12,24 @@ import RealityKitContent
 
 extension HandRollingStretchingViewModel {
     
+    func updateStartingComponentsTransform(_ content: RealityViewContent) {
+        guard let startingObj = content.entities.first(where: {$0.name == "StartingObject"}) else { return }
+        startingObj.transform.translation = .init(x: 0, y: startingHeight - 0.1, z: -1.0)
+    }
+    
+    func updateTargetsComponentTransform(_ content: RealityViewContent) {
+        
+        areTargetTranslationUpdated = true
+        
+        rightTargetEntities[0].transform.translation = .init(x: -0.6, y: startingHeight - 0.2, z: -0.8)
+        rightTargetEntities[1].transform.translation = .init(x: -0.6, y: startingHeight + 0.4, z: -1.0)
+        rightTargetEntities[2].transform.translation = .init(x: 0.8, y: startingHeight + 0.3 , z: -0.7)
+        
+        leftTargetEntities[0].transform.translation = .init(x: -0.35, y: startingHeight + 0.1, z: -1.0)
+        leftTargetEntities[1].transform.translation = .init(x: 0.4, y: startingHeight + 0.2, z: -1.0)
+        leftTargetEntities[2].transform.translation = .init(x: 0.9, y: startingHeight - 0.2, z: -0.6)
+    }
+    
     func updateGuideComponentsTransform(_ content: RealityViewContent, chirality:  Chirality) {
         
         let chiralityString = chirality == .right ? "Right" : "Left"

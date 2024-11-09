@@ -15,7 +15,11 @@ import ARKit
 final class HandRollingTutorialViewModel {
     
     let session = ARKitSession()
+    
     var handTracking = HandTrackingProvider()
+    var worldTracking = WorldTrackingProvider()
+    
+    var startingHeight: Float = 0.0
     
     var latestHandTracking: HandsUpdates = .init(left: nil, right: nil)
     
@@ -78,7 +82,7 @@ final class HandRollingTutorialViewModel {
         entity.name = "StartingObject"
         
         startObject = entity
-        startObject.transform.translation = .init(x: 0, y: 1.4, z: -1.0)
+        startObject.transform.translation = .init(x: 0, y: startingHeight, z: -1.0)
         
         guard let animation = startObject.availableAnimations.first else {return}
         startObject.playAnimation(animation.repeat(duration: .infinity), transitionDuration: 6.9, startsPaused: false)
@@ -98,7 +102,7 @@ final class HandRollingTutorialViewModel {
     }
     
     func generateGuideSphere(chirality : Chirality)-> ModelEntity  {
-        let guideSphereEntity = ModelEntity(mesh: .generateSphere(radius: 0.015), materials: [SimpleMaterial(color: .red, roughness: 0.0, isMetallic: false)]) // var to let
+        let guideSphereEntity = ModelEntity(mesh: .generateSphere(radius: 0.015), materials: [SimpleMaterial(color: .red, roughness: 0.0, isMetallic: false)])
         guideSphereEntity.name = chirality == .right ? "GuideSphere_Right" : "GuideSphere_Left"
         guideSphereEntity.generateCollisionShapes(recursive: false)
         
@@ -109,7 +113,7 @@ final class HandRollingTutorialViewModel {
         guard let targetEntity = try? await Entity(named: "Hand/target_new_green", in: realityKitContentBundle) else { return Entity() }
         
         var transform = targetEntity.transform
-        transform.translation = .init(x: -0.6, y: 1.6, z: -1)
+        transform.translation = .init(x: -0.6, y: startingHeight + 0.4, z: -1)
         transform.rotation = getRotationCalculator(transform.rotation, rotationX: 1/7 * .pi, rotationY: -1/3 * .pi, rotationZ: 0)
         transform.scale = transform.scale * 0.8
         
@@ -138,7 +142,7 @@ final class HandRollingTutorialViewModel {
             dump("TutorialAttachmentView not found in attachments!")
             return
         }
-        tutorialAttachmentView.position = .init(x: 0, y: 2.0, z: -1.2) // TODO: 추후수정
+        tutorialAttachmentView.position = .init(x: 0.6, y: startingHeight , z: -1.3)
         content.add(tutorialAttachmentView)
     }
     

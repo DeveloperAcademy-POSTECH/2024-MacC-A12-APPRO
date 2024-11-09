@@ -13,8 +13,9 @@ extension HandRollingStretchingViewModel {
     func start() async {
         do {
             if HandTrackingProvider.isSupported && WorldTrackingProvider.isSupported{
-                try await session.run([handTracking])
+                try await session.run([handTracking, worldTracking])
             } else {
+                print("hand tracking: \(HandTrackingProvider.isSupported)")
                 print("world tracking: \(WorldTrackingProvider.isSupported)")
             }
             

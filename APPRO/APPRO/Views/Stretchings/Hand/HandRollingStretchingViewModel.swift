@@ -15,7 +15,12 @@ import ARKit
 final class HandRollingStretchingViewModel: StretchingCounter {
     //AR Session for hand tracking
     let session = ARKitSession()
+    let sessionForWorldTracking = ARKitSession()
+    
     var handTracking = HandTrackingProvider()
+    var worldTracking = WorldTrackingProvider()
+    
+    var startingHeight: Float = 0.0
     
     var latestHandTracking: HandsUpdates = .init(left: nil, right: nil)
     
@@ -40,6 +45,8 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     
     var leftTargetEntities : [Entity] = []
     var rightTargetEntities : [Entity] = []
+    
+    var areTargetTranslationUpdated = false
     
     var rightGuideRing = Entity()
     var rightGuideSphere = ModelEntity()
@@ -100,7 +107,7 @@ final class HandRollingStretchingViewModel: StretchingCounter {
         entity.name = "StartingObject"
         
         startObject = entity
-        startObject.transform.translation = .init(x: 0, y: 1.4, z: -1.0)
+        startObject.transform.translation = .init(x: 0, y: startingHeight, z: -1.0)
         
         guard let animation = startObject.availableAnimations.first else {return}
         startObject.playAnimation(animation.repeat(duration: .infinity), transitionDuration: 6.9, startsPaused: false)
@@ -155,16 +162,16 @@ final class HandRollingStretchingViewModel: StretchingCounter {
         let originalTransform = greenTargetEntity.transform
         
         var transform_1 = originalTransform
-        transform_1.translation = .init(x: -0.7, y: 1.0, z: -0.5)
+        transform_1.translation = .init(x: -0.7, y: startingHeight - 0.2, z: -0.5)
         transform_1.rotation = getRotationCalculator(transform_1.rotation, rotationX: 1/7 * .pi, rotationY: -1/3 * .pi, rotationZ: 0)
         transform_1.scale = transform_1.scale * 0.8
         
         var transform_2  = originalTransform
-        transform_2.translation = .init(x: -0.6, y: 1.4, z: -1.0)
+        transform_2.translation = .init(x: -0.6, y: startingHeight + 0.4, z: -1.0)
         transform_2.rotation = getRotationCalculator(transform_2.rotation, rotationX: 1/6 * .pi, rotationY: -1/6 * .pi, rotationZ: 0)
         
         var transform_3  = originalTransform
-        transform_3.translation = .init(x: 0.6, y: 1.6, z: -0.7)
+        transform_3.translation = .init(x: 0.6, y: startingHeight + 0.3 , z: -0.7)
         transform_3.rotation = getRotationCalculator(transform_3.rotation, rotationX: 1/6 * .pi, rotationY: 1/6 * .pi, rotationZ: 1/3 * .pi)
         
         
@@ -177,17 +184,17 @@ final class HandRollingStretchingViewModel: StretchingCounter {
         let originalTransform = greenTargetEntity.transform
         
         var transform_1 = originalTransform
-        transform_1.translation = .init(x: -0.2, y: 1.4, z: -1.0)
+        transform_1.translation = .init(x: -0.2, y: startingHeight + 0.2, z: -1.0)
         transform_1.rotation = getRotationCalculator(transform_1.rotation, rotationX: 1/6 * .pi, rotationY: 0, rotationZ: 0)
         transform_1.scale = transform_1.scale * 0.9
         
         var transform_2  = originalTransform
-        transform_2.translation = .init(x: 0.2, y: 1.4, z: -1.0)
+        transform_2.translation = .init(x: 0.2, y: startingHeight + 0.2, z: -1.0)
         transform_2.rotation = getRotationCalculator(transform_2.rotation, rotationX: 1/6 * .pi, rotationY: 1/6 * .pi, rotationZ: 0)
         transform_1.scale = transform_1.scale * 0.8
         
         var transform_3  = originalTransform
-        transform_3.translation = .init(x: 0.7, y: 1.0, z: -0.6)
+        transform_3.translation = .init(x: 0.7, y: startingHeight - 0.2, z: -0.6)
         transform_3.rotation = getRotationCalculator(transform_3.rotation, rotationX: -1/6 * .pi, rotationY: 1/6 * .pi, rotationZ: 1/3 * .pi)
         transform_3.scale = transform_3.scale * 1.2
         
@@ -226,7 +233,7 @@ final class HandRollingStretchingViewModel: StretchingCounter {
             dump("StretchingAttachmentView not found in attachments!")
             return
         }
-        stretchingAttachmentView.position = .init(x: 0, y: 2.0, z: -1.2)
+        stretchingAttachmentView.position = .init(x: 0, y: startingHeight + 0.4, z: -1.2)
         content.add(stretchingAttachmentView)
     }
 }

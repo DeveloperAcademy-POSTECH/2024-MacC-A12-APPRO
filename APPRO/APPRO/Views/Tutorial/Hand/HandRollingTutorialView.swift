@@ -23,8 +23,15 @@ struct HandRollingTutorialView : View {
             await viewModel.makeFirstEntitySetting(content)
             viewModel.bringCollisionHandler(content)
             viewModel.addAttachmentView(content, attachments)
+            viewModel.subscribeSceneEvent(content)
         } update : { content, attachments in
             viewModel.addEntity(content)
+            
+            if viewModel.isStartingObjectVisible {
+                viewModel.updateStartingComponentsTransform(content)
+            } else {
+                viewModel.updateTargetComponentTransform(content)
+            }
             
             if viewModel.isRightHandInFist {
                 viewModel.updateGuideComponentsTransform(content, chirality: .right)
