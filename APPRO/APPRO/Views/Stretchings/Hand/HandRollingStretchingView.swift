@@ -104,14 +104,14 @@ struct HandRollingStretchingView: View {
             let colorValueChangedTo = min (newValue * 2, 6)
             viewModel.getDifferentRingColor(viewModel.rightGuideRing, intChangeTo: Int32(colorValueChangedTo))
             Task {
-                await viewModel.playRotationChangeRingSound(newValue)
+                await viewModel.playRotationChangeRingSound(newValue, chirality: .right)
             }
         }
         .onChange(of: viewModel.leftRotationCount, initial: false ) { _, newValue in
             let colorValueChangedTo = min (newValue * 2 + 1, 7)
             viewModel.getDifferentRingColor(viewModel.leftGuideRing, intChangeTo: Int32(colorValueChangedTo))
             Task {
-                await viewModel.playRotationChangeRingSound(newValue)
+                await viewModel.playRotationChangeRingSound(newValue, chirality: .left)
             }
         }
         .onChange(of: viewModel.rightHitCount, initial: false ) { oldNumber, newNumber in
