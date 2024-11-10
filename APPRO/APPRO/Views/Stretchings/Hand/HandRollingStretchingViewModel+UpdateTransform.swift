@@ -101,7 +101,7 @@ extension HandRollingStretchingViewModel {
         let intersection3D = middleKnucklePosition + normalizedVector * t
         
         let distanceToCenter = length(intersection3D - wristRingPosition)
-        if distanceToCenter <= ( radius / 4 )  {
+        if distanceToCenter <= ( radius / 8 )  {
             if chirality == .right {
                 rightGuideSphere.scale = .init(repeating: 0.01)
                 if rightRotationCount > 0 && !rightLaunchState {
