@@ -51,6 +51,11 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     
     var areTargetTranslationUpdated = false
     
+    var ringOriginal = Entity()
+    var spiralOriginal = Entity()
+    var targetRightOriginal = Entity()
+    var targetLeftOriginal = Entity()
+    
     var rightGuideRing = Entity()
     var rightGuideSphere = ModelEntity()
     
@@ -123,14 +128,22 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     }
     
     func generateGuideRing(chirality : Chirality) async  -> Entity  {
-        guard let guideRingEntity = try? await Entity(named: "Hand/wrist_ring", in: realityKitContentBundle) else { return Entity() }
-        guideRingEntity.name = chirality == .right ?  "Ring_Right" : "Ring_Left"
+        var ringEntity = Entity()
         
-        if chirality == .left {
-            getDifferentRingColor(guideRingEntity, intChangeTo: 1)
+        if ringOriginal.name == "" {
+            guard let guideRingEntityLoadedFromRCP = try? await Entity(named: "Hand/wrist_ring", in: realityKitContentBundle) else { return Entity() }
+            ringEntity = guideRingEntityLoadedFromRCP
+        } else {
+            ringEntity = ringOriginal.clone(recursive: true)
         }
         
-        return guideRingEntity
+        ringEntity.name = chirality == .right ?  "Ring_Right" : "Ring_Left"
+        
+        if chirality == .left {
+            getDifferentRingColor(ringEntity, intChangeTo: 1)
+        }
+        
+        return ringEntity
     }
     
     func generateGuideSphere(chirality : Chirality)-> ModelEntity  {
@@ -147,8 +160,18 @@ final class HandRollingStretchingViewModel: StretchingCounter {
         
         var result: [Entity] = []
         
+        if chirality == .right && targetRightOriginal.name == "" {
+            guard let targetRightLoadedFromRCP = try? await Entity(named: resourceUrl, in: realityKitContentBundle) else { return [] }
+            targetRightOriginal = targetRightLoadedFromRCP
+        }
+        
+        if chirality == .left && targetLeftOriginal.name == "" {
+            guard let targetLeftLoadedFromRCP = try? await Entity(named: resourceUrl, in: realityKitContentBundle) else { return [] }
+            targetLeftOriginal = targetLeftLoadedFromRCP
+        }
+        
         for targetScore in targetRotationCounts {
-            guard let targetEntity = try? await Entity(named: resourceUrl, in: realityKitContentBundle) else { return [] }
+            let targetEntity = chirality == .left ? targetLeftOriginal.clone(recursive: true) : targetRightOriginal.clone(recursive: true)
             let entityName = chirality == .left ? "BlueTarget_left_\(targetScore)" :"GreenTarget_right_\(targetScore)"
             
             targetEntity.name = entityName

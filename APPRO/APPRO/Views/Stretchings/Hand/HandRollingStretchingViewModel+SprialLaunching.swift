@@ -13,57 +13,60 @@ import RealityKitContent
 extension HandRollingStretchingViewModel {
     
     func generateLaunchObj(chirality: Chirality) async throws -> Entity {
-        if let custom3DObject = try? await Entity(named: "Hand/spiral_new", in: realityKitContentBundle) {
-            let rotationNumber = chirality == .left ? leftRotationForLaunchNumber : rightRotationForLaunchNumber
-            custom3DObject.name = "Spiral_\(chirality)_\(rotationNumber)"
-            
-            custom3DObject.components.set(GroundingShadowComponent(castsShadow: true))
-            custom3DObject.components.set(InputTargetComponent())
-            custom3DObject.generateCollisionShapes(recursive: true)
-            
-            custom3DObject.scale = .init(repeating: 0.01)
-            
-            let physicsMaterial = PhysicsMaterialResource.generate(
-                staticFriction: 0.01,
-                dynamicFriction: 0.01,
-                restitution: 1.5
-            )
-            
-            var physicsBody = PhysicsBodyComponent(massProperties: .default, material: physicsMaterial, mode: .dynamic)
-            physicsBody.isAffectedByGravity = false
-            physicsBody.massProperties.mass = 0.01
-            
-            let startingCriteria = chirality == .right ? rightGuideRing : leftGuideRing
-            custom3DObject.transform = startingCriteria.transform
-            
-            let forwardDirection = startingCriteria.transform.matrix.columns.0 // x axis
-            let direction = simd_float3(forwardDirection.x, forwardDirection.y, forwardDirection.z)
-            let adjustedTranslation = chirality == .left ? startingCriteria.position - direction * 0.25 : startingCriteria.position + direction * 0.25
-            
-            custom3DObject.transform.translation = adjustedTranslation
-            
-            if let modelEntity = custom3DObject.findEntity(named: "Spiral") as? ModelEntity {
-                modelEntity.components[PhysicsBodyComponent.self] = physicsBody
-            }
-            
-            try await animating(entity: custom3DObject, chirality: chirality)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                if chirality == .right {
-                    guard let indexOfEntity = self.rightEntities.firstIndex(where: { $0.name == custom3DObject.name}) else { return }
-                    self.rightEntities.remove(at: indexOfEntity)
-                } else {
-                    guard let indexOfEntity = self.leftEntities.firstIndex(where: { $0.name == custom3DObject.name}) else { return }
-                    self.leftEntities.remove(at: indexOfEntity)
-                }
-                custom3DObject.removeFromParent()
-                
-            }
-            
-            return custom3DObject
+        if spiralOriginal.name == "" {
+            guard let spiralLoadedFromRCP = try? await Entity(named: "Hand/spiral_new", in: realityKitContentBundle) else { return Entity() }
+            spiralOriginal = spiralLoadedFromRCP
         }
         
-        return Entity()
+        let spiralEntity = spiralOriginal.clone(recursive: true)
+        let rotationNumber = chirality == .left ? leftRotationForLaunchNumber : rightRotationForLaunchNumber
+        spiralEntity.name = "Spiral_\(chirality)_\(rotationNumber)"
+        
+        spiralEntity.components.set(GroundingShadowComponent(castsShadow: true))
+        spiralEntity.components.set(InputTargetComponent())
+        spiralEntity.generateCollisionShapes(recursive: true)
+        
+        spiralEntity.scale = .init(repeating: 0.01)
+        
+        let physicsMaterial = PhysicsMaterialResource.generate(
+            staticFriction: 0.01,
+            dynamicFriction: 0.01,
+            restitution: 1.5
+        )
+        
+        var physicsBody = PhysicsBodyComponent(massProperties: .default, material: physicsMaterial, mode: .dynamic)
+        physicsBody.isAffectedByGravity = false
+        physicsBody.massProperties.mass = 0.01
+        
+        let startingCriteria = chirality == .right ? rightGuideRing : leftGuideRing
+        spiralEntity.transform = startingCriteria.transform
+        
+        let forwardDirection = startingCriteria.transform.matrix.columns.0 // x axis
+        let direction = simd_float3(forwardDirection.x, forwardDirection.y, forwardDirection.z)
+        let adjustedTranslation = chirality == .left ? startingCriteria.position - direction * 0.25 : startingCriteria.position + direction * 0.25
+        
+        spiralEntity.transform.translation = adjustedTranslation
+        
+        if let modelEntity = spiralEntity.findEntity(named: "Spiral") as? ModelEntity {
+            modelEntity.components[PhysicsBodyComponent.self] = physicsBody
+        }
+        
+        try await animating(entity: spiralEntity, chirality: chirality)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if chirality == .right {
+                guard let indexOfEntity = self.rightEntities.firstIndex(where: { $0.name == spiralEntity.name}) else { return }
+                self.rightEntities.remove(at: indexOfEntity)
+            } else {
+                guard let indexOfEntity = self.leftEntities.firstIndex(where: { $0.name == spiralEntity.name}) else { return }
+                self.leftEntities.remove(at: indexOfEntity)
+            }
+            spiralEntity.removeFromParent()
+            
+        }
+        
+        return spiralEntity
+        
     }
     
     func findResourceAndPlay(_ entity: Entity, spatialAudioName: String, resourceLocation: String, resourceFrom: String) async {
