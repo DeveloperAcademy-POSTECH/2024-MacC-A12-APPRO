@@ -22,6 +22,7 @@ final class EyeTutorialManager: TutorialManager {
     
     private(set) var eyeEntity: Entity?
     private var patchEntity: Entity?
+    private var attachmentView: Entity?
     
     init() {
         super.init(stretching: .eyes)
@@ -58,6 +59,7 @@ final class EyeTutorialManager: TutorialManager {
             forwardDirection: .positiveZ
         )
         content.add(attachmentView)
+        self.attachmentView = attachmentView
     }
     
     private func step1() {
@@ -67,6 +69,17 @@ final class EyeTutorialManager: TutorialManager {
         }
         playPatchOpacityAnimation(patchEntity)
         playEyeLoopAnimation()
+        completeCurrentStep()
+    }
+    
+    func step2() {
+        guard let eyeEntity else { return }
+        guard let attachmentView else { return }
+        
+        eyeEntity.components.remove(ClosureComponent.self)
+        attachmentView.components.remove(ClosureComponent.self)
+        
+        completeCurrentStep()
     }
     
 }

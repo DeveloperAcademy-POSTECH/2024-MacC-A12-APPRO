@@ -29,6 +29,14 @@ struct EyeTutorialImmersiveView: View {
                     tutorialManager.handleTapGestureValue(value)
                 }
         )
+        .onChange(of: tutorialManager.currentStepIndex) { _, index in
+            switch index {
+            case 1:
+                tutorialManager.step2()
+            default:
+                break
+            }
+        }
     }
     
 }
