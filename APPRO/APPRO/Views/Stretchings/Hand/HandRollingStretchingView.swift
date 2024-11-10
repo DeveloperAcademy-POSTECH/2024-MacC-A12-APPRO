@@ -90,7 +90,7 @@ struct HandRollingStretchingView: View {
                 viewModel.rightEntities.append(viewModel.rightGuideRing)
                 viewModel.rightEntities.append(viewModel.rightGuideSphere)
                 Task {
-                    try? await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
+                    await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
                 }
             } else {
                 viewModel.rightGuideRing.removeFromParent()
@@ -103,7 +103,7 @@ struct HandRollingStretchingView: View {
                 viewModel.leftEntities.append(viewModel.leftGuideRing)
                 viewModel.leftEntities.append(viewModel.leftGuideSphere)
                 Task {
-                    try? await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
+                    await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
                 }
             } else {
                 viewModel.leftGuideRing.removeFromParent()
@@ -145,11 +145,7 @@ struct HandRollingStretchingView: View {
         .onChange(of: viewModel.startObject, initial: false) {_, newValue in
             if newValue.name == "StartingObject" {
                 Task {
-                    do {
-                        try await viewModel.playSpatialAudio(newValue, audioInfo: .handStartAppear)
-                    } catch {
-                        print(error)
-                    }
+                    await viewModel.playSpatialAudio(newValue, audioInfo: .handStartAppear)
                 }
             }
         }

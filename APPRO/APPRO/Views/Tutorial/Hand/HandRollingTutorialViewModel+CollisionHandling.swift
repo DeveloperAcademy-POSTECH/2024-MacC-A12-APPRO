@@ -70,7 +70,7 @@ extension HandRollingTutorialViewModel {
         // 조건 : 발사체와 과녁의 chirality 가 동일하고, 발사체의 회전수가 3 이상일 것.
         if  Int(spiralChiralityAndScore.suffix(1)) ?? 0 >= 3 && spiralChiralityAndScore.contains(targetChiralityName){
             try? animateForHittingTarget(targetEntity, spiralEntity: spiralEntity)
-            try? await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitRight(chirality: targetChiralityValue))
+            await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitRight(chirality: targetChiralityValue))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.removeTargetFromArrayAndContext(targetEntity: targetEntity, chirality: targetChiralityValue, canBeCountedAsScore: true)
@@ -78,7 +78,7 @@ extension HandRollingTutorialViewModel {
         } else {
             getWrongTargetColorChange(target as! ModelEntity, chirality: targetChiralityValue, intChangeTo: 1)
             try? animateForHittingTarget(targetEntity, spiralEntity: spiralEntity)
-            try? await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitWrong(chirality: targetChiralityValue))
+            await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitWrong(chirality: targetChiralityValue))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4 ) {
                 if let modelEntity = target as? ModelEntity {
