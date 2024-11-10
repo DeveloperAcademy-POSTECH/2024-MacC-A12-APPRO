@@ -68,7 +68,7 @@ struct HandRollingTutorialView : View {
                 }
                 
                 Task {
-                    try? await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
+                    await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
                 }
             } else {
                 viewModel.rightGuideRing.removeFromParent()

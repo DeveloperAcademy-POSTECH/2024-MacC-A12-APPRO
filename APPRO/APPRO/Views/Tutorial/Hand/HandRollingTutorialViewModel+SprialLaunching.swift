@@ -62,7 +62,7 @@ extension HandRollingTutorialViewModel {
         return Entity()
     }
     
-    func findResourceAndPlay(_ entity: Entity, spatialAudioName: String, resourceLocation: String, resourceFrom: String) async throws {
+    func findResourceAndPlay(_ entity: Entity, spatialAudioName: String, resourceLocation: String, resourceFrom: String) async {
         guard let audioEntity = entity.findEntity(named: spatialAudioName),
               let resource = try? await AudioFileResource(named: resourceLocation,
                                                           from: resourceFrom,
@@ -74,9 +74,9 @@ extension HandRollingTutorialViewModel {
         audioPlayer.play()
     }
     
-    func playSpatialAudio(_ entity: Entity, audioInfo: AudioFindHelper) async throws {
+    func playSpatialAudio(_ entity: Entity, audioInfo: AudioFindHelper) async {
         let audioInfoDetail = audioInfo.detail
-        try await findResourceAndPlay(entity, spatialAudioName: audioInfoDetail.spatialAudioName, resourceLocation: audioInfoDetail.resourceLocation, resourceFrom: audioInfoDetail.resourceFrom)
+        await findResourceAndPlay(entity, spatialAudioName: audioInfoDetail.spatialAudioName, resourceLocation: audioInfoDetail.resourceLocation, resourceFrom: audioInfoDetail.resourceFrom)
     }
     
     func animating(entity : Entity, chirality : Chirality) async throws {
@@ -105,6 +105,6 @@ extension HandRollingTutorialViewModel {
         
         entity.playAnimation(animation, transitionDuration: 0.5)
         
-        try await playSpatialAudio(entity, audioInfo: AudioFindHelper.handSprialAppear)
+        await playSpatialAudio(entity, audioInfo: AudioFindHelper.handSprialAppear)
     }
 }

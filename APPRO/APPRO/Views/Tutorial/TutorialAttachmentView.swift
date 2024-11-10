@@ -35,12 +35,10 @@ struct TutorialAttachmentView: View {
                         .multilineTextAlignment(.leading)
                         .lineLimit(3)
                         .onAppear() {
-                            let audioFileName = "\(tutorialManager.stretchingPart)_1"
-                            tutorialManager.playInstructionAudio(audioFileName)
+                            tutorialManager.playInstructionAudio()
                         }
-                        .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, newValue in
-                            let audioFileName = "\(tutorialManager.stretchingPart)_\(newValue + 1)"
-                            tutorialManager.playInstructionAudio(audioFileName)
+                        .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, _ in
+                            tutorialManager.playInstructionAudio()
                         }
                     
                     Spacer()

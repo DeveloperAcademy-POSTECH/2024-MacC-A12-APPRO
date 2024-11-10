@@ -123,11 +123,11 @@ extension HandRollingTutorialViewModel {
     
     func playRotationChangeRingSound(_ newValue: Int) async {
         if newValue >= 3 {
-            try? await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationThreeTimes)
+            await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationThreeTimes)
         } else if newValue == 2 {
-            try? await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationTwice)
+            await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationTwice)
         } else if newValue == 1 {
-            try? await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationOnce)
+            await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationOnce)
         }
     }
 }
