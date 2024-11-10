@@ -34,7 +34,7 @@ struct TutorialAttachmentView: View {
                         .font(.system(size: 32, weight: .medium))
                         .multilineTextAlignment(.leading)
                         .lineLimit(3)
-                        .onAppear() {
+                        .onAppear {
                             let audioFileName = "\(tutorialManager.stretchingPart)_1"
                             tutorialManager.playInstructionAudio(audioFileName)
                         }
@@ -53,6 +53,7 @@ struct TutorialAttachmentView: View {
                         }
                         
                     }
+                    .controlSize(.large)
                     .font(.title3)
                     .disabled(!currentStep.isCompleted)
                 }
