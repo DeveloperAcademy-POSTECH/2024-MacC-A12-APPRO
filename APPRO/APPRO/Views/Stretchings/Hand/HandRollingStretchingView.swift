@@ -8,11 +8,9 @@
 import SwiftUI
 import RealityKit
 import RealityKitContent
-import ARKit
 
 struct HandRollingStretchingView: View {
     @State var viewModel = HandRollingStretchingViewModel()
-    @Environment(AppState.self) private var appState
     
     var body: some View {
         RealityView { content, attachments in
@@ -22,10 +20,19 @@ struct HandRollingStretchingView: View {
             await viewModel.makeFirstEntitySetting(content)
             viewModel.addEntity(content)
             viewModel.bringCollisionHandler(content)
+            viewModel.subscribeSceneEvent(content)
             viewModel.addAttachmentView(content, attachments)
             
         } update: { content, attachments in
             viewModel.addEntity(content)
+            
+            if viewModel.isStartingObjectVisible {
+                viewModel.updateStartingComponentsTransform(content)
+            } else {
+                if !viewModel.areTargetTranslationUpdated {
+                    viewModel.updateTargetsComponentTransform(content)
+                }
+            }
             
             if viewModel.isRightHandInFist {
                 viewModel.updateGuideComponentsTransform(content, chirality: .right)
@@ -34,6 +41,8 @@ struct HandRollingStretchingView: View {
             if viewModel.isLeftHandInFist {
                 viewModel.updateGuideComponentsTransform(content, chirality: .left)
             }
+            
+            viewModel.addAttachmentView(content, attachments)
         } attachments: {
             Attachment(id: viewModel.stretchingAttachmentViewID) {
                 StretchingAttachmentView(counter: viewModel, stretchingPart: .wrist)
@@ -106,40 +115,26 @@ struct HandRollingStretchingView: View {
             let colorValueChangedTo = min (newValue * 2, 6)
             viewModel.getDifferentRingColor(viewModel.rightGuideRing, intChangeTo: Int32(colorValueChangedTo))
             Task {
-                await viewModel.playRotationChangeRingSound(newValue)
+                await viewModel.playRotationChangeRingSound(newValue, chirality: .right)
             }
         }
         .onChange(of: viewModel.leftRotationCount, initial: false ) { _, newValue in
             let colorValueChangedTo = min (newValue * 2 + 1, 7)
             viewModel.getDifferentRingColor(viewModel.leftGuideRing, intChangeTo: Int32(colorValueChangedTo))
             Task {
-                await viewModel.playRotationChangeRingSound(newValue)
+                await viewModel.playRotationChangeRingSound(newValue, chirality: .left)
             }
         }
         .onChange(of: viewModel.rightHitCount, initial: false ) { oldNumber, newNumber in
-            if oldNumber > newNumber {
+            if oldNumber < newNumber {
                 dump(viewModel.doneCount)
                 viewModel.doneCount += 1
             }
         }
         .onChange(of: viewModel.leftHitCount, initial: false ) { oldNumber, newNumber in
-            if oldNumber > newNumber {
+            if oldNumber < newNumber {
                 dump(viewModel.doneCount)
                 viewModel.doneCount += 1
-            }
-        }
-        .onChange(of: viewModel.rightGuideSphere.scale.x, initial: false ) { oldScale, newScale in
-            if newScale > oldScale {
-                Task {
-                    try? await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: .handGuideSphereAppear)
-                }
-            }
-        }
-        .onChange(of: viewModel.leftGuideSphere.scale.x, initial: false ) { oldScale, newScale in
-            if newScale > oldScale {
-                Task {
-                    try? await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: .handGuideSphereAppear)
-                }
             }
         }
         .onChange(of: viewModel.isStartingObjectVisible, initial: false) {_, newValue in

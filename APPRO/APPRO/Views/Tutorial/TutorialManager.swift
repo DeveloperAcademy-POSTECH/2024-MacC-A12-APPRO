@@ -6,14 +6,17 @@
 //
 
 import Foundation
+import AVFAudio
 
 @Observable
 class TutorialManager {
     
     let stretchingPart: StretchingPart
     
-    private let steps: [TutorialStep]
-    private var currentStepIndex = 0
+    private var steps: [TutorialStep]
+    private(set) var currentStepIndex = 0
+    
+    static var audioPlayer: AVAudioPlayer?
     
     init(stretching: StretchingPart) {
         self.stretchingPart = stretching
@@ -30,8 +33,7 @@ class TutorialManager {
     
     func completeCurrentStep() {
         guard var currentStep else { return }
-        
-        currentStep.isCompleted = true
+        steps[currentStepIndex].isCompleted = true
     }
     
     func advanceToNextStep() {
@@ -41,6 +43,19 @@ class TutorialManager {
     func skip() {
         UserDefaults.standard.setValue(true, forKey: "\(stretchingPart)TutorialSkipped")
         currentStepIndex = steps.count
+    }
+    
+    func playInstructionAudio(_ audioFile: String) {
+        if let path = Bundle.main.path(forResource: audioFile, ofType: "mp3"){
+               do{
+                   TutorialManager.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
+                   TutorialManager.audioPlayer?.prepareToPlay()
+                   TutorialManager.audioPlayer?.play()
+
+               }catch {
+                   print("Error on Playing Instruction Audio : \(error)")
+               }
+           }
     }
     
 }

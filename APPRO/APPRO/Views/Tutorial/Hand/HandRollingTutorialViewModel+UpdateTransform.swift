@@ -1,8 +1,8 @@
 //
-//  HandRollingStretchingViewModel+UpdateTransform.swift
+//  HandRollingTutorialViewModel.swift
 //  APPRO
 //
-//  Created by marty.academy on 10/31/24.
+//  Created by marty.academy on 11/7/24.
 //
 
 import SwiftUI
@@ -10,24 +10,17 @@ import ARKit
 import RealityKit
 import RealityKitContent
 
-extension HandRollingStretchingViewModel {
+extension HandRollingTutorialViewModel {
     
     func updateStartingComponentsTransform(_ content: RealityViewContent) {
+        
         guard let startingObj = content.entities.first(where: {$0.name == "StartingObject"}) else { return }
-        startingObj.transform.translation = .init(x: 0, y: startingHeight - 0.1, z: -1.0)
+        startingObj.transform.translation = .init(x: -0.15, y: startingHeight, z: -1.5)
     }
     
-    func updateTargetsComponentTransform(_ content: RealityViewContent) {
-        
-        areTargetTranslationUpdated = true
-        
-        rightTargetEntities[0].transform.translation = .init(x: -0.6, y: startingHeight - 0.2, z: -0.8)
-        rightTargetEntities[1].transform.translation = .init(x: -0.6, y: startingHeight + 0.4, z: -1.0)
-        rightTargetEntities[2].transform.translation = .init(x: 0.8, y: startingHeight + 0.3 , z: -0.7)
-        
-        leftTargetEntities[0].transform.translation = .init(x: -0.35, y: startingHeight + 0.1, z: -1.0)
-        leftTargetEntities[1].transform.translation = .init(x: 0.4, y: startingHeight + 0.2, z: -1.0)
-        leftTargetEntities[2].transform.translation = .init(x: 0.9, y: startingHeight - 0.2, z: -0.6)
+    func updateTargetComponentTransform(_ content: RealityViewContent) {
+        guard let targetEntity = content.entities.first(where: {$0.name == "GreenTarget_right"}) else { return }
+        targetEntity.transform.translation = .init(x: -0.4, y: startingHeight + 0.25, z: -1.0)
     }
     
     func updateGuideComponentsTransform(_ content: RealityViewContent, chirality:  Chirality) {
@@ -73,7 +66,7 @@ extension HandRollingStretchingViewModel {
     }
     
     func calculateIntersectionWithWristRingPlane(chirality : Chirality) -> simd_float3? {
-        let wristRingTransform = chirality == .right ? rightGuideRing.transform : leftGuideRing.transform
+        let wristRingTransform = rightGuideRing.transform
         
         let middleKnucklePosition = getJointPosition(.middleFingerKnuckle, chirality: chirality)
         let vector = middleKnucklePosition - getJointPosition(.wrist, chirality: chirality)
@@ -109,14 +102,6 @@ extension HandRollingStretchingViewModel {
                         self.rightLaunchState = true //TODO: 회전폭 반경은 더욱 좁게 설정되어야할 수도 있음.
                     }
                 }
-            } else {
-                leftGuideSphere.scale = .init(repeating: 0.01)
-                if leftRotationCount > 0 && !leftLaunchState {
-                    DispatchQueue.main.async {
-                        self.leftLaunchState = true //TODO: 회전폭 반경은 더욱 좁게 설정되어야할 수도 있음.
-                    }
-                }
-                
             }
             return intersection3D
         }
@@ -125,11 +110,6 @@ extension HandRollingStretchingViewModel {
             rightGuideSphere.scale = .init(repeating: 1)
         }
             
-        if leftGuideSphere.scale.x < 1 {
-            leftGuideSphere.scale = .init(repeating: 1)
-        }
-        
-        
         
         let directionVector = normalize(intersection3D - wristRingPosition)
         // 원 경계에 해당하는 지점 계산
@@ -141,15 +121,13 @@ extension HandRollingStretchingViewModel {
         return previous + (current - previous) * factor
     }
     
-    func playRotationChangeRingSound(_ newValue: Int, chirality : Chirality) async {
-        
-        let guideRing = chirality == .left ? leftGuideRing : rightGuideRing
+    func playRotationChangeRingSound(_ newValue: Int) async {
         if newValue >= 3 {
-            try? await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationThreeTimes)
+            try? await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationThreeTimes)
         } else if newValue == 2 {
-            try? await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationTwice)
+            try? await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationTwice)
         } else if newValue == 1 {
-            try? await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationOnce)
+            try? await playSpatialAudio(rightGuideRing, audioInfo: AudioFindHelper.handRotationOnce)
         }
     }
 }

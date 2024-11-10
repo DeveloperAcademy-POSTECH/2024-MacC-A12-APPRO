@@ -11,6 +11,7 @@ struct TutorialAttachmentView: View {
     
     @State private var showSkipAlert = false
     @Bindable var tutorialManager: TutorialManager
+    @Environment(AppState.self) var appState: AppState
     
     var body: some View {
         if let currentStep = tutorialManager.currentStep {
@@ -33,9 +34,24 @@ struct TutorialAttachmentView: View {
                         .font(.system(size: 32, weight: .medium))
                         .multilineTextAlignment(.leading)
                         .lineLimit(3)
+                        .onAppear() {
+                            let audioFileName = "\(tutorialManager.stretchingPart)_1"
+                            tutorialManager.playInstructionAudio(audioFileName)
+                        }
+                        .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, newValue in
+                            let audioFileName = "\(tutorialManager.stretchingPart)_\(newValue + 1)"
+                            tutorialManager.playInstructionAudio(audioFileName)
+                        }
+                    
                     Spacer()
                     Button(tutorialManager.isLastStep ? "Done" : "Next") {
-                        tutorialManager.advanceToNextStep()
+                        if tutorialManager.isLastStep {
+                            tutorialManager.skip()
+                            appState.appPhase = .stretching
+                        } else {
+                            tutorialManager.advanceToNextStep()
+                        }
+                        
                     }
                     .font(.title3)
                     .disabled(!currentStep.isCompleted)
@@ -82,7 +98,7 @@ struct TutorialAttachmentView: View {
             .frame(maxWidth: .infinity, maxHeight: 44)
             .buttonStyle(.borderless)
         }
-        .frame(width: 320, height: 240)
+        .frame(width: 320, height: tutorialManager.stretchingPart == .wrist ? 270 : 240)
         .padding(20)
         .glassBackgroundEffect()
     }
