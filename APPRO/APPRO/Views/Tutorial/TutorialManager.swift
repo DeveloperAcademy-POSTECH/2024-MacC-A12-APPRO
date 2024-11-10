@@ -32,7 +32,8 @@ class TutorialManager {
     }
     
     func completeCurrentStep() {
-        guard var currentStep else { return }
+        guard steps.indices.contains(currentStepIndex) else { return }
+        
         steps[currentStepIndex].isCompleted = true
     }
     
