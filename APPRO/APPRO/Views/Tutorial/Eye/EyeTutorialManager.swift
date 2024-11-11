@@ -11,8 +11,6 @@ import RealityKitContent
 
 final class EyeTutorialManager: TutorialManager {
     
-    typealias EntityTargetTapGestureValue = EntityTargetValue<SpatialTapGesture.Value>
-    
     let attachmentViewID = "TutorialAttachmentView"
     
     private let headTracker = HeadTracker()
@@ -22,10 +20,10 @@ final class EyeTutorialManager: TutorialManager {
     private let patchEntityName = "patch"
     private let chickenEntityName = "chicken"
     
-    private var eyeEntity: Entity?
-    private var patchEntity: Entity?
-    private var chickenEntity: Entity?
-    private var attachmentView: Entity?
+    private(set) var eyeEntity = Entity()
+    private(set) var patchEntity = Entity()
+    private(set) var chickenEntity = Entity()
+    private(set) var attachmentView = Entity()
     
     private var animationPlaybackController: AnimationPlaybackController?
     
@@ -33,31 +31,15 @@ final class EyeTutorialManager: TutorialManager {
         super.init(stretching: .eyes)
     }
     
-    func handleTapGestureValue(_ value: EntityTargetTapGestureValue) {
-        if let patchEntity,
-           value.entity.name == patchEntity.name {
-            step1()
-        }
-    }
-    
-    private func step1() {
-        guard let patchEntity else {
-            dump("step1() failed: patchEntity not found!")
-            return
-        }
-        
-        guard let eyeEntity else {
-            dump("step1() failed: eyeEntity not found!")
-            return
-        }
+    func step1() {
         playOpacityAnimation(entity: patchEntity, from: 1.0, to: 0.0)
         playEyeLoopAnimation(entity: eyeEntity)
         completeCurrentStep()
     }
     
     func step2() {
-        eyeEntity?.components.remove(ClosureComponent.self)
-        attachmentView?.components.remove(ClosureComponent.self)
+        eyeEntity.components.remove(ClosureComponent.self)
+        attachmentView.components.remove(ClosureComponent.self)
         
         completeCurrentStep()
     }
@@ -69,26 +51,30 @@ final class EyeTutorialManager: TutorialManager {
 extension EyeTutorialManager {
     
     func addEyeAndPatchEntity(content: RealityViewContent) async {
-        eyeEntity = await loadEntity(entityType: .eyes)
-        patchEntity = await loadEntity(entityType: .patch)
-        
-        if let eyeEntity, let patchEntity {
-            configureEyeEntity(entity: eyeEntity)
-            configurePatchEntity(entity: patchEntity)
-            
-            content.add(eyeEntity)
-            content.add(patchEntity)
+        do {
+            eyeEntity = try await loadEntity(entityType: .eyes)
+            patchEntity = try await loadEntity(entityType: .patch)
+        } catch {
+            dump("addEyeAndPatchEntity failed: \(error)")
         }
+        
+        configureEyeEntity(entity: eyeEntity)
+        configurePatchEntity(entity: patchEntity)
+        
+        content.add(eyeEntity)
+        content.add(patchEntity)
     }
     
     func addChickenEntity(content: RealityViewContent) async {
-        chickenEntity = await loadEntity(entityType: .chicken)
-        
-        if let chickenEntity {
-            configureChickenEntity(entity: chickenEntity)
-            content.add(chickenEntity)
-            playOpacityAnimation(entity: chickenEntity, from: 0.0, to: 1.0)
+        do {
+            chickenEntity = try await loadEntity(entityType: .chicken)
+        } catch {
+            dump("addChickenEntity failed: \(error)")
         }
+        
+        configureChickenEntity(entity: chickenEntity)
+        content.add(chickenEntity)
+        playOpacityAnimation(entity: chickenEntity, from: 0.0, to: 1.0)
     }
     
     func addAttachmentView(content: RealityViewContent, attachments: RealityViewAttachments) {
@@ -156,13 +142,8 @@ private extension EyeTutorialManager {
 
 private extension EyeTutorialManager {
     
-    func loadEntity(entityType: EntityType) async -> Entity? {
-        do {
-            return try await Entity(named: entityType.rawValue, in: realityKitContentBundle)
-        } catch {
-            dump(error)
-            return nil
-        }
+    func loadEntity(entityType: EntityType) async throws -> Entity {
+        return try await Entity(named: entityType.rawValue, in: realityKitContentBundle)
     }
     
     func configureEyeEntity(entity: Entity) {
