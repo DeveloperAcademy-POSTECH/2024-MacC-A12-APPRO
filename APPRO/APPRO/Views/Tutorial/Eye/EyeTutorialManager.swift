@@ -18,25 +18,21 @@ final class EyeTutorialManager: TutorialManager {
     private let headTracker = HeadTracker()
     private let patchDisappearAnimationDuraction = 1.0
     
+    private let eyeEntityName = "eyes_capsule"
     private let patchEntityName = "patch"
     
-    private(set) var eyeEntity: Entity?
+    private var eyeEntity: Entity?
     private var patchEntity: Entity?
     private var attachmentView: Entity?
     
+    private var animationPlaybackController: AnimationPlaybackController?
+    
     init() {
         super.init(stretching: .eyes)
-    }
-    
-    func addEyeAndPatchEntity(content: RealityViewContent) async {
-        await loadEntities()
         
-        if let eyeEntity, let patchEntity {
-            configureEyeEntity()
-            configurePatchEntity()
-            
-            content.add(eyeEntity)
-            content.add(patchEntity)
+        Task {
+            eyeEntity = await loadEntity(entityType: .eyes)
+            patchEntity = await loadEntity(entityType: .patch)
         }
     }
     
@@ -44,6 +40,47 @@ final class EyeTutorialManager: TutorialManager {
         if let patchEntity,
            value.entity.name == patchEntity.name {
             step1()
+        }
+    }
+    
+    private func step1() {
+        guard let patchEntity else {
+            dump("step1() failed: patchEntity not found!")
+            return
+        }
+        
+        guard let eyeEntity else {
+            dump("step1() failed: eyeEntity not found!")
+            return
+        }
+        playOpacityAnimation(entity: patchEntity, from: 1.0, to: 0.0)
+        playEyeLoopAnimation(entity: eyeEntity)
+        completeCurrentStep()
+    }
+    
+    func step2() {
+        guard let eyeEntity else { return }
+        guard let attachmentView else { return }
+        
+        eyeEntity.components.remove(ClosureComponent.self)
+        attachmentView.components.remove(ClosureComponent.self)
+        
+        completeCurrentStep()
+    }
+    
+}
+
+// MARK: - Adding Entities to RealityViewContent Methods
+
+extension EyeTutorialManager {
+    
+    func addEyeAndPatchEntity(content: RealityViewContent) {
+        if let eyeEntity, let patchEntity {
+            configureEyeEntity(entity: eyeEntity)
+            configurePatchEntity(entity: patchEntity)
+            
+            content.add(eyeEntity)
+            content.add(patchEntity)
         }
     }
     
@@ -62,54 +99,55 @@ final class EyeTutorialManager: TutorialManager {
         self.attachmentView = attachmentView
     }
     
-    private func step1() {
-        guard let patchEntity else {
-            dump("step1() failed: patchEntity not found!")
-            return
+}
+
+// MARK: - Animation Methods
+
+private extension EyeTutorialManager {
+    
+    func playOpacityAnimation(
+        entity: Entity,
+        from: Float,
+        to: Float
+    ) {
+        let opacityAnimationDefinition = FromToByAnimation(from: from, to: to, bindTarget: .opacity)
+        
+        do {
+            let animationResource = try AnimationResource.generate(with: opacityAnimationDefinition)
+            entity.playAnimation(animationResource, transitionDuration: patchDisappearAnimationDuraction)
+        } catch {
+            dump("playOpacityAnimation failed: \(error)")
         }
-        playPatchOpacityAnimation(patchEntity)
-        playEyeLoopAnimation()
-        completeCurrentStep()
     }
     
-    func step2() {
-        guard let eyeEntity else { return }
-        guard let attachmentView else { return }
-        
-        eyeEntity.components.remove(ClosureComponent.self)
-        attachmentView.components.remove(ClosureComponent.self)
-        
-        completeCurrentStep()
+    func playEyeLoopAnimation(entity: Entity) {
+        guard let animationResource = entity.availableAnimations.first?.repeat() else {
+            dump("playEyeLoopAnimation failed: No availbale animations")
+            return
+        }
+        entity.playAnimation(animationResource)
+    }
+    
+    @discardableResult
+    func playAnimation(
+        entity: Entity,
+        definition: AnimationDefinition,
+        duration: TimeInterval
+    ) -> AnimationPlaybackController? {
+        do {
+            let resource = try AnimationResource.generate(with: definition)
+            return entity.playAnimation(resource, transitionDuration: duration)
+        } catch {
+            dump(error)
+            return nil
+        }
     }
     
 }
 
+// MARK: - Entity Configuration & Load Methods
+
 private extension EyeTutorialManager {
-    
-    func loadEntities() async {
-        eyeEntity = await loadEntity(entityType: .eyes)
-        patchEntity = await loadEntity(entityType: .patch)
-    }
-    
-    func playPatchOpacityAnimation(_ patch: Entity) {
-        let opacityAnimationDefinition = FromToByAnimation(from: Float(1.0), to: Float(0.0), bindTarget: .opacity)
-        
-        do {
-            let animationResource = try AnimationResource.generate(with: opacityAnimationDefinition)
-            patch.playAnimation(animationResource, transitionDuration: patchDisappearAnimationDuraction)
-        } catch {
-            dump("playPatchOpacityAnimation failed: \(error)")
-        }
-    }
-    
-    func playEyeLoopAnimation() {
-        guard let eyeEntity,
-              let animationResource = eyeEntity.availableAnimations.first?.repeat() else {
-            dump("playEyeLoopAnimation failed: Missing eye entity or availbale animations")
-            return
-        }
-        eyeEntity.playAnimation(animationResource)
-    }
     
     func loadEntity(entityType: EntityType) async -> Entity? {
         do {
@@ -120,22 +158,14 @@ private extension EyeTutorialManager {
         }
     }
     
-    func configureEyeEntity() {
-        guard let eyeEntity else {
-            dump("configureEyeEntity failed: Missing eyeEntity")
-            return
-        }
-        setClosureComponent(entity: eyeEntity, distance: .eyes)
+    func configureEyeEntity(entity: Entity) {
+        setClosureComponent(entity: entity, distance: .eyes)
     }
     
-    func configurePatchEntity() {
-        guard let patchEntity else {
-            dump("configurePatchEntity failed: Missing patchEntity")
-            return
-        }
-        patchEntity.name = patchEntityName
-        setClosureComponent(entity: patchEntity, distance: .patch)
-        patchEntity.components.set(HoverEffectComponent(.highlight(.default)))
+    func configurePatchEntity(entity: Entity) {
+        entity.name = patchEntityName
+        setClosureComponent(entity: entity, distance: .patch)
+        entity.components.set(HoverEffectComponent(.highlight(.default)))
     }
     
     func setClosureComponent(
