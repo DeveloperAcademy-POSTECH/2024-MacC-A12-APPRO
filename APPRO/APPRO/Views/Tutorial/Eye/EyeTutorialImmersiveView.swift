@@ -17,6 +17,8 @@ struct EyeTutorialImmersiveView: View {
         RealityView { content, attachments in
             await tutorialManager.addEyeAndPatchEntity(content: content)
             tutorialManager.addAttachmentView(content: content, attachments: attachments)
+        } update: { content, _ in
+            handleCurrentStepIndex(content: content)
         } attachments: {
             Attachment(id: tutorialManager.attachmentViewID) {
                 TutorialAttachmentView(tutorialManager: tutorialManager)
@@ -29,13 +31,16 @@ struct EyeTutorialImmersiveView: View {
                     tutorialManager.handleTapGestureValue(value)
                 }
         )
-        .onChange(of: tutorialManager.currentStepIndex) { _, index in
-            switch index {
-            case 1:
-                tutorialManager.step2()
-            default:
-                break
-            }
+    }
+    
+    private func handleCurrentStepIndex(content: RealityViewContent) {
+        switch tutorialManager.currentStepIndex {
+        case 1:
+            tutorialManager.step2()
+        case 2:
+            tutorialManager.addChickenEntity(content: content)
+        default:
+            break
         }
     }
     
