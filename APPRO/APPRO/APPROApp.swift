@@ -15,6 +15,11 @@ struct APPROApp: App {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.scenePhase) private var scenePhase
+    
+    init() {
+        ClosureComponent.registerComponent()
+        ClosureSystem.registerSystem()
+    }
 
     @State private var appState = AppState()
 

@@ -48,8 +48,6 @@ struct ClosureComponent: Component {
     
     init(closure: @escaping (TimeInterval) -> Void) {
         self.closure = closure
-        
-        ClosureSystem.registerSystem()
     }
     
 }
