@@ -20,20 +20,17 @@ final class EyeTutorialManager: TutorialManager {
     
     private let eyeEntityName = "eyes_capsule"
     private let patchEntityName = "patch"
+    private let chickenEntityName = "chicken"
     
     private var eyeEntity: Entity?
     private var patchEntity: Entity?
+    private var chickenEntity: Entity?
     private var attachmentView: Entity?
     
     private var animationPlaybackController: AnimationPlaybackController?
     
     init() {
         super.init(stretching: .eyes)
-        
-        Task {
-            eyeEntity = await loadEntity(entityType: .eyes)
-            patchEntity = await loadEntity(entityType: .patch)
-        }
     }
     
     func handleTapGestureValue(_ value: EntityTargetTapGestureValue) {
@@ -59,11 +56,8 @@ final class EyeTutorialManager: TutorialManager {
     }
     
     func step2() {
-        guard let eyeEntity else { return }
-        guard let attachmentView else { return }
-        
-        eyeEntity.components.remove(ClosureComponent.self)
-        attachmentView.components.remove(ClosureComponent.self)
+        eyeEntity?.components.remove(ClosureComponent.self)
+        attachmentView?.components.remove(ClosureComponent.self)
         
         completeCurrentStep()
     }
@@ -74,13 +68,26 @@ final class EyeTutorialManager: TutorialManager {
 
 extension EyeTutorialManager {
     
-    func addEyeAndPatchEntity(content: RealityViewContent) {
+    func addEyeAndPatchEntity(content: RealityViewContent) async {
+        eyeEntity = await loadEntity(entityType: .eyes)
+        patchEntity = await loadEntity(entityType: .patch)
+        
         if let eyeEntity, let patchEntity {
             configureEyeEntity(entity: eyeEntity)
             configurePatchEntity(entity: patchEntity)
             
             content.add(eyeEntity)
             content.add(patchEntity)
+        }
+    }
+    
+    func addChickenEntity(content: RealityViewContent) async {
+        chickenEntity = await loadEntity(entityType: .chicken)
+        
+        if let chickenEntity {
+            configureChickenEntity(entity: chickenEntity)
+            content.add(chickenEntity)
+            playOpacityAnimation(entity: chickenEntity, from: 0.0, to: 1.0)
         }
     }
     
@@ -166,6 +173,12 @@ private extension EyeTutorialManager {
         entity.name = patchEntityName
         setClosureComponent(entity: entity, distance: .patch)
         entity.components.set(HoverEffectComponent(.highlight(.default)))
+    }
+    
+    func configureChickenEntity(entity: Entity) {
+        entity.name = chickenEntityName
+        entity.setPosition(.init(x: 2, y: 0, z: 0), relativeTo: eyeEntity)
+        entity.components.set(OpacityComponent(opacity: 0.0))
     }
     
     func setClosureComponent(
