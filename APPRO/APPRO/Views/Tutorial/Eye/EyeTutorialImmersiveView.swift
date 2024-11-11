@@ -25,10 +25,13 @@ struct EyeTutorialImmersiveView: View {
             }
         }
         .gesture(
-            SpatialTapGesture()
+            TapGesture()
                 .targetedToAnyEntity()
                 .onEnded { value in
-                    tutorialManager.handleTapGestureValue(value)
+                    if value.entity.name == "patch" {
+                        tutorialManager.step1()
+                        
+                    }
                 }
         )
         .onChange(of: tutorialManager.currentStepIndex) { _, _ in }

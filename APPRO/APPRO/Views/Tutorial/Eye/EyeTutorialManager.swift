@@ -8,31 +8,30 @@
 import SwiftUI
 import RealityKit
 import RealityKitContent
+import Combine
 
 final class EyeTutorialManager: TutorialManager {
     
     let attachmentViewID = "TutorialAttachmentView"
     
     private let headTracker = HeadTracker()
+    private var cancellableBag: Set<AnyCancellable> = []
     private let patchDisappearAnimationDuraction = 1.0
     
-    private let eyeEntityName = "eyes_capsule"
-    private let patchEntityName = "patch"
-    private let chickenEntityName = "chicken"
-    
     private(set) var eyeEntity = Entity()
-    private(set) var patchEntity = Entity()
     private(set) var chickenEntity = Entity()
     private(set) var attachmentView = Entity()
     
-    private var animationPlaybackController: AnimationPlaybackController?
+    var patchEntity: Entity? {
+        eyeEntity.findEntity(named: "patch")
+    }
     
     init() {
         super.init(stretching: .eyes)
     }
     
     func step1() {
-        playOpacityAnimation(entity: patchEntity, from: 1.0, to: 0.0)
+        playPatchDisappearAnimation()
         playEyeLoopAnimation(entity: eyeEntity)
         completeCurrentStep()
     }
@@ -53,16 +52,14 @@ extension EyeTutorialManager {
     func addEyeAndPatchEntity(content: RealityViewContent) async {
         do {
             eyeEntity = try await loadEntity(entityType: .eyes)
-            patchEntity = try await loadEntity(entityType: .patch)
         } catch {
             dump("addEyeAndPatchEntity failed: \(error)")
         }
         
         configureEyeEntity(entity: eyeEntity)
-        configurePatchEntity(entity: patchEntity)
+        configurePatchEntity(eyeEntity: eyeEntity)
         
         content.add(eyeEntity)
-        content.add(patchEntity)
     }
     
     func addChickenEntity(content: RealityViewContent) async {
@@ -74,7 +71,11 @@ extension EyeTutorialManager {
         
         configureChickenEntity(entity: chickenEntity)
         content.add(chickenEntity)
-        playOpacityAnimation(entity: chickenEntity, from: 0.0, to: 1.0)
+        playOpacityAnimation(
+            entity: chickenEntity,
+            from: 0.0, to: 1.0,
+            duration: patchDisappearAnimationDuraction
+        )
     }
     
     func addAttachmentView(content: RealityViewContent, attachments: RealityViewAttachments) {
@@ -96,24 +97,41 @@ extension EyeTutorialManager {
 
 // MARK: - Animation Methods
 
-private extension EyeTutorialManager {
+extension EyeTutorialManager {
     
-    func playOpacityAnimation(
-        entity: Entity,
-        from: Float,
-        to: Float
-    ) {
-        let opacityAnimationDefinition = FromToByAnimation(from: from, to: to, bindTarget: .opacity)
+    func playPatchDisappearAnimation() {
+        guard let patchEntity else { return }
         
-        do {
-            let animationResource = try AnimationResource.generate(with: opacityAnimationDefinition)
-            entity.playAnimation(animationResource, transitionDuration: patchDisappearAnimationDuraction)
-        } catch {
-            dump("playOpacityAnimation failed: \(error)")
-        }
+        let playbackController = playOpacityAnimation(
+            entity: patchEntity,
+            from: 1.0,
+            to: 0.0,
+            duration: patchDisappearAnimationDuraction
+        )
+        
+        patchEntity.scene?.publisher(for: AnimationEvents.PlaybackCompleted.self)
+            .filter { $0.playbackController == playbackController }
+            .sink(receiveValue: { _ in
+                patchEntity.removeFromParent()
+            })
+            .store(in: &cancellableBag)
     }
     
-    func playEyeLoopAnimation(entity: Entity) {
+    func playOpacityAnimation(
+    
+    @discardableResult
+    private func playOpacityAnimation(
+        entity: Entity,
+        from: Float,
+        to: Float,
+        duration: TimeInterval
+    ) -> AnimationPlaybackController? {
+        let opacityAnimationDefinition = FromToByAnimation(from: from, to: to, bindTarget: .opacity)
+        
+        return playAnimation(entity: entity, definition: opacityAnimationDefinition, duration: duration)
+    }
+    
+    private func playEyeLoopAnimation(entity: Entity) {
         guard let animationResource = entity.availableAnimations.first?.repeat() else {
             dump("playEyeLoopAnimation failed: No availbale animations")
             return
@@ -122,7 +140,7 @@ private extension EyeTutorialManager {
     }
     
     @discardableResult
-    func playAnimation(
+    private func playAnimation(
         entity: Entity,
         definition: AnimationDefinition,
         duration: TimeInterval
@@ -150,10 +168,12 @@ private extension EyeTutorialManager {
         setClosureComponent(entity: entity, distance: .eyes)
     }
     
-    func configurePatchEntity(entity: Entity) {
-        entity.name = patchEntityName
-        setClosureComponent(entity: entity, distance: .patch)
-        entity.components.set(HoverEffectComponent(.highlight(.default)))
+    func configurePatchEntity(eyeEntity: Entity) {
+        guard let patchEntity = eyeEntity.findEntity(named: "patch") else {
+            dump("configurePatchEntity failed: patch not found in eyeEntity")
+            return
+        }
+        patchEntity.components.set(HoverEffectComponent(.highlight(.default)))
     }
     
     func configureChickenEntity(entity: Entity) {
@@ -185,9 +205,8 @@ private extension EyeTutorialManager {
 
 private enum EntityType: String {
     
-    case eyes = "Eye/eyes_loop.usd"
+    case eyes = "Eye/eyes_with_patch.usd"
     case ring = "Eye/eye_ring.usd"
-    case patch = "Eye/patch.usd"
     case chicken = "Eye/chicken.usd"
     case attachment
     
@@ -196,7 +215,6 @@ private enum EntityType: String {
 private extension Float {
     
     static let eyes = Float(2.0)
-    static let patch = Float(1.8)
     static let attachment = Float(2.05)
     
 }
