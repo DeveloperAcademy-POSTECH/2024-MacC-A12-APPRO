@@ -31,16 +31,19 @@ struct EyeTutorialImmersiveView: View {
                     tutorialManager.handleTapGestureValue(value)
                 }
         )
+        .onChange(of: tutorialManager.currentStepIndex) { _, _ in }
     }
     
     private func handleCurrentStepIndex(content: RealityViewContent) {
-        switch tutorialManager.currentStepIndex {
-        case 1:
-            tutorialManager.step2()
-        case 2:
-            tutorialManager.addChickenEntity(content: content)
-        default:
-            break
+        Task { @MainActor in
+            switch tutorialManager.currentStepIndex {
+            case 1:
+                tutorialManager.step2()
+            case 2:
+                await tutorialManager.addChickenEntity(content: content)
+            default:
+                break
+            }
         }
     }
     
