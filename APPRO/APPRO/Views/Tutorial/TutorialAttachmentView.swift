@@ -33,7 +33,7 @@ struct TutorialAttachmentView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .font(.system(size: 32, weight: .medium))
                         .multilineTextAlignment(.leading)
-                        .lineLimit(3)
+                        .lineLimit(4)
                         .onAppear() {
                             tutorialManager.playInstructionAudio()
                         }
@@ -45,6 +45,7 @@ struct TutorialAttachmentView: View {
                     Button(tutorialManager.isLastStep ? "Done" : "Next") {
                         if tutorialManager.isLastStep {
                             tutorialManager.skip()
+                            tutorialManager.stopInstructionAudio()
                             appState.appPhase = .stretching
                         } else {
                             tutorialManager.advanceToNextStep()
@@ -86,6 +87,8 @@ struct TutorialAttachmentView: View {
             Divider()
             Button("Yes") {
                 tutorialManager.skip()
+                tutorialManager.stopInstructionAudio()
+                appState.appPhase = .stretching
             }
             .frame(maxWidth: .infinity, maxHeight: 44)
             .buttonStyle(.borderless)
@@ -95,7 +98,7 @@ struct TutorialAttachmentView: View {
             .frame(maxWidth: .infinity, maxHeight: 44)
             .buttonStyle(.borderless)
         }
-        .frame(width: 320, height: tutorialManager.stretchingPart == .wrist ? 270 : 240)
+        .frame(width: 320, height: 240)
         .padding(20)
         .glassBackgroundEffect()
     }
