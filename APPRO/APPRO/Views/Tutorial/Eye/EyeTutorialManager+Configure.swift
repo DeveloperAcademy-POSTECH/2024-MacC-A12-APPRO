@@ -28,6 +28,8 @@ extension EyeTutorialManager {
         entity.setPosition(.init(x: 2, y: 0, z: 0), relativeTo: eyesEntity)
         entity.components.set(HoverEffectComponent(.highlight(.default)))
         entity.components.set(OpacityComponent(opacity: 0.0))
+        entity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
+        setCollisionComponent(entity: entity, type: .chicken)
     }
     
     private func setClosureComponent(
@@ -47,6 +49,26 @@ extension EyeTutorialManager {
             entity.look(at: currentTranslation, from: newPosition, relativeTo: nil, forward: forwardDirection)
         }
         entity.components.set(closureComponent)
+    }
+    
+    private func setCollisionComponent(
+        entity: Entity,
+        type: EyeStretchingEntityType
+    ) {
+        let modelEntities = type.modelEntityNames.compactMap { entity.findEntity(named: $0) as? ModelEntity }
+        
+        Task { @MainActor in
+            do {
+                for modelEntity in modelEntities {
+                    if let mesh = modelEntity.model?.mesh {
+                        let shape = try await ShapeResource.generateStaticMesh(from: mesh)
+                        modelEntity.components.set(CollisionComponent(shapes: [shape]))
+                    }
+                }
+            } catch {
+                dump(error)
+            }
+        }
     }
     
 }
