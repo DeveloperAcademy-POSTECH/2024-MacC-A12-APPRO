@@ -9,7 +9,7 @@ import Foundation
 
 enum EyeStretchingEntityType: String {
     
-    case eyes = "eyes_capsule"
+    case eyes
     case chicken
     
     var loadURL: String {
@@ -18,15 +18,6 @@ enum EyeStretchingEntityType: String {
             "Eye/eyes_loop.usd"
         case .chicken:
             "Eye/chicken.usd"
-        }
-    }
-    
-    var modelEntityNames: [String] {
-        switch self {
-        case .eyes:
-            []
-        case .chicken:
-            ["Mesh_004", "Mesh_005"]
         }
     }
     
