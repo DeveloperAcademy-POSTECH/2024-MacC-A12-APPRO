@@ -22,6 +22,13 @@ final class EyeTutorialManager: TutorialManager {
     
     private(set) var attachmentView = Entity()
     
+    private let originalChickenScale: Float3 = [0.52, 0.52, 0.52]
+    private let largeChickenScale: Float3 = [0.78, 0.78, 0.78]
+    
+    private var longPressGestureOnEnded = false
+    private var enlargeAnimationPlaybackController: AnimationPlaybackController?
+    private var reduceAnimationPlaybackController: AnimationPlaybackController?
+    
     init() {
         super.init(stretching: .eyes)
     }
@@ -54,9 +61,24 @@ final class EyeTutorialManager: TutorialManager {
     }
     
     func step2() {
-        eyesEntity.components.remove(ClosureComponent.self)
         attachmentView.components.remove(ClosureComponent.self)
         
+        completeCurrentStep()
+    }
+    
+    func handleLongPressingUpdate(value isLongPressing: Bool) {
+        guard longPressGestureOnEnded == false else { return }
+        
+        if isLongPressing {
+            enlargeAnimationPlaybackController = playEnlargeChickenAnimation(entity: chickenEntity)
+        } else {
+            reduceAnimationPlaybackController = playReduceChickenAnimation(entity: chickenEntity)
+        }
+    }
+    
+    func handleLongPressOnEnded() {
+        longPressGestureOnEnded = true
+        playDisappearChickenAnimation(entity: chickenEntity)
         completeCurrentStep()
     }
     
@@ -90,7 +112,7 @@ extension EyeTutorialManager {
     func playAppearAnimation(entity: Entity) -> AnimationPlaybackController? {
         playAnimation(
             entity: entity,
-            definition: FromToByAnimation(from: 0.0, to: 1.0, bindTarget: .opacity),
+            definition: FromToByAnimation(from: Float(0.0), to: Float(1.0), bindTarget: .opacity),
             duration: 1.0
         )
     }
@@ -99,12 +121,33 @@ extension EyeTutorialManager {
     func playDisappearAnimation(entity: Entity) -> AnimationPlaybackController? {
         playAnimation(
             entity: entity,
-            definition: FromToByAnimation(from: 1.0, to: 0.0, bindTarget: .opacity),
+            definition: FromToByAnimation(from: Float(1.0), to: Float(0.0), bindTarget: .opacity),
             duration: 1.0
         )
     }
     
+    private func playEnlargeChickenAnimation(entity: Entity) -> AnimationPlaybackController? {
+        var toTransform = entity.transform
+        var byTransform = entity.transform
+        toTransform.scale = largeChickenScale
+        byTransform.scale = [0.645, 0.645, 0.645]
+        let definition = FromToByAnimation(from: entity.transform, to: toTransform, by: byTransform, bindTarget: .transform)
         
+        return playAnimation(entity: entity, definition: definition)
+    }
+    
+    private func playReduceChickenAnimation(entity: Entity) -> AnimationPlaybackController? {
+        var toTransform = entity.transform
+        toTransform.scale = originalChickenScale
+        let definition = FromToByAnimation(from: entity.transform, to: toTransform, bindTarget: .transform)
+        
+        return playAnimation(entity: entity, definition: definition)
+    }
+    
+    private func playDisappearChickenAnimation(entity: Entity) {
+        var transform = entity.transform
+        transform.scale = .zero
+        entity.move(to: transform, relativeTo: nil, duration: 0.5)
     }
     
     private func playEyeLoopAnimation(entity: Entity) {

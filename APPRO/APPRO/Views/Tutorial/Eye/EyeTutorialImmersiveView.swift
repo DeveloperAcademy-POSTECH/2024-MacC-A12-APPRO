@@ -11,6 +11,7 @@ import RealityKitContent
 
 struct EyeTutorialImmersiveView: View {
     
+    @GestureState private var isLongPressing = false
     @State private var tutorialManager = EyeTutorialManager()
     @State private var entitiesAllLoaded = false
     @State private var configureCompleted = Array(repeating: false, count: 4)
@@ -45,6 +46,19 @@ struct EyeTutorialImmersiveView: View {
                     }
                 }
         )
+        .gesture(
+            LongPressGesture(minimumDuration: 2.0)
+                .targetedToEntity(tutorialManager.chickenEntity)
+                .updating($isLongPressing) { currentValue, gestureState, _ in
+                    gestureState = currentValue.gestureValue
+                }
+                .onEnded { _ in
+                    tutorialManager.handleLongPressOnEnded()
+                }
+        )
+        .onChange(of: isLongPressing) {
+            tutorialManager.handleLongPressingUpdate(value: isLongPressing)
+        }
     }
     
     private func handleCurrentStepIndex(
