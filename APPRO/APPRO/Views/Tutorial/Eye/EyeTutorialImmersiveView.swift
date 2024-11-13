@@ -81,6 +81,7 @@ struct EyeTutorialImmersiveView: View {
             from: 0.0, to: 1.0,
             duration: 1.0
         )
+        tutorialManager.playAppearAnimation(entity: chickenEntity)
         
         content.add(chickenEntity)
     }

@@ -40,7 +40,15 @@ final class EyeTutorialManager: TutorialManager {
     }
     
     func step1() {
-        playPatchDisappearAnimation(entity: eyesEntity)
+        if let patchEntity = eyesEntity.findEntity(named: "patch"),
+           let playbackController = playDisappearAnimation(entity: patchEntity) {
+            patchEntity.scene?.publisher(for: AnimationEvents.PlaybackCompleted.self)
+                .filter { $0.playbackController == playbackController }
+                .sink(receiveValue: { _ in
+                    patchEntity.removeFromParent()
+                })
+                .store(in: &cancellableBag)
+        }
         playEyeLoopAnimation(entity: eyesEntity)
         completeCurrentStep()
     }
@@ -78,36 +86,25 @@ extension EyeTutorialManager {
 
 extension EyeTutorialManager {
     
-    private func playPatchDisappearAnimation(entity: Entity) {
-        guard let patchEntity = eyesEntity.findEntity(named: "patch") else {
-            return
-        }
-        
-        let playbackController = playOpacityAnimation(
-            entity: patchEntity,
-            from: 1.0,
-            to: 0.0,
+    @discardableResult
+    func playAppearAnimation(entity: Entity) -> AnimationPlaybackController? {
+        playAnimation(
+            entity: entity,
+            definition: FromToByAnimation(from: 0.0, to: 1.0, bindTarget: .opacity),
             duration: 1.0
         )
-        
-        patchEntity.scene?.publisher(for: AnimationEvents.PlaybackCompleted.self)
-            .filter { $0.playbackController == playbackController }
-            .sink(receiveValue: { _ in
-                patchEntity.removeFromParent()
-            })
-            .store(in: &cancellableBag)
     }
     
     @discardableResult
-    func playOpacityAnimation(
-        entity: Entity,
-        from: Float,
-        to: Float,
-        duration: TimeInterval
-    ) -> AnimationPlaybackController? {
-        let opacityAnimationDefinition = FromToByAnimation(from: from, to: to, bindTarget: .opacity)
+    func playDisappearAnimation(entity: Entity) -> AnimationPlaybackController? {
+        playAnimation(
+            entity: entity,
+            definition: FromToByAnimation(from: 1.0, to: 0.0, bindTarget: .opacity),
+            duration: 1.0
+        )
+    }
+    
         
-        return playAnimation(entity: entity, definition: opacityAnimationDefinition, duration: duration)
     }
     
     private func playEyeLoopAnimation(entity: Entity) {
@@ -122,13 +119,13 @@ extension EyeTutorialManager {
     private func playAnimation(
         entity: Entity,
         definition: AnimationDefinition,
-        duration: TimeInterval
+        duration: TimeInterval = 0
     ) -> AnimationPlaybackController? {
         do {
             let resource = try AnimationResource.generate(with: definition)
             return entity.playAnimation(resource, transitionDuration: duration)
         } catch {
-            dump(error)
+            dump("playAnimation failed: \(error)")
             return nil
         }
     }
