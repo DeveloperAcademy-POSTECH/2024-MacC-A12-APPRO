@@ -13,6 +13,7 @@ struct EyeTutorialImmersiveView: View {
     
     @State private var tutorialManager = EyeTutorialManager()
     @State private var entitiesAllLoaded = false
+    @State private var configureCompleted = Array(repeating: false, count: 4)
     
     var body: some View {
         RealityView { content, attachments in
@@ -50,16 +51,19 @@ struct EyeTutorialImmersiveView: View {
         content: RealityViewContent,
         currentStepIndex: Int
     ) {
-        Task { @MainActor in
-            switch currentStepIndex {
-            case 0:
-                configureStep1(content: content)
-            case 1:
-                tutorialManager.step2()
-            case 2:
-                configureStep2(content: content)
-            default:
-                break
+        if !configureCompleted[currentStepIndex] {
+            Task { @MainActor in
+                switch currentStepIndex {
+                case 0:
+                    configureStep1(content: content)
+                case 1:
+                    tutorialManager.step2()
+                case 2:
+                    configureStep2(content: content)
+                default:
+                    break
+                }
+                configureCompleted[currentStepIndex] = true
             }
         }
     }
@@ -76,11 +80,6 @@ struct EyeTutorialImmersiveView: View {
         let chickenEntity = tutorialManager.chickenEntity
         
         tutorialManager.configureChickenEntity(entity: chickenEntity)
-        tutorialManager.playOpacityAnimation(
-            entity: chickenEntity,
-            from: 0.0, to: 1.0,
-            duration: 1.0
-        )
         tutorialManager.playAppearAnimation(entity: chickenEntity)
         
         content.add(chickenEntity)
