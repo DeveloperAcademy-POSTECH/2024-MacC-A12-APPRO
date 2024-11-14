@@ -692,8 +692,35 @@
       [
         "DD9BDC09-6A84-49CE-B257-198A5453A7B3",
         "root",
+        "inner_plane"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "DD9BDC09-6A84-49CE-B257-198A5453A7B3",
+        "root",
+        "_materials"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "DD9BDC09-6A84-49CE-B257-198A5453A7B3",
+        "root",
         "ring_cork",
         "Cylinder"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "DD9BDC09-6A84-49CE-B257-198A5453A7B3",
+        "root",
+        "restrict_line"
       ],
       {
         "isExpanded" : true,
@@ -711,15 +738,6 @@
       },
       [
         "DD9BDC09-6A84-49CE-B257-198A5453A7B3",
-        "root",
-        "inner_plane"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "DD9BDC09-6A84-49CE-B257-198A5453A7B3",
         "root"
       ],
       {
@@ -729,7 +747,8 @@
       [
         "DD9BDC09-6A84-49CE-B257-198A5453A7B3",
         "root",
-        "restrict_line"
+        "_materials",
+        "restrict_ring"
       ],
       {
         "isExpanded" : true,
