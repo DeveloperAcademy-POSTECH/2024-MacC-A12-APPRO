@@ -12,8 +12,8 @@ import SwiftUI
 extension ShoulderStretchingViewModel {
     func startHandTrackingSession() async {
         do {
-            if HandTrackingProvider.isSupported {
-                try await session.run([handTrackingProvider])
+            if HandTrackingProvider.isSupported && WorldTrackingProvider.isSupported {
+                try await session.run([handTrackingProvider, worldTrackingProvider])
             }
         } catch {
             print("ARKitSession error:", error)
@@ -42,17 +42,13 @@ extension ShoulderStretchingViewModel {
     func computeTransformHandTracking() {
         // 오른손 계산
         if !isRightDone {
-            guard let rightHandAnchor = latestHandTracking.right,
-                  rightHandAnchor.isTracked else {
-                return
-            }
+            guard let rightHandAnchor = latestHandTracking.right, rightHandAnchor.isTracked else { return }
             
             //right
             handModelEntity.thumbIntermediateBaseModelEntity.transform = getTransform(rightHandAnchor, .thumbIntermediateBase, handModelEntity.thumbIntermediateBaseModelEntity.transform)
             handModelEntity.indexFingerTipModelEntity.transform = getTransform(rightHandAnchor, .indexFingerTip, handModelEntity.indexFingerTipModelEntity.transform)
             
-            handRocketEntity.transform = getTransform(rightHandAnchor, .middleFingerMetacarpal, handRocketEntity.transform)
-            
+            handRocketEntity.transform = getTransform(rightHandAnchor, .middleFingerKnuckle, handRocketEntity.transform)
             
             if !isFirstPositioning {
                 //TODO: isFirstPositioning 이 false가 된 후에는 isFistShowing을 확인할 필요가 없음
@@ -118,11 +114,9 @@ extension ShoulderStretchingViewModel {
             handRocketEntity.transform = getTransform(leftHandAnchor, .middleFingerMetacarpal, handRocketEntity.transform)
             handRocketEntity.transform.rotation *= simd_quatf(angle: .pi, axis: SIMD3<Float>(0, 1, 0))
             
-            
             if !isFistShowing {
                 resetModelEntities()
-                
-                createEntitiesOnEllipticalArc(handTransform: rightHandTransform)
+                createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
                 isFistShowing = true
             }
         }

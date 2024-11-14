@@ -43,7 +43,7 @@ struct StretchingAttachmentView: View {
                     .opacity(0.96)
                 HStack(spacing: 15) {
                     ForEach(0..<counter.maxCount, id: \.self) { idx in
-                        SetCheckCircle(isChecked: counter.doneCount == idx + 1)
+                        SetCheckCircle(isChecked: counter.doneCount >= idx + 1)
                     }
                 }
             }

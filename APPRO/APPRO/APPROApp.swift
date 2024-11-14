@@ -65,6 +65,7 @@ struct APPROApp: App {
             EmptyView()
         case .shoulder:
             ShoulderStretchingView()
+                .environment(appState)
         case .wrist:
             HandRollingStretchingView()
                 .environment(appState)
@@ -78,8 +79,8 @@ struct APPROApp: App {
             // TODO: 눈 튜토리얼 몰입 뷰 추가
             EmptyView()
         case .shoulder:
-            // TODO: 어깨 튜토리얼 몰입 뷰 추가
-            EmptyView()
+            ShoulderStretchingTutorialView()
+                .environment(appState)
         case .wrist:
             HandRollingTutorialView()
                 .environment(appState)

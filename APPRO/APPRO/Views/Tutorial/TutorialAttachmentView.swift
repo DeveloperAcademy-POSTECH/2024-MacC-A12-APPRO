@@ -86,6 +86,7 @@ struct TutorialAttachmentView: View {
             Divider()
             Button("Yes") {
                 tutorialManager.skip()
+                appState.appPhase = .stretching
             }
             .frame(maxWidth: .infinity, maxHeight: 44)
             .buttonStyle(.borderless)
