@@ -47,6 +47,10 @@ struct HandRollingStretchingView: View {
             Attachment(id: viewModel.stretchingAttachmentViewID) {
                 StretchingAttachmentView(counter: viewModel, stretchingPart: .wrist)
             }
+            
+            Attachment(id: viewModel.stretchingFinishAttachmentViewID) {
+                StretchingFinishAttachmentView(counter: viewModel, stretchingPart: .wrist)
+            }
         }
         .task {
             await viewModel.start()

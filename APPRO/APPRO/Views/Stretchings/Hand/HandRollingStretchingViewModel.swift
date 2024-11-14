@@ -34,6 +34,7 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     var fistReaderLeft: [Bool] = []
     
     let stretchingAttachmentViewID  = "StretchingAttachmentView"
+    let stretchingFinishAttachmentViewID  = "StretchingFinishAttachmentView"
     
     let frameInterval = 1
     var frameIndex = 0
@@ -261,5 +262,25 @@ final class HandRollingStretchingViewModel: StretchingCounter {
         }
         stretchingAttachmentView.position = .init(x: 0, y: startingHeight + 0.4, z: -1.2)
         content.add(stretchingAttachmentView)
+    }
+
+    func showEndAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+        guard let stretchingAttachmentView = attachments.entity(for: stretchingAttachmentViewID) else {
+            dump("StretchingAttachmentView not found in attachments!")
+            return
+        }
+        
+        content.remove(stretchingAttachmentView)
+        
+        guard let stretchingFinishAttachmentView = attachments.entity(for: stretchingFinishAttachmentViewID) else {
+            dump("StretchingAttachmentView not found in attachments!")
+            return
+        }
+        stretchingFinishAttachmentView.position = .init(x: 0.0, y: 1.5 , z: 0.0)
+        content.add(stretchingFinishAttachmentView)
+    }
+    
+    func makeDoneCountZero() {
+        doneCount = 0
     }
 }

@@ -111,7 +111,7 @@ extension ShoulderStretchingViewModel {
             //left
             handModelEntity.thumbIntermediateBaseModelEntity.transform = getTransform(leftHandAnchor, .thumbIntermediateBase, handModelEntity.thumbIntermediateBaseModelEntity.transform)
             handModelEntity.indexFingerTipModelEntity.transform = getTransform(leftHandAnchor, .indexFingerTip, handModelEntity.indexFingerTipModelEntity.transform)
-            handRocketEntity.transform = getTransform(leftHandAnchor, .middleFingerMetacarpal, handRocketEntity.transform)
+            handRocketEntity.transform = getTransform(leftHandAnchor, .middleFingerKnuckle, handRocketEntity.transform)
             handRocketEntity.transform.rotation *= simd_quatf(angle: .pi, axis: SIMD3<Float>(0, 1, 0))
             
             if !isFistShowing {

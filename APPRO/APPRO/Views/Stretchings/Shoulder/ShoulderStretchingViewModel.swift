@@ -32,6 +32,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
     var isFirstPositioning: Bool = true
     var isRightDone: Bool = false
     var isEntryEnd = false
+    var isRetry = false
 
     var fixedOneAfterPositioning: Float = 0.0
     var startingZ: Float = 0.0
@@ -46,6 +47,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
     private(set) var timerController: AnimationPlaybackController?
     
     let stretchingAttachmentViewID  = "StretchingAttachmentView"
+    let stretchingFinishAttachmentViewID  = "StretchingFinishAttachmentView"
     
     //StretchingCounter
     var doneCount = 0
@@ -319,6 +321,30 @@ final class ShoulderStretchingViewModel: StretchingCounter {
         content.add(stretchingAttachmentView)
     }
     
+    func showEndAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+        guard let stretchingAttachmentView = attachments.entity(for: stretchingAttachmentViewID) else {
+            dump("StretchingAttachmentView not found in attachments!")
+            return
+        }
+        
+        content.remove(stretchingAttachmentView)
+        
+        guard let stretchingFinishAttachmentView = attachments.entity(for: stretchingFinishAttachmentViewID) else {
+            dump("StretchingAttachmentView not found in attachments!")
+            return
+        }
+        stretchingFinishAttachmentView.position = .init(x: 0.0, y: 1.5 , z: -1.3)
+        content.add(stretchingFinishAttachmentView)
+    }
+    
+    func deleteEndAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+        guard let stretchingFinishAttachmentView = attachments.entity(for: stretchingFinishAttachmentViewID) else {
+            dump("StretchingAttachmentView not found in attachments!")
+            return
+        }
+        content.remove(stretchingFinishAttachmentView)
+    }
+    
     func playCustomAnimation(timerEntity: Entity) {
         let targetModelEntities = ["b1", "b2", "b3", "b4", "b5"]
         var tasks: [Task<Void, Never>] = []
@@ -396,5 +422,9 @@ final class ShoulderStretchingViewModel: StretchingCounter {
     func initiateAllTimerProgress() {
         timerFiveProgressChecker = timerFiveProgressChecker.map({ _ in true})
     }
+    
+    func makeDoneCountZero() {
+        doneCount = 0
+    }    
 }
 
