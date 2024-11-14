@@ -12,7 +12,7 @@ import ARKit
 
 @Observable
 @MainActor
-final class ShoulderStretchingViewModel {
+final class ShoulderStretchingViewModel: StretchingCounter {
     
     var contentEntity = Entity()
     var modelEntities: [Entity] = []
@@ -20,6 +20,7 @@ final class ShoulderStretchingViewModel {
     
     let session = ARKitSession()
     var handTrackingProvider = HandTrackingProvider()
+    var worldTrackingProvider = WorldTrackingProvider()
     var latestHandTracking: HandsUpdates = .init(left: nil, right: nil)
     let handModelEntity = HandModelEntity()
     var entryRocketEntity = Entity()
@@ -32,15 +33,27 @@ final class ShoulderStretchingViewModel {
     var isRightDone: Bool = false
     var isEntryEnd = false
 
+    var fixedOneAfterPositioning: Float = 0.0
+    var startingZ: Float = 0.0
+    var deviceTranslation = SIMD3<Float>(x: 0.0, y: 0.0, z: 0.0) 
     var rightHandTransform = Transform()
     var entryRocketTransForm = Transform()
     private var shoulderTimerPoint = SIMD3<Float>()
 
     // 별 모델 + 타이머
-    private(set) var numberOfObjects: Int = 9
+    private(set) var numberOfObjects: Int = 8
     private(set) var expectedNextNumber = 0
     private(set) var timerController: AnimationPlaybackController?
-
+    
+    let stretchingAttachmentViewID  = "StretchingAttachmentView"
+    
+    //StretchingCounter
+    var doneCount = 0
+    var maxCount = StretchingPart.shoulder.maxCount
+    
+    var halfSetCount = 0
+    
+    var timerFiveProgressChecker : [Bool] = [true, true, true, true, true]
     
     deinit {
         dump("\(self) deinited")
@@ -98,8 +111,8 @@ final class ShoulderStretchingViewModel {
     ) -> [SIMD3<Float>] {
         var points: [SIMD3<Float>] = []
         
-        let b: Float = abs(centerPosition.z - startPoint.z) // 타원의 단축 반지름
-        let a: Float = b * 1.5  // 타원의 장축 반지름
+        let b: Float = abs(centerPosition.z - startPoint.z) // 타원의 단축 반지름 : 이렇게 하였을 때에, 사용자가 회전하여 별을 재조정하면
+        let a: Float = b * 1.0  // 타원의 장축 반지름
         let y: Float = centerPosition.y  // Y 좌표는 어깨의 Y 좌표로 설정
 
         // startPoint와 centerPosition 사이의 벡터를 이용하여 startAngle 계산
@@ -108,15 +121,16 @@ final class ShoulderStretchingViewModel {
         // atan2를 사용하여 X, Z 평면에서의 각도(라디안)를 계산
         let startAngle = atan2(deltaZ, deltaX)  // 각도는 Z축을 기준으로 계산됨
         // 전체 호 길이를 라디안으로 변환
-        let totalArcLength: Float = arcSpan * (.pi / 180)
+        let totalArcRadian: Float = arcSpan * (.pi / 180)
 
         // 포인트 사이의 각도 계산 (각도를 균등하게 나누기)
-        let angleStep = totalArcLength / Float(numPoints - 1)
+        let angleStep = totalArcRadian / Float(numPoints) // 원래는 - 1 이지만, 균등분배가 아닌, 마지막 스텝과 그전 스텝간의 거리를 넓히기 위해서 변경.
 
         for i in 0..<numPoints {
             // 각도를 계산 (시계 또는 반시계 방향으로 회전)
-            let angle = startAngle + (Float(i) * angleStep * (isRightSide ? 1 : -1))
-
+            
+            let angle = i == numPoints - 1 ? startAngle + totalArcRadian : startAngle + (Float(i) * angleStep * (isRightSide ? 1 : -1))
+            
             // 각도에 따라 x, z 좌표 계산
             let x = a * cos(angle)  // X축 대칭 (오른쪽은 양수, 왼쪽은 음수)
             let z = b * sin(angle)  // Z축 방향 (양수는 +Z, 음수는 -Z로 이동)
@@ -150,13 +164,17 @@ final class ShoulderStretchingViewModel {
     func createEntitiesOnEllipticalArc(handTransform: Transform) {
         resetExpectedNextNumber()
         // 손의 현재 위치를 파라미터로 받아서 어깨 기준으로 포물선을 계산 + 오른손보다 조금 옆으로 이동
-        let rightHandTranslation = SIMD3<Float>(x: handTransform.translation.x + 0.1, y: handTransform.translation.y, z: handTransform.translation.z)
+        let rightHandTranslation = SIMD3<Float>(x: handTransform.translation.x + 0.1, y: handTransform.translation.y, z: handTransform.translation.z - 0.1)
         // 원점과 handTranslation의 x축 차이에 따라 oppositeHandTranslation을 계산
-        let leftHandTranslation = simd_float3(-rightHandTranslation.x, rightHandTranslation.y, rightHandTranslation.z)
+        let leftHandTranslation = simd_float3(-rightHandTranslation.x, rightHandTranslation.y, rightHandTranslation.z - 0.1)
+        
+        if isFirstPositioning {
+            fixedOneAfterPositioning = startingZ
+        }
         
         // 어깨 중심 위치 (어깨는 손의 위치에 맞추어 설정)
-        let rightShoulderPosition = simd_float3(rightHandTranslation.x, rightHandTranslation.y, 0.0)
-        let leftShoulderPosition = simd_float3(-rightShoulderPosition.x, rightHandTranslation.y, 0.0)
+        let rightShoulderPosition = simd_float3(rightHandTranslation.x, rightHandTranslation.y, fixedOneAfterPositioning)
+        let leftShoulderPosition = simd_float3(-rightShoulderPosition.x, rightHandTranslation.y, fixedOneAfterPositioning)
         
         if !isRightDone {
             let rightPoints = generateUniformEllipseArcPoints(
@@ -234,9 +252,9 @@ final class ShoulderStretchingViewModel {
     
     func addShoulderTimerEntity() {
         Task {
-            if let rootEntity = try? await Entity(named: "Shoulder/ShoulderTimerScene.usda", in: realityKitContentBundle) {
-                shoulderTimerEntity.name = "ShoulderTimerEntity"
+            if let rootEntity = try? await Entity(named: "Shoulder/ShoulderTimerScene_11.usda", in: realityKitContentBundle) {
                 shoulderTimerEntity = rootEntity
+                shoulderTimerEntity.name = "ShoulderTimerEntity"
                 shoulderTimerEntity.position = shoulderTimerPoint
                 // 스케일이 너무 큼
                 shoulderTimerEntity.scale *= 0.1
@@ -245,8 +263,9 @@ final class ShoulderStretchingViewModel {
                 
                 var clearMaterial = PhysicallyBasedMaterial()
                 clearMaterial.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(floatLiteral: 0))
-                let collisionModelEntity = ModelEntity(mesh: .generateSphere(radius: 10), materials: [clearMaterial])
+                let collisionModelEntity = ModelEntity(mesh: .generateBox(width: 15, height: 50, depth: 15), materials: [clearMaterial])
                 collisionModelEntity.generateCollisionShapes(recursive: false)
+                collisionModelEntity.scale = .init(repeating: 0.1)
                 collisionModelEntity.name = "Timer"
              
                 shoulderTimerEntity.addChild(collisionModelEntity)
@@ -258,7 +277,7 @@ final class ShoulderStretchingViewModel {
     }
     
     func setEntryRocket() async {
-        if let rootEntity = try? await Entity(named: "Shoulder/RocketScene.usda", in: realityKitContentBundle) {
+        if let rootEntity = try? await Entity(named: "Shoulder/RocketScene_New_Less.usda", in: realityKitContentBundle) {
             entryRocketEntity = rootEntity
             entryRocketEntity.name = "EntryRocket"
             entryRocketEntity.position = .init(x: 0, y: 1, z: -1)
@@ -290,4 +309,92 @@ final class ShoulderStretchingViewModel {
         handRocketEntity = entryRocketEntity.clone(recursive: true)
         handRocketEntity.name = "handRocket"
     }
+    
+    func addAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+        guard let stretchingAttachmentView = attachments.entity(for: stretchingAttachmentViewID) else {
+            dump("StretchingAttachmentView not found in attachments!")
+            return
+        }
+        stretchingAttachmentView.position = .init(x: -0.5, y: 1.6 , z: -1.3)
+        content.add(stretchingAttachmentView)
+    }
+    
+    func playCustomAnimation(timerEntity: Entity) {
+        let targetModelEntities = ["b1", "b2", "b3", "b4", "b5"]
+        var tasks: [Task<Void, Never>] = []
+        
+        for (index, target) in targetModelEntities.enumerated() {
+            guard let modelEntity = timerEntity.findEntity(named: target) as? ModelEntity,
+                  var modelComponent = modelEntity.components[ModelComponent.self] else { continue }
+            guard let shaderGraphMaterial = modelComponent.materials as? [ShaderGraphMaterial] else { continue }
+            
+            var materialArray: [ShaderGraphMaterial] = []
+            
+            let task = Task {
+                // 각 target의 index에 따라 1초씩 지연하여 시작 (0초, 1초, 2초, 3초, 4초)
+                try? await Task.sleep(nanoseconds: UInt64(index) * 1_000_000_000)
+                if Task.isCancelled { return }
+                
+                if timerFiveProgressChecker[index] {
+                    for material in shaderGraphMaterial {
+                        do {
+                            var shaderMaterial = material
+                            try shaderMaterial.setParameter(name: "PillarColor", value: .int(1))
+                            materialArray.append(shaderMaterial)
+                        } catch {
+                            print("Failed to set parameter for PillarColor")
+                        }
+                    }
+                    modelComponent.materials = materialArray
+                    modelEntity.components.set(modelComponent)
+                } else {
+                    playBackProgressAnimation(index: index)
+                    tasks.suffix(from: index).forEach { $0.cancel() }
+                    return
+                }
+            }
+            tasks.append(task)
+        }
+    }
+
+    
+    func playBackProgressAnimation ( index : Int) {
+        let targetModelEntities = ["b1", "b2", "b3", "b4", "b5"]
+        let timerEntity = self.shoulderTimerEntity
+        
+        if index == 0 {
+            return
+        } else {
+            for i in stride(from: index, to: -1, by: -1) {
+                guard let modelEntity = timerEntity.findEntity(named: targetModelEntities[i]) as? ModelEntity,
+                      var modelComponent = modelEntity.components[ModelComponent.self] else { continue }
+                guard let shaderGraphMaterial = modelComponent.materials as? [ShaderGraphMaterial] else { continue }
+                Task {
+                    var materialArray: [ShaderGraphMaterial] = []
+                    
+                    for material in shaderGraphMaterial {
+                        do {
+                            var shaderMaterial = material
+                            try shaderMaterial.setParameter(name: "PillarColor", value: .int(0))
+                            materialArray.append(shaderMaterial)
+                        } catch {
+                            print("Failed to set parameter for PillarColor")
+                        }
+                    }
+                    
+                    modelComponent.materials = materialArray
+                    modelEntity.components.set(modelComponent)
+                }
+            }
+        }
+    }
+    
+    func stopAllTimerProgress() {
+        timerFiveProgressChecker = timerFiveProgressChecker.map({ _ in false})
+    }
+    
+    func initiateAllTimerProgress() {
+        timerFiveProgressChecker = timerFiveProgressChecker.map({ _ in true})
+    }
 }
+

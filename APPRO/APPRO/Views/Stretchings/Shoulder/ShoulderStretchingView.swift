@@ -13,13 +13,20 @@ struct ShoulderStretchingView: View {
     @State private var isColliding: Bool = false
     
     var body: some View {
-        RealityView { content in
+        RealityView { content, attachments in
             content.add(viewModel.contentEntity)
             await viewModel.setEntryRocket()
             viewModel.setHandRocketEntity()
             subscribeToCollisionEvents(content: content)
-        } update: { content in
+            viewModel.subscribeSceneEvent(content)
+            viewModel.addAttachmentView(content, attachments)
+        } update: { content, attachments in
             viewModel.computeTransformHandTracking()
+            viewModel.addAttachmentView(content, attachments)
+        } attachments: {
+            Attachment(id: viewModel.stretchingAttachmentViewID) {
+                StretchingAttachmentView(counter: viewModel, stretchingPart: .shoulder)
+            }
         }
         .upperLimbVisibility(.hidden)
         .ignoresSafeArea()
@@ -31,6 +38,13 @@ struct ShoulderStretchingView: View {
         }
         .task {
             await viewModel.updateHandTracking()
+        }
+        .onChange(of: viewModel.halfSetCount, initial: false ) { _, newValue in
+            if newValue / 2 <= viewModel.maxCount {
+                if newValue % 2 == 0 {
+                    viewModel.doneCount += 1
+                }
+            }
         }
     }
     
@@ -55,6 +69,7 @@ struct ShoulderStretchingView: View {
             }else {
                 animationEvent.playbackController.entity?.removeFromParent()
                 executeCollisionAction()
+                viewModel.halfSetCount += 1
             }
         }
     }
@@ -65,6 +80,8 @@ struct ShoulderStretchingView: View {
         
         if collidedModelEntity.name.contains("Timer") && !isColliding {
             viewModel.playAnimation(animationEntity: viewModel.shoulderTimerEntity)
+            viewModel.initiateAllTimerProgress()
+            viewModel.playCustomAnimation(timerEntity: viewModel.shoulderTimerEntity)
             isColliding = true
             return
         }
@@ -84,7 +101,6 @@ struct ShoulderStretchingView: View {
             // 마지막 엔터티 감지
             if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 2)") {
                 viewModel.addShoulderTimerEntity()
-                
             }
         }
     }
@@ -92,8 +108,10 @@ struct ShoulderStretchingView: View {
     // 충돌 종료를 감지하여 타이머를 중지
     func handleCollisionEnd(collisionEvent: CollisionEvents.Ended) {
         let entityName = collisionEvent.entityB.name
+        
         if entityName.contains("Timer") {
             viewModel.timerController?.stop()
+            viewModel.stopAllTimerProgress()
             isColliding = false
         }
     }
