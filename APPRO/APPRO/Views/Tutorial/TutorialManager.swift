@@ -59,6 +59,9 @@ class TutorialManager {
            }
     }
     
+    func stopInstructionAudio() {
+        TutorialManager.audioPlayer?.stop()
+    }
 }
 
 extension TutorialManager {

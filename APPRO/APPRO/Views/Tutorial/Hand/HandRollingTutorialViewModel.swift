@@ -37,6 +37,10 @@ final class HandRollingTutorialViewModel {
     var rightEntities: [Entity] = []
     var rightTargetEntity : Entity = Entity()
     
+    var ringOriginal = Entity()
+    var spiralOriginal = Entity()
+    var targetRightOriginal = Entity()
+    
     var rightGuideRing = Entity()
     var rightGuideSphere = ModelEntity()
     
@@ -96,10 +100,18 @@ final class HandRollingTutorialViewModel {
     }
     
     func generateGuideRing(chirality : Chirality) async  -> Entity  {
-        guard let guideRingEntity = try? await Entity(named: "Hand/wrist_ring", in: realityKitContentBundle) else { return Entity() }
-        guideRingEntity.name = chirality == .right ?  "Ring_Right" : "Ring_Left"
+        var ringEntity = Entity()
         
-        return guideRingEntity
+        if ringOriginal.name == "" {
+            guard let guideRingEntityLoadedFromRCP = try? await Entity(named: "Hand/wrist_ring", in: realityKitContentBundle) else { return Entity() }
+            ringEntity = guideRingEntityLoadedFromRCP
+        } else {
+            ringEntity = ringOriginal.clone(recursive: true)
+        }
+        
+        ringEntity.name = chirality == .right ?  "Ring_Right" : "Ring_Left"
+        
+        return ringEntity
     }
     
     func generateGuideSphere(chirality : Chirality)-> ModelEntity  {

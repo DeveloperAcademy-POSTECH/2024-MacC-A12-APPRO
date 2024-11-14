@@ -83,8 +83,7 @@ struct HandRollingTutorialView : View {
         }
         .onChange(of: tutorialManager.currentStepIndex, initial: false ) { _, currentStepIndex in
             getNextTutorialStep(1)
-            getNextTutorialStep(2)
-            getNextTutorialStep(5)
+            getNextTutorialStep(4)
         }
         .onChange(of: viewModel.rightLaunchState, initial: false) { _, currentLaunchState in
             if currentLaunchState {
@@ -96,7 +95,7 @@ struct HandRollingTutorialView : View {
                 DispatchQueue.main.async {
                     viewModel.rightLaunchState = false
                     viewModel.rightRotationCount = 0
-                    getNextTutorialStep(4)
+                    getNextTutorialStep(3)
                 }
             }
         }
@@ -108,7 +107,7 @@ struct HandRollingTutorialView : View {
                 await viewModel.playRotationChangeRingSound(newValue)
             }
             
-            getNextTutorialStep(3)
+            getNextTutorialStep(2)
         }
         .onChange(of: viewModel.rightHitCount, initial: false ) { oldNumber, newNumber in
             if oldNumber < newNumber {
