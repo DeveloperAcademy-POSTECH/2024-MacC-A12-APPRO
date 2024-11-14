@@ -12,12 +12,13 @@ enum AppPhase: Sendable, Equatable {
     case choosingStretchingPart
     case tutorial
     case stretching
+    case stretchingCompleted
     
     var isImmersed: Bool {
         switch self {
         case .choosingStretchingPart:
             return false
-        case .tutorial, .stretching:
+        case .tutorial, .stretching, .stretchingCompleted:
             return true
         }
     }

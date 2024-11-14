@@ -21,28 +21,18 @@ struct ShoulderStretchingView: View {
             viewModel.subscribeSceneEvent(content)
             viewModel.addAttachmentView(content, attachments)
         } update: { content, attachments in
-            
-            if viewModel.isRetry {
-                content.add(viewModel.contentEntity)
-                viewModel.isRightDone = false
-                viewModel.addRightHandAnchor()
-                viewModel.isRetry = false
-            }
-            
             if viewModel.doneCount == viewModel.maxCount {
-                viewModel.resetHandEntities()
-                viewModel.isFistShowing = false
-                viewModel.isFirstPositioning = true
-                
-                content.remove(viewModel.contentEntity)
                 viewModel.showEndAttachmentView(content, attachments)
             } else {
-                viewModel.deleteEndAttachmentView(content, attachments)
+                if viewModel.isRetry {
+                    viewModel.isRightDone = false
+                    viewModel.addRightHandAnchor()
+                    viewModel.isRetry = false
+                    viewModel.deleteEndAttachmentView(content, attachments)
+                    viewModel.addAttachmentView(content, attachments)
+                }
                 viewModel.computeTransformHandTracking()
-                viewModel.addAttachmentView(content, attachments)
-                
             }
-            
         } attachments: {
             Attachment(id: viewModel.stretchingAttachmentViewID) {
                 StretchingAttachmentView(counter: viewModel, stretchingPart: .shoulder)

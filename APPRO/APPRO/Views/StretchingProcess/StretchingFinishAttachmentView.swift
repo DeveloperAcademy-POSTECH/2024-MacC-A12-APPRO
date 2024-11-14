@@ -40,6 +40,7 @@ struct StretchingFinishAttachmentView: View {
             
             VStack {
                 Button {
+                    appState.appPhase = .stretching
                     counter.makeDoneCountZero()
                 }label: {
                     Text("Retry")
@@ -57,6 +58,14 @@ struct StretchingFinishAttachmentView: View {
         .padding(24)
         .padding(.bottom, 24)
         .glassBackgroundEffect()
+        .onAppear() {
+            appState.appPhase = .stretchingCompleted
+        }
+        .onChange(of: counter.doneCount, initial: false) { _, newValue in
+            if newValue == counter.maxCount {
+                appState.appPhase = .stretchingCompleted
+            }
+        }
     }
 }
 

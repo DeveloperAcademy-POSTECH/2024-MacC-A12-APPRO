@@ -155,7 +155,7 @@ final class HandRollingTutorialViewModel {
             dump("TutorialAttachmentView not found in attachments!")
             return
         }
-        tutorialAttachmentView.position = .init(x: 0.6, y: startingHeight , z: -1.3)
+        tutorialAttachmentView.position = .init(x: 0.6, y: startingHeight, z: -1.3)
         content.add(tutorialAttachmentView)
     }
     
