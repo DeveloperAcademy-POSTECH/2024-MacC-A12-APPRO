@@ -25,7 +25,7 @@ extension EyeTutorialManager {
     }
     
     func configureChickenEntity(entity: Entity) {
-        entity.setPosition(.init(x: 2, y: 0, z: 0), relativeTo: eyesEntity)
+        entity.setPosition(.init(x: 1.8, y: 0, z: 0), relativeTo: eyesEntity)
         entity.components.set(HoverEffectComponent(.highlight(.default)))
         entity.components.set(OpacityComponent(opacity: 0.0))
         entity.components.set(InputTargetComponent(allowedInputTypes: .indirect))

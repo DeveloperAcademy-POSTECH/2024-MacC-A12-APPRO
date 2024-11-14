@@ -22,12 +22,12 @@ final class EyeTutorialManager: TutorialManager {
     
     private(set) var attachmentView = Entity()
     
-    private let originalChickenScale: Float3 = [0.52, 0.52, 0.52]
-    private let largeChickenScale: Float3 = [0.78, 0.78, 0.78]
+    private var originalChickenScale: Float3 = .init()
+    private var largeChickenScale: Float3 {
+        originalChickenScale * 1.5
+    }
     
     private var longPressGestureOnEnded = false
-    private var enlargeAnimationPlaybackController: AnimationPlaybackController?
-    private var reduceAnimationPlaybackController: AnimationPlaybackController?
     
     init() {
         super.init(stretching: .eyes)
@@ -37,7 +37,7 @@ final class EyeTutorialManager: TutorialManager {
         do {
             eyesEntity = try await loadEntity(entityType: .eyes)
             chickenEntity = try await loadEntity(entityType: .chicken)
-            
+            originalChickenScale = await chickenEntity.transform.scale
             return true
         } catch {
             dump("loadEntities failed: \(error)")
@@ -70,9 +70,9 @@ final class EyeTutorialManager: TutorialManager {
         guard longPressGestureOnEnded == false else { return }
         
         if isLongPressing {
-            enlargeAnimationPlaybackController = playEnlargeChickenAnimation(entity: chickenEntity)
+            playEnlargeChickenAnimation(entity: chickenEntity)
         } else {
-            reduceAnimationPlaybackController = playReduceChickenAnimation(entity: chickenEntity)
+            playReduceChickenAnimation(entity: chickenEntity)
         }
     }
     
@@ -126,22 +126,30 @@ extension EyeTutorialManager {
         )
     }
     
-    private func playEnlargeChickenAnimation(entity: Entity) -> AnimationPlaybackController? {
+    private func playEnlargeChickenAnimation(entity: Entity) {
         var toTransform = entity.transform
-        var byTransform = entity.transform
         toTransform.scale = largeChickenScale
-        byTransform.scale = [0.645, 0.645, 0.645]
-        let definition = FromToByAnimation(from: entity.transform, to: toTransform, by: byTransform, bindTarget: .transform)
-        
-        return playAnimation(entity: entity, definition: definition)
+        playAnimation(
+            entity: entity,
+            definition: FromToByAnimation(
+                from: entity.transform,
+                to: toTransform,
+                bindTarget: .transform
+            )
+        )
     }
     
-    private func playReduceChickenAnimation(entity: Entity) -> AnimationPlaybackController? {
+    private func playReduceChickenAnimation(entity: Entity) {
         var toTransform = entity.transform
         toTransform.scale = originalChickenScale
-        let definition = FromToByAnimation(from: entity.transform, to: toTransform, bindTarget: .transform)
-        
-        return playAnimation(entity: entity, definition: definition)
+        playAnimation(
+            entity: entity,
+            definition: FromToByAnimation(
+                from: entity.transform,
+                to: toTransform,
+                bindTarget: .transform
+            )
+        )
     }
     
     private func playDisappearChickenAnimation(entity: Entity) {
