@@ -367,6 +367,18 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                             var shaderMaterial = material
                             try shaderMaterial.setParameter(name: "PillarColor", value: .int(1))
                             materialArray.append(shaderMaterial)
+                            
+                            //TODO: PlaySpaitialAudio 메서드를 재사용 할 수 있게 변경
+                            guard let audioEntity = timerEntity.findEntity(named: "SpatialAudio") else { return }
+                            guard let resource = try? await AudioFileResource(named: "/Root/ShoulderTimerSound_wav",
+                                                                              from: "Shoulder/ShoulderTimerScene_11.usda",
+                                                                              in: realityKitContentBundle) else {
+                                debugPrint("audio not found")
+                                return
+                            }
+                            
+                            let audioPlayer = audioEntity.prepareAudio(resource)
+                            audioPlayer.play()
                         } catch {
                             print("Failed to set parameter for PillarColor")
                         }
