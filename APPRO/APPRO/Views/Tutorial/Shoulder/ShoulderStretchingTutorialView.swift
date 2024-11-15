@@ -152,9 +152,8 @@ struct ShoulderStretchingTutorialView: View {
         // 충돌이 5초간 유지된 후 실행할 코드
         isColliding = false
         viewModel.resetHandEntities()
-        viewModel.isFistShowing = false
-        viewModel.isFirstPositioning = false
-        viewModel.addRightHandAnchor()
+        viewModel.resetModelEntities()
+        viewModel.resetExpectedNextNumber()
     }
     
     func createTextEntity(_ text: String) -> ModelEntity {
