@@ -16,6 +16,15 @@
       [
         "0D0E93FA-D526-443F-A7DE-082D9C5682E6",
         "root",
+        "main"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "0D0E93FA-D526-443F-A7DE-082D9C5682E6",
+        "root",
         "FloatingSpatialAudio"
       ],
       {
@@ -32,15 +41,6 @@
       {
         "isExpanded" : true,
         "isLocked" : false
-      },
-      [
-        "0D0E93FA-D526-443F-A7DE-082D9C5682E6",
-        "root",
-        "main"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
       }
     ]
   },
@@ -48,8 +48,7 @@
     "objectMetadataList" : [
       [
         "1D572CEB-057A-41C3-B575-04C37501A3C0",
-        "Root",
-        "Sphere_Left"
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -66,7 +65,8 @@
       },
       [
         "1D572CEB-057A-41C3-B575-04C37501A3C0",
-        "Root"
+        "Root",
+        "GridMaterial"
       ],
       {
         "isExpanded" : true,
@@ -75,7 +75,7 @@
       [
         "1D572CEB-057A-41C3-B575-04C37501A3C0",
         "Root",
-        "GridMaterial"
+        "Sphere_Left"
       ],
       {
         "isExpanded" : true,
@@ -87,8 +87,7 @@
     "objectMetadataList" : [
       [
         "360E6C2B-00FD-45A8-9038-A06BB9574FA4",
-        "Root",
-        "Rocket"
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -96,7 +95,8 @@
       },
       [
         "360E6C2B-00FD-45A8-9038-A06BB9574FA4",
-        "Root"
+        "Root",
+        "Rocket"
       ],
       {
         "isExpanded" : true,
@@ -108,8 +108,7 @@
     "objectMetadataList" : [
       [
         "3751220F-31D9-40D0-9DBF-3DF28D9550EB",
-        "root",
-        "target_002"
+        "root"
       ],
       {
         "isExpanded" : true,
@@ -117,7 +116,8 @@
       },
       [
         "3751220F-31D9-40D0-9DBF-3DF28D9550EB",
-        "root"
+        "root",
+        "target_002"
       ],
       {
         "isExpanded" : true,
@@ -146,6 +146,14 @@
     "objectMetadataList" : [
       [
         "4F7B9C28-C869-4E67-B515-F8F577757AD9",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "4F7B9C28-C869-4E67-B515-F8F577757AD9",
         "Root",
         "Rocket"
       ],
@@ -157,14 +165,6 @@
         "4F7B9C28-C869-4E67-B515-F8F577757AD9",
         "Root",
         "RocketCollisionModel"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "4F7B9C28-C869-4E67-B515-F8F577757AD9",
-        "Root"
       ],
       {
         "isExpanded" : true,
@@ -177,7 +177,7 @@
       [
         "51AAA82C-5C91-497F-8850-CB502720CBE8",
         "Root",
-        "Rocket"
+        "RocketCollisionModel"
       ],
       {
         "isExpanded" : true,
@@ -186,7 +186,7 @@
       [
         "51AAA82C-5C91-497F-8850-CB502720CBE8",
         "Root",
-        "RocketCollisionModel"
+        "Rocket"
       ],
       {
         "isExpanded" : true,
@@ -218,18 +218,6 @@
       },
       [
         "645E6206-B47E-4056-8323-678B5F5EE1BA",
-        "root",
-        "AppearSpatialAudio"
-      ],
-      {
-        "isExpanded" : false,
-        "isLocked" : false,
-        "selectedAudioFilePrim" : {
-          "string" : "\/root\/ring_appear_wav"
-        }
-      },
-      [
-        "645E6206-B47E-4056-8323-678B5F5EE1BA",
         "root"
       ],
       {
@@ -245,6 +233,18 @@
       {
         "isExpanded" : true,
         "isLocked" : false
+      },
+      [
+        "645E6206-B47E-4056-8323-678B5F5EE1BA",
+        "root",
+        "AppearSpatialAudio"
+      ],
+      {
+        "isExpanded" : false,
+        "isLocked" : false,
+        "selectedAudioFilePrim" : {
+          "string" : "\/root\/ring_appear_wav"
+        }
       }
     ]
   },
@@ -264,20 +264,7 @@
     "objectMetadataList" : [
       [
         "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
-        "Root",
-        "Timer_metal",
-        "Materials",
-        "b1_0"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
-        "Root",
-        "Timer_metal",
-        "Materials"
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -297,17 +284,6 @@
       [
         "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
         "Root",
-        "Timer_metal",
-        "Materials",
-        "b4_0"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
-        "Root",
         "Timeline",
         "Track2"
       ],
@@ -317,47 +293,10 @@
       },
       [
         "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
-        "Root"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
         "Root",
         "Timer_metal",
         "Materials",
-        "b5_0"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
-        "Root",
-        "Test"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
-        "Root",
-        "Timer_metal"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
-        "Root",
-        "Timer_metal",
-        "Materials",
-        "b2_0"
+        "b1_0"
       ],
       {
         "isExpanded" : true,
@@ -378,8 +317,69 @@
       [
         "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
         "Root",
+        "Timer_metal",
+        "Materials",
+        "b2_0"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
+        "Root",
+        "Timer_metal",
+        "Materials",
+        "b5_0"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
+        "Root",
+        "Timer_metal"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
+        "Root",
         "Test",
         "Track"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
+        "Root",
+        "Test"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
+        "Root",
+        "Timer_metal",
+        "Materials"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "7119660C-E44F-422E-91A7-86BDE7DB7BFC",
+        "Root",
+        "Timer_metal",
+        "Materials",
+        "b4_0"
       ],
       {
         "isExpanded" : true,
@@ -413,35 +413,6 @@
       [
         "77D00E37-70BB-4AB7-965D-A5B92718CF39",
         "root",
-        "target_blue"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
-        "root",
-        "target_blue",
-        "Cylinder_002",
-        "blue_line"
-      ],
-      {
-        "disallowsFraming" : false,
-        "isExpanded" : false,
-        "isLocked" : false
-      },
-      [
-        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
-        "root"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
-        "root",
         "_materials",
         "blue_body"
       ],
@@ -462,8 +433,7 @@
       [
         "77D00E37-70BB-4AB7-965D-A5B92718CF39",
         "root",
-        "target_blue",
-        "Cylinder_002"
+        "target_blue"
       ],
       {
         "isExpanded" : true,
@@ -484,12 +454,66 @@
       [
         "77D00E37-70BB-4AB7-965D-A5B92718CF39",
         "root",
+        "target_blue",
+        "Cylinder_002"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
+        "root",
+        "target_blue",
+        "Cylinder_002",
+        "blue_line"
+      ],
+      {
+        "disallowsFraming" : false,
+        "isExpanded" : false,
+        "isLocked" : false
+      },
+      [
+        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
+        "root",
         "SkyDome"
       ],
       {
         "disallowsFraming" : true,
         "isExpanded" : false,
         "isLocked" : false
+      },
+      [
+        "77D00E37-70BB-4AB7-965D-A5B92718CF39",
+        "root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      }
+    ]
+  },
+  "7DF17730-F7E4-49D0-B19A-FEFE91A753D4" : {
+    "objectMetadataList" : [
+      [
+        "7DF17730-F7E4-49D0-B19A-FEFE91A753D4",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "7DF17730-F7E4-49D0-B19A-FEFE91A753D4",
+        "Root",
+        "SpatialAudio"
+      ],
+      {
+        "isExpanded" : false,
+        "isLocked" : false,
+        "selectedAudioFilePrim" : {
+          "string" : "\/Root\/ShoulderTimerSound_wav"
+        }
       }
     ]
   },
@@ -499,6 +523,27 @@
         "81AB5445-6831-4214-BA19-7D51459B6C0E",
         "root",
         "target_green"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "81AB5445-6831-4214-BA19-7D51459B6C0E",
+        "root",
+        "AppearSpatialAudio"
+      ],
+      {
+        "isExpanded" : false,
+        "isLocked" : false,
+        "selectedAudioFilePrim" : {
+          "string" : "\/root\/target_appear_mp3"
+        }
+      },
+      [
+        "81AB5445-6831-4214-BA19-7D51459B6C0E",
+        "root",
+        "_materials"
       ],
       {
         "isExpanded" : true,
@@ -525,7 +570,8 @@
       [
         "81AB5445-6831-4214-BA19-7D51459B6C0E",
         "root",
-        "_materials"
+        "_materials",
+        "green_line"
       ],
       {
         "isExpanded" : true,
@@ -536,28 +582,6 @@
         "root",
         "target_green",
         "Cylinder_002"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "81AB5445-6831-4214-BA19-7D51459B6C0E",
-        "root",
-        "AppearSpatialAudio"
-      ],
-      {
-        "isExpanded" : false,
-        "isLocked" : false,
-        "selectedAudioFilePrim" : {
-          "string" : "\/root\/target_appear_mp3"
-        }
-      },
-      [
-        "81AB5445-6831-4214-BA19-7D51459B6C0E",
-        "root",
-        "_materials",
-        "green_line"
       ],
       {
         "isExpanded" : true,
@@ -595,7 +619,8 @@
       [
         "ADCB3503-BD59-4B77-AEB0-CA9E6B440C86",
         "Root",
-        "Rocket"
+        "Rocket",
+        "rocket"
       ],
       {
         "isExpanded" : true,
@@ -604,8 +629,7 @@
       [
         "ADCB3503-BD59-4B77-AEB0-CA9E6B440C86",
         "Root",
-        "Rocket",
-        "rocket"
+        "Rocket"
       ],
       {
         "isExpanded" : true,
@@ -627,14 +651,11 @@
       [
         "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
         "root",
-        "AppearSpatialAudio"
+        "_materials"
       ],
       {
-        "isExpanded" : false,
-        "isLocked" : false,
-        "selectedAudioFilePrim" : {
-          "string" : "\/root\/spiral_launch_wav"
-        }
+        "isExpanded" : true,
+        "isLocked" : false
       },
       [
         "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
@@ -666,11 +687,14 @@
       [
         "C3ADB447-4D90-4390-B2C6-56003BC5EF95",
         "root",
-        "_materials"
+        "AppearSpatialAudio"
       ],
       {
-        "isExpanded" : true,
-        "isLocked" : false
+        "isExpanded" : false,
+        "isLocked" : false,
+        "selectedAudioFilePrim" : {
+          "string" : "\/root\/spiral_launch_wav"
+        }
       }
     ]
   },
@@ -679,7 +703,15 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
-        "Sphere"
+        "Timeline"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -698,15 +730,7 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
-        "Timeline"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
-        "Root"
+        "Sphere"
       ],
       {
         "isExpanded" : true,
@@ -719,7 +743,54 @@
       [
         "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
         "Root",
+        "shouldertimer_animation",
+        "timer"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
+        "Root",
         "shouldertimer_animation"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
+        "Root",
+        "shouldertimer_animation",
+        "Materials"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
+        "Root",
+        "shouldertimer_chargeanimation2"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
+        "Root",
+        "shouldertimer_chargeanimation2",
+        "Materials"
       ],
       {
         "isExpanded" : true,
@@ -739,54 +810,7 @@
       [
         "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
         "Root",
-        "shouldertimer_animation",
-        "timer"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
-        "Root"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
-        "Root",
-        "shouldertimer_chargeanimation2",
-        "Materials"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
-        "Root",
-        "shouldertimer_chargeanimation2",
-        "Polygon_Reduction"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
-        "Root",
         "Rocket"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
-        "Root",
-        "shouldertimer_chargeanimation2"
       ],
       {
         "isExpanded" : true,
@@ -806,8 +830,8 @@
       [
         "E8A252B6-9D9B-4E21-9B2B-16B277ADCC2C",
         "Root",
-        "shouldertimer_animation",
-        "Materials"
+        "shouldertimer_chargeanimation2",
+        "Polygon_Reduction"
       ],
       {
         "isExpanded" : true,
@@ -820,7 +844,8 @@
       [
         "F0DDF284-9666-4FF6-9736-451DAA2FC18F",
         "Root",
-        "shouldertimer_chargeanimation3"
+        "shouldertimer_chargeanimation3",
+        "Polygon_Reduction"
       ],
       {
         "isExpanded" : true,
@@ -829,8 +854,7 @@
       [
         "F0DDF284-9666-4FF6-9736-451DAA2FC18F",
         "Root",
-        "shouldertimer_chargeanimation3",
-        "Polygon_Reduction"
+        "shouldertimer_chargeanimation3"
       ],
       {
         "isExpanded" : true,
@@ -860,7 +884,9 @@
     "objectMetadataList" : [
       [
         "FA4272FD-3666-488A-BDE8-7C96CBB87363",
-        "Root"
+        "Root",
+        "Timer_nometal",
+        "Materials"
       ],
       {
         "isExpanded" : true,
@@ -877,9 +903,7 @@
       },
       [
         "FA4272FD-3666-488A-BDE8-7C96CBB87363",
-        "Root",
-        "Timer_nometal",
-        "Materials"
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -912,6 +936,14 @@
     "objectMetadataList" : [
       [
         "FD751839-A604-45E0-BCFA-C429AB88F34F",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "FD751839-A604-45E0-BCFA-C429AB88F34F",
         "Root",
         "Star"
       ],
@@ -923,14 +955,6 @@
         "FD751839-A604-45E0-BCFA-C429AB88F34F",
         "Root",
         "Materials"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "FD751839-A604-45E0-BCFA-C429AB88F34F",
-        "Root"
       ],
       {
         "isExpanded" : true,
