@@ -38,7 +38,6 @@ struct ShoulderStretchingTutorialView: View {
                 completeTutorialStep(5) // The last step in the tutorial
                 
                 viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
-                viewModel.addAttachmentView(content,attachments)
             }
             
         } attachments: {
