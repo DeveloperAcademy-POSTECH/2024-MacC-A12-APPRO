@@ -23,14 +23,12 @@ struct ShoulderStretchingView: View {
         } update: { content, attachments in
             if viewModel.doneCount == viewModel.maxCount {
                 viewModel.showEndAttachmentView(content, attachments)
+            } else if viewModel.isRetry {
+                viewModel.deleteEndAttachmentView(content, attachments)
+                viewModel.addAttachmentView(content, attachments)
+                
+                viewModel.isRetry = false
             } else {
-                if viewModel.isRetry {
-                    viewModel.isRightDone = false
-                    viewModel.addRightHandAnchor()
-                    viewModel.isRetry = false
-                    viewModel.deleteEndAttachmentView(content, attachments)
-                    viewModel.addAttachmentView(content, attachments)
-                }
                 viewModel.computeTransformHandTracking()
             }
         } attachments: {
