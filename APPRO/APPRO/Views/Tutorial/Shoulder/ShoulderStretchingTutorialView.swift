@@ -98,6 +98,10 @@ struct ShoulderStretchingTutorialView: View {
     }
     
     func setCollisionAction(collisionEvent: CollisionEvents.Began) {
+        // 팔뻗는 인스트럭션 전에는 무효화
+        if tutorialManager.currentStepIndex < 3 {
+            return
+        }
         let collidedModelEntity = collisionEvent.entityB
         
         if collidedModelEntity.name.contains("Timer") && !isColliding {
