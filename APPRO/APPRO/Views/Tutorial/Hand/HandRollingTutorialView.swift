@@ -87,9 +87,11 @@ struct HandRollingTutorialView : View {
         }
         .onChange(of: viewModel.rightLaunchState, initial: false) { _, currentLaunchState in
             if currentLaunchState {
-                Task {
-                    viewModel.rightRotationForLaunchNumber = viewModel.rightRotationCount
-                    try? await viewModel.rightEntities.append(viewModel.generateLaunchObj(chirality: .right))
+                if tutorialManager.currentStepIndex >= 3  {
+                    Task {
+                        viewModel.rightRotationForLaunchNumber = viewModel.rightRotationCount
+                        try? await viewModel.rightEntities.append(viewModel.generateLaunchObj(chirality: .right))
+                    }
                 }
                 
                 DispatchQueue.main.async {
