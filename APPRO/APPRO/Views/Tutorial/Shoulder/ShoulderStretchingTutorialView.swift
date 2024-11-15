@@ -58,7 +58,8 @@ struct ShoulderStretchingTutorialView: View {
         }
         .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, newValue in
             if newValue == 4 {
-                viewModel.addShoulderTimerEntity()
+                viewModel.resetModelEntities()
+                viewModel.createEntitiesOnEllipticalArc(handTransform: viewModel.rightHandTransform)
             }
         }
         .onChange(of: viewModel.modelEntities) { _, newValue in
@@ -112,9 +113,7 @@ struct ShoulderStretchingTutorialView: View {
         }
         
         let entityName = viewModel.isRightDone ? "leftModelEntity" : "rightModelEntity"
-        
-        
-        
+                
         // 충돌시 particle, audio 실행
         viewModel.playEmitter(eventEntity: collidedModelEntity)
         Task {
