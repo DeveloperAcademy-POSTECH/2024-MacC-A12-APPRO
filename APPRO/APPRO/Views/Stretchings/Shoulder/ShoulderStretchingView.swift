@@ -22,7 +22,7 @@ struct ShoulderStretchingView: View {
             viewModel.addAttachmentView(content, attachments)
         } update: { content, attachments in
             if viewModel.doneCount == viewModel.maxCount {
-                viewModel.showEndAttachmentView(content, attachments)
+                viewModel.showFinishAttachmentView(content, attachments)
             } else {
                 if viewModel.isRetry {
                     viewModel.isRightDone = false

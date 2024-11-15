@@ -268,7 +268,7 @@ final class HandRollingStretchingViewModel: StretchingCounter {
         content.add(stretchingAttachmentView)
     }
 
-    func showEndAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+    func showFinishAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
         guard let stretchingAttachmentView = attachments.entity(for: stretchingAttachmentViewID) else {
             dump("StretchingAttachmentView not found in attachments!")
             return

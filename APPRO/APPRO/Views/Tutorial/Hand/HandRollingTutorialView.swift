@@ -39,7 +39,6 @@ struct HandRollingTutorialView : View {
             } else {
                 
             }
-            
         } attachments: {
             Attachment(id: viewModel.tutorialAttachmentViewID) {
                 TutorialAttachmentView(tutorialManager: tutorialManager)
