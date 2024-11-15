@@ -14,31 +14,31 @@ struct HandRollingTutorialView : View {
     @State var viewModel = HandRollingTutorialViewModel()
     @State var tutorialManager = TutorialManager(stretching: .wrist)
     
+    @State var isStartWarningDone = false
+    
     var body : some View {
         RealityView { content, attachments in
-            if viewModel.isStartingObjectVisible {
-                await viewModel.generateStartingObject(content)
-            }
-            
-            await viewModel.makeFirstEntitySetting(content)
-            viewModel.bringCollisionHandler(content)
-            viewModel.addAttachmentView(content, attachments)
-            viewModel.subscribeSceneEvent(content)
+            let textEntity = createTextEntity("Stay aware of your surroundings")
+            content.add(textEntity)
+            setTutorialToStart(content: content)
         } update : { content, attachments in
             viewModel.addEntity(content)
             
-            if viewModel.isStartingObjectVisible {
-                viewModel.updateStartingComponentsTransform(content)
+            if isStartWarningDone {
+                if viewModel.isStartingObjectVisible {
+                    viewModel.updateStartingComponentsTransform(content)
+                } else {
+                    viewModel.updateTargetComponentTransform(content)
+                }
+                
+                if viewModel.isRightHandInFist {
+                    viewModel.updateGuideComponentsTransform(content, chirality: .right)
+                }
+                
+                viewModel.addAttachmentView(content, attachments)
             } else {
-                viewModel.updateTargetComponentTransform(content)
+                
             }
-            
-            if viewModel.isRightHandInFist {
-                viewModel.updateGuideComponentsTransform(content, chirality: .right)
-            }
-            
-            viewModel.addAttachmentView(content, attachments)
-            
         } attachments: {
             Attachment(id: viewModel.tutorialAttachmentViewID) {
                 TutorialAttachmentView(tutorialManager: tutorialManager)
@@ -130,6 +130,47 @@ struct HandRollingTutorialView : View {
                 viewModel.showTarget = true
             }
             tutorialManager.completeCurrentStep()
+        }
+    }
+    
+    func createTextEntity(_ text: String) -> ModelEntity {
+        let mesh = MeshResource.generateText(
+            text,
+            extrusionDepth: 0.001,
+            font: .systemFont(ofSize: CGFloat(0.1)),
+            containerFrame: .zero,
+            alignment: .center,
+            lineBreakMode: .byWordWrapping
+        )
+        
+        let material = SimpleMaterial(color: .white, isMetallic: false)
+        let textEntity = ModelEntity(mesh: mesh, materials: [material])
+        let width = textEntity.model?.mesh.bounds.extents.x ?? 0
+        textEntity.name = "warning"
+        textEntity.position = .init(x: -width/2, y: viewModel.startingHeight == 0 ? 1.4 : viewModel.startingHeight + 0.3 , z: -3)
+        return textEntity
+    }
+    
+    private func setTutorialToStart(content: RealityViewContent) {
+        if tutorialManager.currentStepIndex == 0 {
+            guard let textEntity = content.entities.first(where: { $0.name == "warning" })  else { return }
+            withAnimation {
+                textEntity.isEnabled = true
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                Task {
+                    textEntity.removeFromParent()
+                    if viewModel.isStartingObjectVisible {
+                        await viewModel.generateStartingObject(content)
+                    }
+                    
+                    await viewModel.makeFirstEntitySetting(content)
+                    viewModel.bringCollisionHandler(content)
+                    viewModel.subscribeSceneEvent(content)
+                    isStartWarningDone = true
+                }
+            }
         }
     }
 }

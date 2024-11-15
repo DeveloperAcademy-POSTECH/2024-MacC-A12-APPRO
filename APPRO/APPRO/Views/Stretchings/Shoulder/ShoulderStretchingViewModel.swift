@@ -32,20 +32,22 @@ final class ShoulderStretchingViewModel: StretchingCounter {
     var isFirstPositioning: Bool = true
     var isRightDone: Bool = false
     var isEntryEnd = false
-
+    var isRetry = false
+    
     var fixedOneAfterPositioning: Float = 0.0
     var startingZ: Float = 0.0
-    var deviceTranslation = SIMD3<Float>(x: 0.0, y: 0.0, z: 0.0) 
+    var deviceTranslation = SIMD3<Float>(x: 0.0, y: 0.0, z: 0.0)
     var rightHandTransform = Transform()
     var entryRocketTransForm = Transform()
     private var shoulderTimerPoint = SIMD3<Float>()
-
+    
     // 별 모델 + 타이머
     private(set) var numberOfObjects: Int = 8
     private(set) var expectedNextNumber = 0
     private(set) var timerController: AnimationPlaybackController?
     
     let stretchingAttachmentViewID  = "StretchingAttachmentView"
+    let stretchingFinishAttachmentViewID  = "StretchingFinishAttachmentView"
     
     //StretchingCounter
     var doneCount = 0
@@ -114,7 +116,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
         let b: Float = abs(centerPosition.z - startPoint.z) // 타원의 단축 반지름 : 이렇게 하였을 때에, 사용자가 회전하여 별을 재조정하면
         let a: Float = b * 1.0  // 타원의 장축 반지름
         let y: Float = centerPosition.y  // Y 좌표는 어깨의 Y 좌표로 설정
-
+        
         // startPoint와 centerPosition 사이의 벡터를 이용하여 startAngle 계산
         let deltaX = startPoint.x - centerPosition.x
         let deltaZ = startPoint.z - centerPosition.z
@@ -122,10 +124,10 @@ final class ShoulderStretchingViewModel: StretchingCounter {
         let startAngle = atan2(deltaZ, deltaX)  // 각도는 Z축을 기준으로 계산됨
         // 전체 호 길이를 라디안으로 변환
         let totalArcRadian: Float = arcSpan * (.pi / 180)
-
+        
         // 포인트 사이의 각도 계산 (각도를 균등하게 나누기)
         let angleStep = totalArcRadian / Float(numPoints) // 원래는 - 1 이지만, 균등분배가 아닌, 마지막 스텝과 그전 스텝간의 거리를 넓히기 위해서 변경.
-
+        
         for i in 0..<numPoints {
             // 각도를 계산 (시계 또는 반시계 방향으로 회전)
             
@@ -134,12 +136,12 @@ final class ShoulderStretchingViewModel: StretchingCounter {
             // 각도에 따라 x, z 좌표 계산
             let x = a * cos(angle)  // X축 대칭 (오른쪽은 양수, 왼쪽은 음수)
             let z = b * sin(angle)  // Z축 방향 (양수는 +Z, 음수는 -Z로 이동)
-
+            
             // 최종 좌표 계산: 중심(centerPosition)을 기준으로 회전 적용
-            let point = SIMD3<Float>(x + centerPosition.x, y, z + centerPosition.z)
+            let point = SIMD3<Float>(x + centerPosition.x, i == numPoints - 1 ? y - 0.1 : y, z + centerPosition.z)
             points.append(point)
         }
-
+        
         return points
     }
     
@@ -147,17 +149,17 @@ final class ShoulderStretchingViewModel: StretchingCounter {
         let entityName = isRightSide ? "rightModelEntity" : "leftModelEntity"
         
         for (idx, point) in points.enumerated() {
-                // 마지막 인덱스 일때
-                if idx == numberOfObjects - 1 {
-                    shoulderTimerPoint = point
-                    return
-                }
+            // 마지막 인덱스 일때
+            if idx == numberOfObjects - 1 {
+                shoulderTimerPoint = point
+                return
+            }
             guard let starModelEntity = self.starModelEntity?.clone(recursive: true) else { return }
-                starModelEntity.name = "\(entityName)-\(idx)"
-                starModelEntity.position = point
-                starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
-                modelEntities.append(starModelEntity)
-                contentEntity.addChild(starModelEntity)
+            starModelEntity.name = "\(entityName)-\(idx)"
+            starModelEntity.position = point
+            starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
+            modelEntities.append(starModelEntity)
+            contentEntity.addChild(starModelEntity)
         }
     }
     
@@ -194,7 +196,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                 arcSpan: 180.0,
                 isRightSide: false  // 왼손과 오른손 구분
             )
-                        
+            
             addModelsToPoints(isRightSide: false, points: leftPoints)
         }
     }
@@ -245,7 +247,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
             debugPrint("no mesh found")
             return
         }
-         
+        
         let modelComponent = ModelComponent(mesh: mesh, materials: [newMeterial])
         modelEntity.components.set(modelComponent)
     }
@@ -267,7 +269,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                 collisionModelEntity.generateCollisionShapes(recursive: false)
                 collisionModelEntity.scale = .init(repeating: 0.1)
                 collisionModelEntity.name = "Timer"
-             
+                
                 shoulderTimerEntity.addChild(collisionModelEntity)
                 
                 contentEntity.addChild(shoulderTimerEntity)
@@ -319,6 +321,30 @@ final class ShoulderStretchingViewModel: StretchingCounter {
         content.add(stretchingAttachmentView)
     }
     
+    func showFinishAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+        guard let stretchingAttachmentView = attachments.entity(for: stretchingAttachmentViewID) else {
+            dump("StretchingAttachmentView not found in attachments!")
+            return
+        }
+        
+        content.remove(stretchingAttachmentView)
+        
+        guard let stretchingFinishAttachmentView = attachments.entity(for: stretchingFinishAttachmentViewID) else {
+            dump("StretchingAttachmentView not found in attachments!")
+            return
+        }
+        stretchingFinishAttachmentView.position = .init(x: 0.0, y: 1.5 , z: -1.3)
+        content.add(stretchingFinishAttachmentView)
+    }
+    
+    func deleteEndAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+        guard let stretchingFinishAttachmentView = attachments.entity(for: stretchingFinishAttachmentViewID) else {
+            dump("StretchingAttachmentView not found in attachments!")
+            return
+        }
+        content.remove(stretchingFinishAttachmentView)
+    }
+    
     func playCustomAnimation(timerEntity: Entity) {
         let targetModelEntities = ["b1", "b2", "b3", "b4", "b5"]
         var tasks: [Task<Void, Never>] = []
@@ -347,16 +373,20 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                     }
                     modelComponent.materials = materialArray
                     modelEntity.components.set(modelComponent)
+                    
+                    if index == 4 {
+                        tasks.forEach { $0.cancel() }
+                    }
                 } else {
                     playBackProgressAnimation(index: index)
-                    tasks.suffix(from: index).forEach { $0.cancel() }
+                    tasks.suffix(from: index + 1).forEach { $0.cancel() }
                     return
                 }
             }
             tasks.append(task)
         }
     }
-
+    
     
     func playBackProgressAnimation ( index : Int) {
         let targetModelEntities = ["b1", "b2", "b3", "b4", "b5"]
@@ -369,22 +399,21 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                 guard let modelEntity = timerEntity.findEntity(named: targetModelEntities[i]) as? ModelEntity,
                       var modelComponent = modelEntity.components[ModelComponent.self] else { continue }
                 guard let shaderGraphMaterial = modelComponent.materials as? [ShaderGraphMaterial] else { continue }
-                Task {
-                    var materialArray: [ShaderGraphMaterial] = []
-                    
-                    for material in shaderGraphMaterial {
-                        do {
-                            var shaderMaterial = material
-                            try shaderMaterial.setParameter(name: "PillarColor", value: .int(0))
-                            materialArray.append(shaderMaterial)
-                        } catch {
-                            print("Failed to set parameter for PillarColor")
-                        }
+                
+                var materialArray: [ShaderGraphMaterial] = []
+                
+                for material in shaderGraphMaterial {
+                    do {
+                        var shaderMaterial = material
+                        try shaderMaterial.setParameter(name: "PillarColor", value: .int(0))
+                        materialArray.append(shaderMaterial)
+                    } catch {
+                        print("Failed to set parameter for PillarColor")
                     }
-                    
-                    modelComponent.materials = materialArray
-                    modelEntity.components.set(modelComponent)
                 }
+                
+                modelComponent.materials = materialArray
+                modelEntity.components.set(modelComponent)
             }
         }
     }
@@ -395,6 +424,10 @@ final class ShoulderStretchingViewModel: StretchingCounter {
     
     func initiateAllTimerProgress() {
         timerFiveProgressChecker = timerFiveProgressChecker.map({ _ in true})
+    }
+    
+    func makeDoneCountZero() {
+        doneCount = 0
     }
 }
 

@@ -34,6 +34,7 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     var fistReaderLeft: [Bool] = []
     
     let stretchingAttachmentViewID  = "StretchingAttachmentView"
+    let stretchingFinishAttachmentViewID  = "StretchingFinishAttachmentView"
     
     let frameInterval = 1
     var frameIndex = 0
@@ -78,12 +79,16 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     var leftHitCount = 0
     var rightHitCount = 0
     
-    func makeFirstEntitySetting (_ content: RealityViewContent) async {
-        rightGuideRing = await generateGuideRing(chirality: .right)
-        rightGuideSphere = generateGuideSphere(chirality: .right)
-        
-        leftGuideRing = await generateGuideRing(chirality: .left)
-        leftGuideSphere = generateGuideSphere(chirality: .left)
+    var isRetry = false
+    
+    func makeFirstEntitySetting (isRetry: Bool = false) async {
+        if !isRetry {
+            rightGuideRing = await generateGuideRing(chirality: .right)
+            rightGuideSphere = generateGuideSphere(chirality: .right)
+            
+            leftGuideRing = await generateGuideRing(chirality: .left)
+            leftGuideSphere = generateGuideSphere(chirality: .left)
+        }
         
         rightTargetEntities = await bringTargetEntities([2,1,4], chirality: .right)
         
@@ -261,5 +266,33 @@ final class HandRollingStretchingViewModel: StretchingCounter {
         }
         stretchingAttachmentView.position = .init(x: 0, y: startingHeight + 0.4, z: -1.2)
         content.add(stretchingAttachmentView)
+    }
+
+    func showFinishAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+        guard let stretchingAttachmentView = attachments.entity(for: stretchingAttachmentViewID) else {
+            dump("StretchingAttachmentView not found in attachments!")
+            return
+        }
+        
+        content.remove(stretchingAttachmentView)
+        
+        guard let stretchingFinishAttachmentView = attachments.entity(for: stretchingFinishAttachmentViewID) else {
+            dump("StretchingFinishAttachmentView not found in attachments!")
+            return
+        }
+        stretchingFinishAttachmentView.position = .init(x: 0.0, y: startingHeight + 0.4 , z: -1.2)
+        content.add(stretchingFinishAttachmentView)
+    }
+    
+    func deleteEndAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+        guard let stretchingFinishAttachmentView = attachments.entity(for: stretchingFinishAttachmentViewID) else {
+            dump("StretchingFinishAttachmentView not found in attachments!")
+            return
+        }
+        content.remove(stretchingFinishAttachmentView)
+    }
+    
+    func makeDoneCountZero() {
+        doneCount = 0
     }
 }

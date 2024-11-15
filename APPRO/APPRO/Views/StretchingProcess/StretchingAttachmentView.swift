@@ -47,11 +47,28 @@ struct StretchingAttachmentView: View {
                     }
                 }
             }
+            
+            if counter.doneCount == counter.maxCount {
+                Divider()
+                
+                VStack {
+                    Button {
+                        counter.makeDoneCountZero()
+                    }label: {
+                        Text("Retry")
+                    }
+                    
+                    Button {
+                        appState.appPhase = .choosingStretchingPart
+                    }label: {
+                        Text("Finish")
+                    }
+                }
+            }
         }
         .frame(width: 550)
         .padding(24)
         .padding(.bottom, 24)
         .glassBackgroundEffect()
     }
-    
 }

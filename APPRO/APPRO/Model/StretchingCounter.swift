@@ -11,4 +11,5 @@ import Foundation
 protocol StretchingCounter: AnyObject {
     var doneCount: Int { get }
     var maxCount: Int { get }
+    func makeDoneCountZero() -> Void
 }

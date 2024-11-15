@@ -21,11 +21,25 @@ struct ShoulderStretchingView: View {
             viewModel.subscribeSceneEvent(content)
             viewModel.addAttachmentView(content, attachments)
         } update: { content, attachments in
-            viewModel.computeTransformHandTracking()
-            viewModel.addAttachmentView(content, attachments)
+            if viewModel.doneCount == viewModel.maxCount {
+                viewModel.showFinishAttachmentView(content, attachments)
+            } else {
+                if viewModel.isRetry {
+                    viewModel.isRightDone = false
+                    viewModel.addRightHandAnchor()
+                    viewModel.isRetry = false
+                    viewModel.deleteEndAttachmentView(content, attachments)
+                    viewModel.addAttachmentView(content, attachments)
+                }
+                viewModel.computeTransformHandTracking()
+            }
         } attachments: {
             Attachment(id: viewModel.stretchingAttachmentViewID) {
                 StretchingAttachmentView(counter: viewModel, stretchingPart: .shoulder)
+            }
+            
+            Attachment(id: viewModel.stretchingFinishAttachmentViewID) {
+                StretchingFinishAttachmentView(counter: viewModel, stretchingPart: .shoulder)
             }
         }
         .upperLimbVisibility(.hidden)
@@ -40,10 +54,16 @@ struct ShoulderStretchingView: View {
             await viewModel.updateHandTracking()
         }
         .onChange(of: viewModel.halfSetCount, initial: false ) { _, newValue in
-            if newValue / 2 <= viewModel.maxCount {
+            if newValue / 2 <= viewModel.maxCount && newValue != 0{
                 if newValue % 2 == 0 {
                     viewModel.doneCount += 1
                 }
+            }
+        }
+        .onChange(of: viewModel.doneCount, initial: false ) { oldValue, newValue in
+            if newValue < oldValue && newValue == 0 {
+                viewModel.isRetry = true
+                viewModel.halfSetCount = 0
             }
         }
     }

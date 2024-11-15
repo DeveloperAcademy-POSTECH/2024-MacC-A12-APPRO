@@ -20,7 +20,7 @@ def Xform "Root"
     )
     {
         rel material:binding = </Root/RocketCollisionModel/DefaultMaterial>
-        double size = 2
+        double size = 1
         quatf xformOp:orient = (0.99999994, 2.9802319e-8, 0, 0)
         float3 xformOp:scale = (0.9999998, 0.8999999, 1.7999998)
         float3 xformOp:translate = (-0.05, -2.5986034e-17, 0.03)
@@ -92,7 +92,7 @@ def Xform "Root"
             int ui:nodegraph:node:stackingOrder = 1
             quatf xformOp:orient = (0.92344123, 0.02845355, 0.0117859095, 0.38250187)
             float3 xformOp:scale = (0.009999996, 0.09999995, 0.009999999)
-            float3 xformOp:translate = (-1.441157, -119.22266, 2.822733)
+            float3 xformOp:translate = (-2.4599464, -120.015686, 0.23387633)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
             def RealityKitComponent "VFXEmitter"
