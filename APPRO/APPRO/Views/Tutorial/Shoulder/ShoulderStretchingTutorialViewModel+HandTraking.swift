@@ -53,18 +53,6 @@ extension ShoulderStretchingTutorialViewModel {
             
             handRocketEntity.transform = getTransform(rightHandAnchor, .middleFingerKnuckle, handRocketEntity.transform)
             
-            if !isFirstPositioning {
-                //TODO: isFirstPositioning 이 false가 된 후에는 isFistShowing을 확인할 필요가 없음
-                if !isFistShowing  {
-                    resetModelEntities()
-                    
-                    if currentStep >= 2 {
-                        createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
-                    }
-                    isFistShowing = true
-                }
-                return
-            }
             
             guard
                 let jointA = rightHandAnchor.handSkeleton?.joint(.thumbIntermediateBase),
@@ -85,8 +73,7 @@ extension ShoulderStretchingTutorialViewModel {
             if isFistShowing && fingersDistance > 0.1 {
                 isFistShowing = false
             } else if !isFistShowing && fingersDistance < 0.05 {
-                resetModelEntities()
-                
+               
                 guard
                     let fistJoint = rightHandAnchor.handSkeleton?.joint(.middleFingerMetacarpal),
                     fistJoint.isTracked else {
@@ -103,6 +90,7 @@ extension ShoulderStretchingTutorialViewModel {
                     return
                 }
                 if currentStep >= 2{
+                    resetModelEntities()
                     createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
                 }
                 
