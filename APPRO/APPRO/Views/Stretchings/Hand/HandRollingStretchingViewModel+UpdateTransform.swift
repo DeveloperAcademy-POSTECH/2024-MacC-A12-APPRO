@@ -106,17 +106,16 @@ extension HandRollingStretchingViewModel {
                 rightGuideSphere.scale = .init(repeating: 0.01)
                 if rightRotationCount > 0 && !rightLaunchState {
                     DispatchQueue.main.async {
-                        self.rightLaunchState = true //TODO: 회전폭 반경은 더욱 좁게 설정되어야할 수도 있음.
+                        self.rightLaunchState = true
                     }
                 }
             } else {
                 leftGuideSphere.scale = .init(repeating: 0.01)
                 if leftRotationCount > 0 && !leftLaunchState {
                     DispatchQueue.main.async {
-                        self.leftLaunchState = true //TODO: 회전폭 반경은 더욱 좁게 설정되어야할 수도 있음.
+                        self.leftLaunchState = true
                     }
                 }
-                
             }
             return intersection3D
         }

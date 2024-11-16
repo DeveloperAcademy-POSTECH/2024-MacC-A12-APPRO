@@ -112,6 +112,8 @@ struct HandRollingStretchingView: View {
         }
         .onChange(of: viewModel.isLeftHandInFist, initial: false) { _, isHandFistShape in
             if isHandFistShape {
+                if viewModel.isStartingObjectVisible { viewModel.isStartingObjectVisible = false}
+                
                 viewModel.leftEntities.append(viewModel.leftGuideRing)
                 viewModel.leftEntities.append(viewModel.leftGuideSphere)
                 Task {

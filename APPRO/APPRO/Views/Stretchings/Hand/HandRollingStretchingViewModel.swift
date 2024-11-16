@@ -152,7 +152,7 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     }
     
     func generateGuideSphere(chirality : Chirality)-> ModelEntity  {
-        let guideSphereEntity = ModelEntity(mesh: .generateSphere(radius: 0.015), materials: [SimpleMaterial(color: .red, roughness: 0.0, isMetallic: false)]) // var to let
+        let guideSphereEntity = ModelEntity(mesh: .generateSphere(radius: 0.015), materials: [SimpleMaterial(color: .red, roughness: 0.0, isMetallic: false)])
         guideSphereEntity.name = chirality == .right ? "GuideSphere_Right" : "GuideSphere_Left"
         guideSphereEntity.generateCollisionShapes(recursive: false)
         

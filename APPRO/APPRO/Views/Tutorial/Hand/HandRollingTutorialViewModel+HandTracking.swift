@@ -37,10 +37,10 @@ extension HandRollingTutorialViewModel {
                 
                 if anchor.chirality == .left {
                     latestHandTracking.left = anchor
-                    isHandinFistShape(chirality: .left)
+                    isHandInFistShape(chirality: .left)
                 } else if anchor.chirality == .right {
                     latestHandTracking.right = anchor
-                    isHandinFistShape(chirality: .right)
+                    isHandInFistShape(chirality: .right)
                 }
                 
             default:
@@ -48,35 +48,9 @@ extension HandRollingTutorialViewModel {
             }
         }
     }
-    
-    func isHandinFistShape(chirality: Chirality) {
-        guard let handAnchor = chirality == .right ? latestHandTracking.right : latestHandTracking.left else { return  }
-        
-        guard
-            let thumbJoint = handAnchor.handSkeleton?.joint(.thumbIntermediateBase),
-            let indexJoint = handAnchor.handSkeleton?.joint(.indexFingerIntermediateTip),
-            thumbJoint.isTracked && indexJoint.isTracked else { return }
-        
-        let thumbJointOriginalTransform = matrix_multiply(handAnchor.originFromAnchorTransform, thumbJoint.anchorFromJointTransform).columns.3
-        let indexJointOriginalTransfrom = matrix_multiply(handAnchor.originFromAnchorTransform, indexJoint.anchorFromJointTransform).columns.3
-        
-        let distance = distance(thumbJointOriginalTransform, indexJointOriginalTransfrom)
-        
-        let isFistShape = distance <= 0.04
-        let isPalmOpened = distance >= 0.09
-        
-        if chirality == .right {
-            if isRightHandInFist {
-                isRightHandInFist = !isPalmOpened
-            } else {
-                isRightHandInFist = isFistShape
-            }
-        }
-    }
-    
-    
+
     func isHandInFistShape(chirality: Chirality) {
-        guard let handAnchor = latestHandTracking.right,
+        guard let handAnchor = (chirality == .right ? latestHandTracking.right : latestHandTracking.left),
               let thumbJoint = handAnchor.handSkeleton?.joint(.thumbIntermediateBase),
               let indexJoint = handAnchor.handSkeleton?.joint(.indexFingerIntermediateTip),
               thumbJoint.isTracked, indexJoint.isTracked else { return }
@@ -92,8 +66,8 @@ extension HandRollingTutorialViewModel {
     }
     
     private func updateFistReader(for chirality: Chirality, isFistShape: Bool, isPalmOpened: Bool) {
-        var fistReader = fistReaderRight
-        let isHandInFist = isRightHandInFist
+        var fistReader = (chirality == .right ? fistReaderRight : fistReaderLeft)
+        let isHandInFist = (chirality == .right ? isRightHandInFist : isLeftHandInFist)
         
         fistReader.append(isHandInFist ? !isPalmOpened : isFistShape)
         
@@ -105,10 +79,15 @@ extension HandRollingTutorialViewModel {
             if chirality == .right {
                 isRightHandInFist = fistReader.first!
                 fistReaderRight = fistReader
+            } else {
+                isLeftHandInFist = fistReader.first!
+                fistReaderLeft = fistReader
             }
         } else {
             if chirality == .right {
                 fistReaderRight = fistReader
+            } else {
+                fistReaderLeft = fistReader
             }
         }
     }
