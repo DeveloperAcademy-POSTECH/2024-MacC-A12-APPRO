@@ -20,6 +20,7 @@ struct ShoulderStretchingView: View {
             subscribeToCollisionEvents(content: content)
             viewModel.subscribeSceneEvent(content)
             viewModel.addAttachmentView(content, attachments)
+            viewModel.addShoulderTimerEntity()
         } update: { content, attachments in
             if viewModel.doneCount == viewModel.maxCount {
                 viewModel.showEndAttachmentView(content, attachments)

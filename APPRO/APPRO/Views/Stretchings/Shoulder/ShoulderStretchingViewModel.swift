@@ -257,17 +257,23 @@ final class ShoulderStretchingViewModel: StretchingCounter {
             if let rootEntity = try? await Entity(named: "Shoulder/ShoulderTimerScene_11.usda", in: realityKitContentBundle) {
                 shoulderTimerEntity = rootEntity
                 shoulderTimerEntity.name = "ShoulderTimerEntity"
-                shoulderTimerEntity.position = shoulderTimerPoint
+                shoulderTimerEntity.position = .zero
                 // 스케일이 너무 큼
                 shoulderTimerEntity.scale *= 0.1
                 let angle = isRightDone ? -Float.pi/2 : -Float.pi/6
                 shoulderTimerEntity.transform.rotation = simd_quatf(angle: angle, axis: SIMD3<Float>(0, 1, 0))
+
+//                let collisionModelEntity = ModelEntity(mesh: .generateBox(width: 40, height: 50, depth: 50), materials: [SimpleMaterial(color: .red, isMetallic: false)])
+//                
+//                let opacityComponent = OpacityComponent(opacity: 0.0)
+//                collisionModelEntity.components.set(opacityComponent)
+//                collisionModelEntity.generateCollisionShapes(recursive: false)
+//                collisionModelEntity.scale = .init(repeating: 0.1)
+//                let translation = collisionModelEntity.transform.translation
+//                collisionModelEntity.transform.translation = .init(x: translation.x + 0.3, y: translation.y + 2, z: translation.z + 0.5)
+//                collisionModelEntity.transform.rotation = simd_quatf(angle: angle, axis: SIMD3<Float>(0, 1, 0))
                 
-                var clearMaterial = PhysicallyBasedMaterial()
-                clearMaterial.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(floatLiteral: 0))
-                let collisionModelEntity = ModelEntity(mesh: .generateBox(width: 15, height: 50, depth: 15), materials: [clearMaterial])
-                collisionModelEntity.generateCollisionShapes(recursive: false)
-                collisionModelEntity.scale = .init(repeating: 0.1)
+                guard let collisionModelEntity = rootEntity.findEntity(named: "TimerCollisionModel") else { return }
                 collisionModelEntity.name = "Timer"
                 
                 shoulderTimerEntity.addChild(collisionModelEntity)

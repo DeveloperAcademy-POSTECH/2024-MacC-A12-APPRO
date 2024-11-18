@@ -497,6 +497,15 @@
     "objectMetadataList" : [
       [
         "7DF17730-F7E4-49D0-B19A-FEFE91A753D4",
+        "Root",
+        "TimerCollisionModel"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "7DF17730-F7E4-49D0-B19A-FEFE91A753D4",
         "Root"
       ],
       {
