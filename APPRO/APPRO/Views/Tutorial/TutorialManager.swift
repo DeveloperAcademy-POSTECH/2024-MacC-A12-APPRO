@@ -21,7 +21,8 @@ class TutorialManager {
     init(stretching: StretchingPart) {
         self.stretchingPart = stretching
         self.steps = stretching.tutorialInstructions.enumerated().map {
-            .init(instruction: $1, audioFilename: "\(stretching)_\($0 + 1)") }
+            .init(instruction: $1.instruction, audioFilename: "\(stretching)_\($0 + 1)", isNextButtonRequired: $1.isNextButtonRequired )
+        }
     }
     
     var isLastStep: Bool {
@@ -48,15 +49,15 @@ class TutorialManager {
     
     func playInstructionAudio() {
         if let path = Bundle.main.path(forResource: currentStep?.audioFilename, ofType: "mp3"){
-               do{
-                   TutorialManager.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
-                   TutorialManager.audioPlayer?.prepareToPlay()
-                   TutorialManager.audioPlayer?.play()
-
-               }catch {
-                   print("Error on Playing Instruction Audio : \(error)")
-               }
-           }
+            do{
+                TutorialManager.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
+                TutorialManager.audioPlayer?.prepareToPlay()
+                TutorialManager.audioPlayer?.play()
+                
+            }catch {
+                print("Error on Playing Instruction Audio : \(error)")
+            }
+        }
     }
     
     func stopInstructionAudio() {
