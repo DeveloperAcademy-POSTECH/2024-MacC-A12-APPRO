@@ -353,7 +353,6 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                 try? await Task.sleep(nanoseconds: UInt64(index) * 1_000_000_000)
                 if Task.isCancelled { return }
                 // 타이머 애니메이션을 커스텀 애니메이션 시간과 맞추기 위해 1초 뒤에 실행되는 태스크에서 애니메이션을 실행
-
                 if index == 1 {
                     playAnimation(animationEntity: shoulderTimerEntity)
                 }
