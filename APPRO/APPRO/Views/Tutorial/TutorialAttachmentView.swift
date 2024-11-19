@@ -47,18 +47,20 @@ struct TutorialAttachmentView: View {
                         }
                     
                     Spacer()
-                    Button(tutorialManager.isLastStep ? "Done" : "Next") {
-                        if tutorialManager.isLastStep {
-                            tutorialManager.skip()
-                            tutorialManager.stopInstructionAudio()
-                            appState.appPhase = .stretching
-                        } else {
-                            tutorialManager.advanceToNextStep()
+                    
+                    if let isNextButtonRequired = tutorialManager.currentStep?.isNextButtonRequired, isNextButtonRequired {
+                        Button(tutorialManager.isLastStep ? "Done" : "Next") {
+                            if tutorialManager.isLastStep {
+                                tutorialManager.skip()
+                                tutorialManager.stopInstructionAudio()
+                                appState.appPhase = .stretching
+                            } else {
+                                tutorialManager.advanceToNextStep()
+                            }
+                            
                         }
-                        
+                        .font(.title3)
                     }
-                    .font(.title3)
-                    .disabled(!currentStep.isCompleted)
                 }
                 .frame(width: 800, height: 300)
                 .padding(32)
