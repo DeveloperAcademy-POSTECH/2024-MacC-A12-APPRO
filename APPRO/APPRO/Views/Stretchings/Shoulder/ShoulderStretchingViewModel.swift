@@ -257,27 +257,12 @@ final class ShoulderStretchingViewModel: StretchingCounter {
             if let rootEntity = try? await Entity(named: "Shoulder/ShoulderTimerScene_11.usda", in: realityKitContentBundle) {
                 shoulderTimerEntity = rootEntity
                 shoulderTimerEntity.name = "ShoulderTimerEntity"
-                shoulderTimerEntity.position = .zero
+                shoulderTimerEntity.position = shoulderTimerPoint
                 // 스케일이 너무 큼
                 shoulderTimerEntity.scale *= 0.1
                 let angle = isRightDone ? -Float.pi/2 : -Float.pi/6
                 shoulderTimerEntity.transform.rotation = simd_quatf(angle: angle, axis: SIMD3<Float>(0, 1, 0))
-
-//                let collisionModelEntity = ModelEntity(mesh: .generateBox(width: 40, height: 50, depth: 50), materials: [SimpleMaterial(color: .red, isMetallic: false)])
-//                
-//                let opacityComponent = OpacityComponent(opacity: 0.0)
-//                collisionModelEntity.components.set(opacityComponent)
-//                collisionModelEntity.generateCollisionShapes(recursive: false)
-//                collisionModelEntity.scale = .init(repeating: 0.1)
-//                let translation = collisionModelEntity.transform.translation
-//                collisionModelEntity.transform.translation = .init(x: translation.x + 0.3, y: translation.y + 2, z: translation.z + 0.5)
-//                collisionModelEntity.transform.rotation = simd_quatf(angle: angle, axis: SIMD3<Float>(0, 1, 0))
-                
-                guard let collisionModelEntity = rootEntity.findEntity(named: "TimerCollisionModel") else { return }
-                collisionModelEntity.name = "Timer"
-                
-                shoulderTimerEntity.addChild(collisionModelEntity)
-                
+                                
                 contentEntity.addChild(shoulderTimerEntity)
                 modelEntities.append(shoulderTimerEntity)
             }
@@ -373,25 +358,23 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                             var shaderMaterial = material
                             try shaderMaterial.setParameter(name: "PillarColor", value: .int(1))
                             materialArray.append(shaderMaterial)
-                            
-                            //TODO: PlaySpaitialAudio 메서드를 재사용 할 수 있게 변경
-                            guard let audioEntity = timerEntity.findEntity(named: "SpatialAudio") else { return }
-                            guard let resource = try? await AudioFileResource(named: "/Root/ShoulderTimerSound_wav",
-                                                                              from: "Shoulder/ShoulderTimerScene_11.usda",
-                                                                              in: realityKitContentBundle) else {
-                                debugPrint("audio not found")
-                                return
-                            }
-                            
-                            let audioPlayer = audioEntity.prepareAudio(resource)
-                            audioPlayer.play()
                         } catch {
                             print("Failed to set parameter for PillarColor")
                         }
                     }
                     modelComponent.materials = materialArray
                     modelEntity.components.set(modelComponent)
+                    //TODO: PlaySpaitialAudio 메서드를 재사용 할 수 있게 변경
+                    guard let audioEntity = timerEntity.findEntity(named: "SpatialAudio") else { return }
+                    guard let resource = try? await AudioFileResource(named: "/Root/ShoulderTimerSound_wav",
+                                                                      from: "Shoulder/ShoulderTimerScene_11.usda",
+                                                                      in: realityKitContentBundle) else {
+                        debugPrint("audio not found")
+                        return
+                    }
                     
+                    let audioPlayer = audioEntity.prepareAudio(resource)
+                    audioPlayer.play()
                     if index == 4 {
                         tasks.forEach { $0.cancel() }
                     }
