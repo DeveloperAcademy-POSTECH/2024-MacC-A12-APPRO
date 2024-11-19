@@ -24,19 +24,14 @@ struct ShoulderStretchingTutorialView: View {
             setTutorialToStart(content: content)
             
         } update: { content, attachments in
-            
-            switch tutorialManager.currentStepIndex {
-            case 0:
+            if tutorialManager.currentStepIndex == 0 {
                 if isStartWarningDone {
                     viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
                     viewModel.addAttachmentView(content,attachments)
                 } else {
                     viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
                 }
-            default:
-                completeTutorialStep(1)
-                completeTutorialStep(5) // The last step in the tutorial
-                
+            } else {
                 viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
             }
             
@@ -57,9 +52,14 @@ struct ShoulderStretchingTutorialView: View {
             await viewModel.updateHandTracking()
         }
         .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, newValue in
-            if newValue == 4 {
+            switch tutorialManager.currentStepIndex {
+            case 1, 5:
+                completeTutorialStep(newValue)
+            case 4:
                 viewModel.resetModelEntities()
                 viewModel.createEntitiesOnEllipticalArc(handTransform: viewModel.rightHandTransform)
+            default:
+                break
             }
         }
         .onChange(of: viewModel.modelEntities) { _, newValue in
@@ -175,7 +175,12 @@ struct ShoulderStretchingTutorialView: View {
     
     private func completeTutorialStep(_ currentStepIndex: Int) {
         if tutorialManager.currentStepIndex == currentStepIndex {
-            tutorialManager.completeCurrentStep()
+            // step이 넘어가고 바로 본 메서드가 실행되어 isPlaying 확인하지 않고 콜백으로 바로 호출
+            tutorialManager.onAudioFinished = {
+                DispatchQueue.main.async {
+                    tutorialManager.completeCurrentStep()
+                }
+            }
         }
     }
     
@@ -201,19 +206,19 @@ struct ShoulderStretchingTutorialView: View {
     
     private func goToNextTutorialStep(_ currentStepIndex: Int) {
         // 현재 단계인지 확인
-           if tutorialManager.currentStepIndex == currentStepIndex {
-               // 오디오가 재생 중인지 확인
-               if TutorialManager.audioPlayer?.isPlaying == true {
-                   // 오디오 재생 완료 후 다음 단계로 넘어가도록 설정
-                   tutorialManager.onAudioFinished = {
-                       DispatchQueue.main.async {
-                           tutorialManager.advanceToNextStep()
-                       }
-                   }
-               } else {
-                   // 오디오가 재생 중이 아니면 바로 다음 단계로 이동
-                   tutorialManager.advanceToNextStep()
-               }
-           }
+        if tutorialManager.currentStepIndex == currentStepIndex {
+            // 오디오가 재생 중인지 확인
+            if TutorialManager.audioPlayer?.isPlaying == true {
+                // 오디오 재생 완료 후 다음 단계로 넘어가도록 설정
+                tutorialManager.onAudioFinished = {
+                    DispatchQueue.main.async {
+                        tutorialManager.advanceToNextStep()
+                    }
+                }
+            } else {
+                // 오디오가 재생 중이 아니면 바로 다음 단계로 이동
+                tutorialManager.advanceToNextStep()
+            }
+        }
     }
 }
