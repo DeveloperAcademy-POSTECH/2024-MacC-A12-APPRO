@@ -234,15 +234,6 @@ final class ShoulderStretchingTutorialViewModel {
                 let angle = isRightDone ? -Float.pi/2 : -Float.pi/6
                 shoulderTimerEntity.transform.rotation = simd_quatf(angle: angle, axis: SIMD3<Float>(0, 1, 0))
                 
-                var clearMaterial = PhysicallyBasedMaterial()
-                clearMaterial.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(floatLiteral: 0))
-                let collisionModelEntity = ModelEntity(mesh: .generateBox(width: 15, height: 50, depth: 15), materials: [clearMaterial])
-                collisionModelEntity.generateCollisionShapes(recursive: false)
-                collisionModelEntity.scale = .init(repeating: 0.1)
-                collisionModelEntity.name = "Timer"
-             
-                shoulderTimerEntity.addChild(collisionModelEntity)
-                
                 contentEntity.addChild(shoulderTimerEntity)
                 modelEntities.append(shoulderTimerEntity)
             }
@@ -307,7 +298,10 @@ final class ShoulderStretchingTutorialViewModel {
                 // 각 target의 index에 따라 1초씩 지연하여 시작 (0초, 1초, 2초, 3초, 4초)
                 try? await Task.sleep(nanoseconds: UInt64(index) * 1_000_000_000)
                 if Task.isCancelled { return }
-                
+                // 타이머 애니메이션을 커스텀 애니메이션 시간과 맞추기 위해 1초 뒤에 실행되는 태스크에서 애니메이션을 실행
+                if index == 1 {
+                    playAnimation(animationEntity: timerEntity)
+                }
                 if timerFiveProgressChecker[index] {
                     for material in shaderGraphMaterial {
                         do {
@@ -320,6 +314,18 @@ final class ShoulderStretchingTutorialViewModel {
                     }
                     modelComponent.materials = materialArray
                     modelEntity.components.set(modelComponent)
+                    
+                    //TODO: PlaySpaitialAudio 메서드를 재사용 할 수 있게 변경
+                    guard let audioEntity = timerEntity.findEntity(named: "SpatialAudio") else { return }
+                    guard let resource = try? await AudioFileResource(named: "/Root/ShoulderTimerSound_wav",
+                                                                      from: "Shoulder/ShoulderTimerScene_11.usda",
+                                                                      in: realityKitContentBundle) else {
+                        debugPrint("audio not found")
+                        return
+                    }
+                    
+                    let audioPlayer = audioEntity.prepareAudio(resource)
+                    audioPlayer.play()
                 } else {
                     playBackProgressAnimation(index: index)
                     tasks.suffix(from: index).forEach { $0.cancel() }

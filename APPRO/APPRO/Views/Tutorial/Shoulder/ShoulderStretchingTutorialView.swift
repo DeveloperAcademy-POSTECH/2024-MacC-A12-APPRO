@@ -38,7 +38,6 @@ struct ShoulderStretchingTutorialView: View {
                 completeTutorialStep(5) // The last step in the tutorial
                 
                 viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
-                viewModel.addAttachmentView(content,attachments)
             }
             
         } attachments: {
@@ -59,7 +58,8 @@ struct ShoulderStretchingTutorialView: View {
         }
         .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, newValue in
             if newValue == 4 {
-                viewModel.addShoulderTimerEntity()
+                viewModel.resetModelEntities()
+                viewModel.createEntitiesOnEllipticalArc(handTransform: viewModel.rightHandTransform)
             }
         }
         .onChange(of: viewModel.modelEntities) { _, newValue in
@@ -98,20 +98,21 @@ struct ShoulderStretchingTutorialView: View {
     }
     
     func setCollisionAction(collisionEvent: CollisionEvents.Began) {
+        // 팔뻗는 인스트럭션 전에는 무효화
+        if tutorialManager.currentStepIndex < 3 {
+            return
+        }
         let collidedModelEntity = collisionEvent.entityB
         
-        if collidedModelEntity.name.contains("Timer") && !isColliding {
-            viewModel.playAnimation(animationEntity: viewModel.shoulderTimerEntity)
-            viewModel.initiateAllTimerProgress()
+        if collidedModelEntity.name.contains("TimerCollisionModel") && !isColliding {
             viewModel.playCustomAnimation(timerEntity: viewModel.shoulderTimerEntity)
+            viewModel.initiateAllTimerProgress()
             isColliding = true
             return
         }
         
         let entityName = viewModel.isRightDone ? "leftModelEntity" : "rightModelEntity"
-        
-        
-        
+                
         // 충돌시 particle, audio 실행
         viewModel.playEmitter(eventEntity: collidedModelEntity)
         Task {
@@ -150,9 +151,8 @@ struct ShoulderStretchingTutorialView: View {
         // 충돌이 5초간 유지된 후 실행할 코드
         isColliding = false
         viewModel.resetHandEntities()
-        viewModel.isFistShowing = false
-        viewModel.isFirstPositioning = false
-        viewModel.addRightHandAnchor()
+        viewModel.resetModelEntities()
+        viewModel.resetExpectedNextNumber()
     }
     
     func createTextEntity(_ text: String) -> ModelEntity {

@@ -20,17 +20,16 @@ struct ShoulderStretchingView: View {
             subscribeToCollisionEvents(content: content)
             viewModel.subscribeSceneEvent(content)
             viewModel.addAttachmentView(content, attachments)
+            viewModel.addShoulderTimerEntity()
         } update: { content, attachments in
             if viewModel.doneCount == viewModel.maxCount {
-                viewModel.showFinishAttachmentView(content, attachments)
+                viewModel.showEndAttachmentView(content, attachments)
+            } else if viewModel.isRetry {
+                viewModel.deleteEndAttachmentView(content, attachments)
+                viewModel.addAttachmentView(content, attachments)
+                
+                viewModel.isRetry = false
             } else {
-                if viewModel.isRetry {
-                    viewModel.isRightDone = false
-                    viewModel.addRightHandAnchor()
-                    viewModel.isRetry = false
-                    viewModel.deleteEndAttachmentView(content, attachments)
-                    viewModel.addAttachmentView(content, attachments)
-                }
                 viewModel.computeTransformHandTracking()
             }
         } attachments: {
@@ -98,10 +97,9 @@ struct ShoulderStretchingView: View {
         
         let collidedModelEntity = collisionEvent.entityB
         
-        if collidedModelEntity.name.contains("Timer") && !isColliding {
-            viewModel.playAnimation(animationEntity: viewModel.shoulderTimerEntity)
-            viewModel.initiateAllTimerProgress()
+        if collidedModelEntity.name.contains("TimerCollisionModel") && !isColliding {
             viewModel.playCustomAnimation(timerEntity: viewModel.shoulderTimerEntity)
+            viewModel.initiateAllTimerProgress()
             isColliding = true
             return
         }

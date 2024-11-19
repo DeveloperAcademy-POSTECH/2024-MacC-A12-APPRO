@@ -14,6 +14,7 @@ def Xform "Root" (
     }
 )
 {
+    reorder nameChildren = ["shouldertimer_animation", "TimerCollisionModel"]
     quatf xformOp:orient = (-0.49999997, 0, 0.8660254, 0)
     float3 xformOp:scale = (0.1, 0.1, 0.1)
     float3 xformOp:translate = (0, 0, 0)
@@ -47,6 +48,7 @@ def Xform "Root" (
             {
                 token outputs:mtlx:surface
                 token outputs:realitykit:vertex
+                float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (0, 110.5)
 
                 over "PreviewSurface"
                 {
@@ -58,6 +60,7 @@ def Xform "Root" (
             {
                 token outputs:mtlx:surface
                 token outputs:realitykit:vertex
+                float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (0, 110.5)
             }
 
             over "Mat_3"
@@ -122,6 +125,7 @@ def Xform "Root" (
             {
                 token outputs:mtlx:surface
                 token outputs:realitykit:vertex
+                float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (0, 110.5)
 
                 over "PreviewSurface"
                 {
@@ -132,6 +136,7 @@ def Xform "Root" (
 
         over "timer"
         {
+            reorder nameChildren = ["TimerCollisionModel", "metal", "b1", "b2", "b3", "b4", "b5", "platform"]
             quatf xformOp:orient = (1, 0, 0, 0)
             float3 xformOp:scale = (1, 1, 1)
             double3 xformOp:translate = (-0.00015309453010559082, -3.7371444702148438, 0.00058746337890625)
@@ -144,6 +149,86 @@ def Xform "Root" (
                 double3 xformOp:translate = (0.3999320864677429, 31.38976287841797, -19.29154396057129)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
             }
+
+            def Cube "TimerCollisionModel" (
+                active = true
+                prepend apiSchemas = ["MaterialBindingAPI"]
+                customData = {
+                    float3 rotationEulerHint = (0, 0, 0)
+                }
+            )
+            {
+                rel material:binding = None (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double size = 0.2
+                quatf xformOp:orient = (1, 0, -3.827155e-8, 0)
+                float3 xformOp:scale = (115.38463, 153.84616, 153.84618)
+                float3 xformOp:translate = (0.68849665, 58.735336, -34.435738)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Material "DefaultMaterial"
+                {
+                    token outputs:mtlx:surface
+                    token outputs:realitykit:vertex
+                    token outputs:surface.connect = </Root/shouldertimer_animation/timer/TimerCollisionModel/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+
+                    def Shader "DefaultSurfaceShader"
+                    {
+                        uniform token info:id = "UsdPreviewSurface"
+                        color3f inputs:diffuseColor = (1, 1, 1)
+                        float inputs:roughness = 0.75
+                        token outputs:surface
+                    }
+                }
+
+                def RealityKitComponent "Collider"
+                {
+                    uint group = 1
+                    uniform token info:id = "RealityKit.Collider"
+                    uint mask = 4294967295
+                    token type = "Default"
+
+                    def RealityKitStruct "Shape"
+                    {
+                        float3 extent = (0.2, 0.2, 0.2)
+                        token shapeType = "Box"
+
+                        def RealityKitStruct "pose"
+                        {
+                        }
+                    }
+                }
+
+                def RealityKitComponent "HierarchicalFade"
+                {
+                    uniform token info:id = "RealityKit.HierarchicalFade"
+                    float opacity = 0
+                }
+            }
+        }
+    }
+
+    def RealityKitAudioFile "ShoulderTimerSound_wav"
+    {
+        uniform asset file = @ShoulderTimerSound.wav@
+        uniform bool shouldLoop = 0
+    }
+
+    def Xform "SpatialAudio" (
+        customData = {
+            float3 rotationEulerHint = (3.0514224, 6.514077e-8, -5.0624916e-8)
+        }
+    )
+    {
+        quatf xformOp:orient = (0.045069903, 0.99898374, -2.381879e-8, -3.3678113e-8)
+        float3 xformOp:translate = (-1.6407322, 16.899181, -22.655203)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def RealityKitComponent "SpatialAudio"
+        {
+            float directivityFocus = 0.4472277
+            uniform token info:id = "RealityKit.SpatialAudio"
         }
     }
 }
