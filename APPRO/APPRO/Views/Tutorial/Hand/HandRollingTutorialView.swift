@@ -59,7 +59,7 @@ struct HandRollingTutorialView : View {
         }
         .onChange(of: viewModel.isRightHandInFist, initial: false) { _, isHandFistShape in
             if !viewModel.isFistMakingTutorialDone {
-                getNextTutorialStep(0)
+                goToNextTutorialStep(0)
                 viewModel.isFistMakingTutorialDone = true
             }
             
@@ -102,10 +102,7 @@ struct HandRollingTutorialView : View {
         .onChange(of: tutorialManager.currentStepIndex, initial: false ) { _, currentStepIndex in
             if currentStepIndex == 1 {
                 viewModel.showTarget = true
-                getNextTutorialStep(1)
             }
-            
-            getNextTutorialStep(4)
             
             if tutorialManager.isLastStep {
                 Task {
@@ -125,7 +122,7 @@ struct HandRollingTutorialView : View {
                 DispatchQueue.main.async {
                     viewModel.rightLaunchState = false
                     viewModel.rightRotationCount = 0
-                    getNextTutorialStep(3)
+                    goToNextTutorialStep(3)
                 }
             }
         }
@@ -152,7 +149,7 @@ struct HandRollingTutorialView : View {
                 await viewModel.playRotationChangeRingSound(newValue, chirality: .right)
             }
             
-            getNextTutorialStep(2)
+            goToNextTutorialStep(2)
         }
         .onChange(of: viewModel.leftRotationCount, initial: false) { _, newValue in
             let colorValueChangedTo = min (newValue * 2, 6)
@@ -162,7 +159,7 @@ struct HandRollingTutorialView : View {
                 await viewModel.playRotationChangeRingSound(newValue, chirality: .left)
             }
             
-            getNextTutorialStep(2)
+            goToNextTutorialStep(2)
         }
         .onChange(of: viewModel.rightHitCount, initial: false ) { oldNumber, newNumber in
             if oldNumber < newNumber {
@@ -179,9 +176,9 @@ struct HandRollingTutorialView : View {
         }
     }
     
-    private func getNextTutorialStep(_ currentStepIndex: Int) {
+    private func goToNextTutorialStep(_ currentStepIndex: Int) {
         if tutorialManager.currentStepIndex == currentStepIndex {
-            tutorialManager.completeCurrentStep()
+            tutorialManager.advanceToNextStep()
         }
     }
     
