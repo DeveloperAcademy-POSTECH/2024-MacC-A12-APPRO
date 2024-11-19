@@ -57,7 +57,7 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
                    TutorialManager.audioPlayer?.prepareToPlay()
                    TutorialManager.audioPlayer?.play()
 
-               }catch {
+               } catch {
                    print("Error on Playing Instruction Audio : \(error)")
                }
            }

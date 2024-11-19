@@ -61,6 +61,7 @@ struct TutorialAttachmentView: View {
                             
                         }
                         .font(.title3)
+                        .disabled(!currentStep.isCompleted)
                     }
                 }
                 .frame(width: 800, height: 300)
