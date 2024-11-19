@@ -21,6 +21,7 @@ struct TutorialAttachmentView: View {
                         HStack(spacing: 16) {
                             Button("Dismiss Immersive Space", systemImage: "multiply") {
                                 appState.appPhase = .choosingStretchingPart
+                                appState.currentStretchingPart = nil
                             }
                             .labelStyle(.iconOnly)
                         }
