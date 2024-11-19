@@ -64,7 +64,7 @@ struct ShoulderStretchingTutorialView: View {
         }
         .onChange(of: viewModel.modelEntities) { _, newValue in
             if let _ = newValue.first(where: {$0.name.contains("rightModelEntity")}) {
-                completeTutorialStep(2)
+                goToNextTutorialStep(2)
             }
         }
     }
@@ -88,10 +88,10 @@ struct ShoulderStretchingTutorialView: View {
             if animationEvent.playbackController.entity?.name == "EntryRocket" {
                 viewModel.entryRocketEntity.removeFromParent()
                 viewModel.addRightHandAnchor()
-                completeTutorialStep(0) // Tutorial Step 0 Completed
+                goToNextTutorialStep(0) // Tutorial Step 0 Completed
             } else {
                 animationEvent.playbackController.entity?.removeFromParent()
-                completeTutorialStep(4)
+                goToNextTutorialStep(4)
                 executeCollisionAction()
             }
         }
@@ -126,7 +126,7 @@ struct ShoulderStretchingTutorialView: View {
 
             // 마지막 엔터티 감지
             if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 2)") {
-                completeTutorialStep(3)
+                goToNextTutorialStep(3)
                 
                 if tutorialManager.currentStepIndex >= 4  {
                     viewModel.addShoulderTimerEntity()
@@ -196,6 +196,12 @@ struct ShoulderStretchingTutorialView: View {
                     isStartWarningDone = true
                 }
             }
+        }
+    }
+    
+    private func goToNextTutorialStep(_ currentStepIndex: Int) {
+        if tutorialManager.currentStepIndex == currentStepIndex {
+            tutorialManager.advanceToNextStep()
         }
     }
 }
