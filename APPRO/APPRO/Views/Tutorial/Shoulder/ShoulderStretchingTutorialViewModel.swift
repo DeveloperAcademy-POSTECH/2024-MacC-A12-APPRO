@@ -234,15 +234,6 @@ final class ShoulderStretchingTutorialViewModel {
                 let angle = isRightDone ? -Float.pi/2 : -Float.pi/6
                 shoulderTimerEntity.transform.rotation = simd_quatf(angle: angle, axis: SIMD3<Float>(0, 1, 0))
                 
-                var clearMaterial = PhysicallyBasedMaterial()
-                clearMaterial.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(floatLiteral: 0))
-                let collisionModelEntity = ModelEntity(mesh: .generateBox(width: 15, height: 50, depth: 15), materials: [clearMaterial])
-                collisionModelEntity.generateCollisionShapes(recursive: false)
-                collisionModelEntity.scale = .init(repeating: 0.1)
-                collisionModelEntity.name = "Timer"
-             
-                shoulderTimerEntity.addChild(collisionModelEntity)
-                
                 contentEntity.addChild(shoulderTimerEntity)
                 modelEntities.append(shoulderTimerEntity)
             }
@@ -314,25 +305,24 @@ final class ShoulderStretchingTutorialViewModel {
                             var shaderMaterial = material
                             try shaderMaterial.setParameter(name: "PillarColor", value: .int(1))
                             materialArray.append(shaderMaterial)
-                            
-                            //TODO: PlaySpaitialAudio 메서드를 재사용 할 수 있게 변경
-                            guard let audioEntity = timerEntity.findEntity(named: "SpatialAudio") else { return }
-                            guard let resource = try? await AudioFileResource(named: "/Root/ShoulderTimerSound_wav",
-                                                                              from: "Shoulder/ShoulderTimerScene_11.usda",
-                                                                              in: realityKitContentBundle) else {
-                                debugPrint("audio not found")
-                                return
-                            }
-                            
-                            let audioPlayer = audioEntity.prepareAudio(resource)
-                            audioPlayer.play()
-                            
                         } catch {
                             print("Failed to set parameter for PillarColor")
                         }
                     }
                     modelComponent.materials = materialArray
                     modelEntity.components.set(modelComponent)
+                    
+                    //TODO: PlaySpaitialAudio 메서드를 재사용 할 수 있게 변경
+                    guard let audioEntity = timerEntity.findEntity(named: "SpatialAudio") else { return }
+                    guard let resource = try? await AudioFileResource(named: "/Root/ShoulderTimerSound_wav",
+                                                                      from: "Shoulder/ShoulderTimerScene_11.usda",
+                                                                      in: realityKitContentBundle) else {
+                        debugPrint("audio not found")
+                        return
+                    }
+                    
+                    let audioPlayer = audioEntity.prepareAudio(resource)
+                    audioPlayer.play()
                 } else {
                     playBackProgressAnimation(index: index)
                     tasks.suffix(from: index).forEach { $0.cancel() }
