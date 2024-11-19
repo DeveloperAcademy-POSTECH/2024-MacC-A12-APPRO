@@ -341,6 +341,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
         var tasks: [Task<Void, Never>] = []
         
         for (index, target) in targetModelEntities.enumerated() {
+            
             guard let modelEntity = timerEntity.findEntity(named: target) as? ModelEntity,
                   var modelComponent = modelEntity.components[ModelComponent.self] else { continue }
             guard let shaderGraphMaterial = modelComponent.materials as? [ShaderGraphMaterial] else { continue }
@@ -351,7 +352,11 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                 // 각 target의 index에 따라 1초씩 지연하여 시작 (0초, 1초, 2초, 3초, 4초)
                 try? await Task.sleep(nanoseconds: UInt64(index) * 1_000_000_000)
                 if Task.isCancelled { return }
-                
+                // 타이머 애니메이션을 커스텀 애니메이션 시간과 맞추기 위해 1초 뒤에 실행되는 태스크에서 애니메이션을 실행
+
+                if index == 1 {
+                    playAnimation(animationEntity: shoulderTimerEntity)
+                }
                 if timerFiveProgressChecker[index] {
                     for material in shaderGraphMaterial {
                         do {

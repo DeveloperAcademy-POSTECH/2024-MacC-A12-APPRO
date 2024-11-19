@@ -98,9 +98,8 @@ struct ShoulderStretchingView: View {
         let collidedModelEntity = collisionEvent.entityB
         
         if collidedModelEntity.name.contains("TimerCollisionModel") && !isColliding {
-            viewModel.playAnimation(animationEntity: viewModel.shoulderTimerEntity)
-            viewModel.initiateAllTimerProgress()
             viewModel.playCustomAnimation(timerEntity: viewModel.shoulderTimerEntity)
+            viewModel.initiateAllTimerProgress()
             isColliding = true
             return
         }
