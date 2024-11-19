@@ -187,7 +187,7 @@ struct ShoulderStretchingTutorialView: View {
                 textEntity.isEnabled = true
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
                 Task {
                     textEntity.removeFromParent()
                     await viewModel.setEntryRocket()

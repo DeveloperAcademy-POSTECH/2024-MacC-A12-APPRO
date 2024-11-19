@@ -26,9 +26,8 @@ struct HandRollingStretchingView: View {
         } update: { content, attachments in
             
             if viewModel.maxCount == viewModel.doneCount {
-                viewModel.showEndAttachmentView(content, attachments)
+                viewModel.showFinishAttachmentView(content, attachments)
             } else {
-                
                 if viewModel.isRetry {
                     viewModel.deleteEndAttachmentView(content, attachments)
                     viewModel.isRetry = false
@@ -38,10 +37,8 @@ struct HandRollingStretchingView: View {
                 
                 if viewModel.isStartingObjectVisible {
                     viewModel.updateStartingComponentsTransform(content)
-                } else {
-                    if !viewModel.areTargetTranslationUpdated {
-                        viewModel.updateTargetsComponentTransform(content)
-                    }
+                } else if !viewModel.areTargetTranslationUpdated {
+                    viewModel.updateTargetsComponentTransform(content)
                 }
                 
                 if viewModel.isRightHandInFist {
@@ -115,6 +112,8 @@ struct HandRollingStretchingView: View {
         }
         .onChange(of: viewModel.isLeftHandInFist, initial: false) { _, isHandFistShape in
             if isHandFistShape {
+                if viewModel.isStartingObjectVisible { viewModel.isStartingObjectVisible = false}
+                
                 viewModel.leftEntities.append(viewModel.leftGuideRing)
                 viewModel.leftEntities.append(viewModel.leftGuideSphere)
                 Task {

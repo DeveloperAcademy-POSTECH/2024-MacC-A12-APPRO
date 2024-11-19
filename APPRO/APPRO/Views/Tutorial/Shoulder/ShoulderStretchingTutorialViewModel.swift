@@ -130,7 +130,7 @@ final class ShoulderStretchingTutorialViewModel {
             let z = b * sin(angle)  // Z축 방향 (양수는 +Z, 음수는 -Z로 이동)
 
             // 최종 좌표 계산: 중심(centerPosition)을 기준으로 회전 적용
-            let point = SIMD3<Float>(x + centerPosition.x, y, z + centerPosition.z)
+            let point = SIMD3<Float>(x + centerPosition.x, i == numPoints - 1 ? y - 0.1 : y, z + centerPosition.z)
             points.append(point)
         }
 

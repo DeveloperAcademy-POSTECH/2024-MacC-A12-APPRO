@@ -152,7 +152,7 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     }
     
     func generateGuideSphere(chirality : Chirality)-> ModelEntity  {
-        let guideSphereEntity = ModelEntity(mesh: .generateSphere(radius: 0.015), materials: [SimpleMaterial(color: .red, roughness: 0.0, isMetallic: false)]) // var to let
+        let guideSphereEntity = ModelEntity(mesh: .generateSphere(radius: 0.015), materials: [SimpleMaterial(color: .red, roughness: 0.0, isMetallic: false)])
         guideSphereEntity.name = chirality == .right ? "GuideSphere_Right" : "GuideSphere_Left"
         guideSphereEntity.generateCollisionShapes(recursive: false)
         
@@ -268,7 +268,7 @@ final class HandRollingStretchingViewModel: StretchingCounter {
         content.add(stretchingAttachmentView)
     }
 
-    func showEndAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+    func showFinishAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
         guard let stretchingAttachmentView = attachments.entity(for: stretchingAttachmentViewID) else {
             dump("StretchingAttachmentView not found in attachments!")
             return
