@@ -312,7 +312,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
         content.add(stretchingAttachmentView)
     }
     
-    func showFinishAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+    func showEndAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
         guard let stretchingAttachmentView = attachments.entity(for: stretchingAttachmentViewID) else {
             dump("StretchingAttachmentView not found in attachments!")
             return
@@ -364,6 +364,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                     }
                     modelComponent.materials = materialArray
                     modelEntity.components.set(modelComponent)
+
                     //TODO: PlaySpaitialAudio 메서드를 재사용 할 수 있게 변경
                     guard let audioEntity = timerEntity.findEntity(named: "SpatialAudio") else { return }
                     guard let resource = try? await AudioFileResource(named: "/Root/ShoulderTimerSound_wav",
