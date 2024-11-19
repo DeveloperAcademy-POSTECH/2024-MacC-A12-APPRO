@@ -74,8 +74,10 @@ struct EyeTutorialImmersiveView: View {
                     tutorialManager.step2()
                 case 2:
                     configureStep2(content: content)
+                case 3:
+                    await configureStep3(content: content)
                 default:
-                    break
+                    return
                 }
                 configureCompleted[currentStepIndex] = true
             }
@@ -97,6 +99,19 @@ struct EyeTutorialImmersiveView: View {
         tutorialManager.playAppearAnimation(entity: chickenEntity)
         
         content.add(chickenEntity)
+    }
+    
+    private func configureStep3(content: RealityViewContent) async {
+        let ringEntity = tutorialManager.ringEntity
+        let eyesEntity = tutorialManager.eyesEntity
+        
+        tutorialManager.chickenEntity.removeFromParent()
+        content.add(ringEntity)
+        tutorialManager.playAppearAnimation(entity: ringEntity)
+        
+        await tutorialManager.configureRingEntity(entity: ringEntity)
+        await tutorialManager.setEyeCollisionComponent(entity: eyesEntity)
+        tutorialManager.subscribeRingCollisionEvent(entity: ringEntity)
     }
     
 }
