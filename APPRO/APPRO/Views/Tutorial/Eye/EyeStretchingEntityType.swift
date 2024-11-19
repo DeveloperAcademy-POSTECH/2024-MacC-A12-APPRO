@@ -12,6 +12,7 @@ enum EyeStretchingEntityType: String {
     case eyes
     case chicken
     case ring
+    case monitor
     
     var loadURL: String {
         switch self {
@@ -21,6 +22,8 @@ enum EyeStretchingEntityType: String {
             "Eye/chicken.usd"
         case .ring:
             "Eye/eye_ring.usd"
+        case .monitor:
+            "Eye/monitor.usd"
         }
     }
     

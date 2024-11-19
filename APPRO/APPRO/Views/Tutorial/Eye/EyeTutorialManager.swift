@@ -20,6 +20,7 @@ final class EyeTutorialManager: TutorialManager {
     private(set) var eyesEntity = Entity()
     private(set) var chickenEntity = Entity()
     private(set) var ringEntity = Entity()
+    private(set) var monitorEntity = Entity()
     
     private(set) var attachmentView = Entity()
     
@@ -54,6 +55,7 @@ final class EyeTutorialManager: TutorialManager {
             eyesEntity = try await loadEntity(entityType: .eyes)
             chickenEntity = try await loadEntity(entityType: .chicken)
             ringEntity = try await loadEntity(entityType: .ring)
+            monitorEntity = try await loadEntity(entityType: .monitor)
             originalChickenScale = chickenEntity.transform.scale
             return true
         } catch {
@@ -74,12 +76,6 @@ final class EyeTutorialManager: TutorialManager {
                 .store(in: &cancellableBag)
         }
         playEyeLoopAnimation(entity: eyesEntity)
-        completeCurrentStep()
-    }
-    
-    func step2() {
-        attachmentView.components.remove(ClosureComponent.self)
-        
         completeCurrentStep()
     }
     
@@ -118,8 +114,6 @@ final class EyeTutorialManager: TutorialManager {
             self?.eyesCollidingInnerPlane = true
         }
         .store(in: &cancellableBag)
-        
-        print(cancellableBag)
         
         scene.subscribe(to: CollisionEvents.Ended.self, on: entity) { [weak self] _ in
             self?.eyesCollidingInnerPlane = false

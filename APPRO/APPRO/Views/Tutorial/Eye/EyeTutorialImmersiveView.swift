@@ -14,7 +14,7 @@ struct EyeTutorialImmersiveView: View {
     @GestureState private var isLongPressing = false
     @State private var tutorialManager = EyeTutorialManager()
     @State private var entitiesAllLoaded = false
-    @State private var configureCompleted = Array(repeating: false, count: 4)
+    @State private var configureCompleted = Array(repeating: false, count: 5)
     
     var body: some View {
         RealityView { content, attachments in
@@ -71,11 +71,11 @@ struct EyeTutorialImmersiveView: View {
                 case 0:
                     configureStep1(content: content)
                 case 1:
-                    tutorialManager.step2()
+                    configureStep2()
                 case 2:
-                    configureStep2(content: content)
+                    configureStep3(content: content)
                 case 3:
-                    await configureStep3(content: content)
+                    await configureStep4(content: content)
                 default:
                     return
                 }
@@ -92,7 +92,13 @@ struct EyeTutorialImmersiveView: View {
         content.add(eyesEntity)
     }
     
-    private func configureStep2(content: RealityViewContent) {
+    private func configureStep2() {
+        tutorialManager.attachmentView.components.remove(ClosureComponent.self)
+        
+        tutorialManager.completeCurrentStep()
+    }
+    
+    private func configureStep3(content: RealityViewContent) {
         let chickenEntity = tutorialManager.chickenEntity
         
         tutorialManager.configureChickenEntity(entity: chickenEntity)
@@ -101,17 +107,24 @@ struct EyeTutorialImmersiveView: View {
         content.add(chickenEntity)
     }
     
-    private func configureStep3(content: RealityViewContent) async {
+    private func configureStep4(content: RealityViewContent) async {
         let ringEntity = tutorialManager.ringEntity
         let eyesEntity = tutorialManager.eyesEntity
+        let monitorEntity = tutorialManager.monitorEntity
         
         tutorialManager.chickenEntity.removeFromParent()
         content.add(ringEntity)
-        tutorialManager.playAppearAnimation(entity: ringEntity)
+        content.add(monitorEntity)
         
         await tutorialManager.configureRingEntity(entity: ringEntity)
+        tutorialManager.configureMonitorEntity(entity: monitorEntity)
         await tutorialManager.setEyeCollisionComponent(entity: eyesEntity)
+        
         tutorialManager.subscribeRingCollisionEvent(entity: ringEntity)
+        tutorialManager.playAppearAnimation(entity: ringEntity)
+        tutorialManager.playAppearAnimation(entity: monitorEntity)
+        
+        tutorialManager.completeCurrentStep()
     }
     
 }
