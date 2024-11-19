@@ -15,6 +15,11 @@ struct APPROApp: App {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.scenePhase) private var scenePhase
+    
+    init() {
+        ClosureComponent.registerComponent()
+        ClosureSystem.registerSystem()
+    }
 
     @State private var appState = AppState()
 
@@ -79,8 +84,8 @@ struct APPROApp: App {
     private func tutorialImmersiveView(part: StretchingPart) -> some View {
         switch part {
         case .eyes:
-            // TODO: 눈 튜토리얼 몰입 뷰 추가
-            EmptyView()
+            EyeTutorialImmersiveView()
+                .environment(appState)
         case .shoulder:
             ShoulderStretchingTutorialView()
                 .environment(appState)

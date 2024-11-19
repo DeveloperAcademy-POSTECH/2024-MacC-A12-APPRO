@@ -8,8 +8,10 @@
 import Foundation
 
 struct TutorialStep {
+    
     let instruction: String
     var isCompleted: Bool = false
     let audioFilename: String
     let isNextButtonRequired: Bool
+    
 }

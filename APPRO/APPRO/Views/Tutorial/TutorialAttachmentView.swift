@@ -21,6 +21,7 @@ struct TutorialAttachmentView: View {
                         HStack(spacing: 16) {
                             Button("Dismiss Immersive Space", systemImage: "multiply") {
                                 appState.appPhase = .choosingStretchingPart
+                                appState.currentStretchingPart = nil
                             }
                             .labelStyle(.iconOnly)
                         }
@@ -39,7 +40,7 @@ struct TutorialAttachmentView: View {
                         .font(.system(size: 32, weight: .medium))
                         .multilineTextAlignment(.leading)
                         .lineLimit(4)
-                        .onAppear() {
+                        .onAppear {
                             tutorialManager.playInstructionAudio()
                         }
                         .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, _ in
@@ -87,7 +88,8 @@ struct TutorialAttachmentView: View {
                 Text("Skip Tutorial")
                     .font(.title2)
                 Text("Start the content right away.\nNever show tutorial again.")
-                    .font(.subheadline)
+                    .font(.headline)
+                    .fontWeight(.regular)
                     .foregroundColor(Color(.secondaryLabel))
                     .multilineTextAlignment(.center)
             }

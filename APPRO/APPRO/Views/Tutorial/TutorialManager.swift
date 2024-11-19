@@ -9,6 +9,7 @@ import Foundation
 import AVFAudio
 
 @Observable
+@MainActor
 class TutorialManager {
     
     let stretchingPart: StretchingPart
@@ -33,7 +34,8 @@ class TutorialManager {
     }
     
     func completeCurrentStep() {
-        guard var currentStep else { return }
+        guard steps.indices.contains(currentStepIndex) else { return }
+        
         steps[currentStepIndex].isCompleted = true
     }
     
