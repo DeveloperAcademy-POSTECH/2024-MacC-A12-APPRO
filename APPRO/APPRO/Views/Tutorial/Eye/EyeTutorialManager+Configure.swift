@@ -78,11 +78,9 @@ extension EyeTutorialManager {
             guard let currentTransform = self?.headTracker.originFromDeviceTransform() else { return }
             
             let currentTranslation = currentTransform.translation()
-            let targetPosition = currentTranslation - distance * currentTransform.forward()
-            let ratio = Float(pow(0.96, deltaTime / (16 * 1E-3)))
-            var newPosition = ratio * entity.position(relativeTo: nil) + (1 - ratio) * targetPosition
-            newPosition.y += upward
-            entity.look(at: currentTranslation, from: newPosition, relativeTo: nil, forward: forwardDirection)
+            var targetPosition = currentTranslation - distance * currentTransform.forward()
+            targetPosition.y += upward
+            entity.look(at: currentTranslation, from: targetPosition, relativeTo: nil, forward: forwardDirection)
         }
         entity.components.set(closureComponent)
     }
