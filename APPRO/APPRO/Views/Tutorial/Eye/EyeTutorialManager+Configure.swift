@@ -14,8 +14,7 @@ extension EyeTutorialManager {
         setClosureComponent(
             entity: attachmentView,
             distance: .attachment,
-            upward: 0.01,
-            forwardDirection: .positiveZ
+            upward: 0.01
         )
     }
     
@@ -36,7 +35,7 @@ extension EyeTutorialManager {
         entity: Entity,
         distance: Float,
         upward: Float = 0,
-        forwardDirection: Entity.ForwardDirection = .negativeZ
+        forwardDirection: Entity.ForwardDirection = .positiveZ
     ) {
         let closureComponent = ClosureComponent { [weak self] deltaTime in
             guard let currentTransform = self?.headTracker.originFromDeviceTransform() else { return }
