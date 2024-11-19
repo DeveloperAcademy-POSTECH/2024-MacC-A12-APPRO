@@ -206,19 +206,19 @@ struct ShoulderStretchingTutorialView: View {
     
     private func goToNextTutorialStep(_ currentStepIndex: Int) {
         // 현재 단계인지 확인
-           if tutorialManager.currentStepIndex == currentStepIndex {
-               // 오디오가 재생 중인지 확인
-               if TutorialManager.audioPlayer?.isPlaying == true {
-                   // 오디오 재생 완료 후 다음 단계로 넘어가도록 설정
-                   tutorialManager.onAudioFinished = {
-                       DispatchQueue.main.async {
-                           tutorialManager.advanceToNextStep()
-                       }
-                   }
-               } else {
-                   // 오디오가 재생 중이 아니면 바로 다음 단계로 이동
-                   tutorialManager.advanceToNextStep()
-               }
-           }
+        if tutorialManager.currentStepIndex == currentStepIndex {
+            // 오디오가 재생 중인지 확인
+            if TutorialManager.audioPlayer?.isPlaying == true {
+                // 오디오 재생 완료 후 다음 단계로 넘어가도록 설정
+                tutorialManager.onAudioFinished = {
+                    DispatchQueue.main.async {
+                        tutorialManager.advanceToNextStep()
+                    }
+                }
+            } else {
+                // 오디오가 재생 중이 아니면 바로 다음 단계로 이동
+                tutorialManager.advanceToNextStep()
+            }
+        }
     }
 }
