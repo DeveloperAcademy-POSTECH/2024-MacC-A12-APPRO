@@ -48,13 +48,13 @@ struct APPROApp: App {
         
         ImmersiveSpace(id: appState.immersiveSpaceID) {
             if let stretchingPart = appState.currentStretchingPart {
-//                if appState.appPhase == .tutorial && !TutorialManager.isSkipped(part: stretchingPart) {
-//                    tutorialImmersiveView(part: stretchingPart)
-//                        .preferredSurroundingsEffect(.semiDark)
-//                } else {
+                if appState.appPhase == .tutorial && !TutorialManager.isSkipped(part: stretchingPart) {
+                    tutorialImmersiveView(part: stretchingPart)
+                        .preferredSurroundingsEffect(.semiDark)
+                } else {
                     stretchingImmersiveView(part: stretchingPart)
                         .preferredSurroundingsEffect(appState.appPhase == .stretchingCompleted ? .dark : .semiDark)
-//                }
+                }
             }
         }
         .immersionStyle(selection: .constant(.mixed), in: .mixed)
