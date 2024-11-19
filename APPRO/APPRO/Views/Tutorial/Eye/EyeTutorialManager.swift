@@ -197,27 +197,13 @@ extension EyeTutorialManager {
     private func playEnlargeChickenAnimation(entity: Entity) {
         var toTransform = entity.transform
         toTransform.scale = largeChickenScale
-        playAnimation(
-            entity: entity,
-            definition: FromToByAnimation(
-                from: entity.transform,
-                to: toTransform,
-                bindTarget: .transform
-            )
-        )
+        entity.move(to: toTransform, relativeTo: nil)
     }
     
     private func playReduceChickenAnimation(entity: Entity) {
         var toTransform = entity.transform
         toTransform.scale = originalChickenScale
-        playAnimation(
-            entity: entity,
-            definition: FromToByAnimation(
-                from: entity.transform,
-                to: toTransform,
-                bindTarget: .transform
-            )
-        )
+        entity.move(to: toTransform, relativeTo: nil)
     }
     
     private func playDisappearChickenAnimation(entity: Entity) {
