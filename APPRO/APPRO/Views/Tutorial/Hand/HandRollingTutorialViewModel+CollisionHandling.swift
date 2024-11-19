@@ -36,6 +36,22 @@ extension HandRollingTutorialViewModel {
                 }
             }
             
+            // rotation recognition handling : left
+            if entityA.name == "GuideSphere_Left" && entityB.name.contains(regex)  {
+                let index: Int = Int(String(entityB.name.last!)) ?? 0
+                self.leftRotationCollisionArray[index] = true
+            } else if entityB.name == "GuideSphere_Left" && entityA.name.contains(regex) {
+                let index: Int = Int(String(entityA.name.last!)) ?? 0
+                self.leftRotationCollisionArray[index] = true
+            }
+            
+            if self.leftRotationCollisionArray.filter({ $0 == false }).isEmpty {
+                self.leftRotationCount += 1
+                for index in 0..<self.leftRotationCollisionArray.count {
+                    self.leftRotationCollisionArray[index] = false
+                }
+            }
+            
             Task {
                 if entityA.name == "Spiral" && entityB.name == "Cylinder_002" {
                     await self.spiralCollisionHandler(spiral: entityA, target: entityB)
@@ -90,10 +106,22 @@ extension HandRollingTutorialViewModel {
     
     private func removeTargetFromArrayAndContext (targetEntity: Entity, chirality: Chirality, canBeCountedAsScore: Bool) {
         targetEntity.removeFromParent()
-
-        rightTargetEntity = Entity()
+        
         if canBeCountedAsScore {
             rightHitCount += 1
+        }
+        
+        if chirality == .left  {
+            leftTargetEntity = Entity()
+            if canBeCountedAsScore {
+                leftHitCount += 1
+            }
+            
+        } else {
+            rightTargetEntity = Entity()
+            if canBeCountedAsScore {
+                rightHitCount += 1
+            }
         }
     }
     

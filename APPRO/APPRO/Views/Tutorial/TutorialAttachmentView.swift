@@ -18,11 +18,16 @@ struct TutorialAttachmentView: View {
             ZStack {
                 VStack(alignment: .trailing, spacing: 16) {
                     HStack {
+                        HStack(spacing: 16) {
+                            Button("Dismiss Immersive Space", systemImage: "multiply") {
+                                appState.appPhase = .choosingStretchingPart
+                            }
+                            .labelStyle(.iconOnly)
+                        }
                         Text("Tutorial")
                             .font(.extraLargeTitle2)
                         Spacer()
                         HStack(spacing: 16) {
-                            // TODO: Mute 버튼 추가
                             Button("Skip Tutorial", systemImage: "forward.end") {
                                 presentSkipAlert(true)
                             }

@@ -53,7 +53,7 @@ struct APPROApp: App {
                         .preferredSurroundingsEffect(.semiDark)
                 } else {
                     stretchingImmersiveView(part: stretchingPart)
-                        .preferredSurroundingsEffect(appState.appPhase == .stretchingCompleted ? .dark : .semiDark)
+                        .preferredSurroundingsEffect(appState.appPhase == .stretchingCompleted ? .ultraDark : .semiDark)
                 }
             }
         }

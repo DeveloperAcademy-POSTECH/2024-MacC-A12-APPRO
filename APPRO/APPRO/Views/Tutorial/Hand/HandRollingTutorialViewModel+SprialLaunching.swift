@@ -38,7 +38,7 @@ extension HandRollingTutorialViewModel {
         physicsBody.isAffectedByGravity = false
         physicsBody.massProperties.mass = 0.01
         
-        let startingCriteria = rightGuideRing
+        let startingCriteria = chirality == .right ? rightGuideRing : leftGuideRing
         spiralEntity.transform = startingCriteria.transform
         
         let forwardDirection = startingCriteria.transform.matrix.columns.0 // x axis
@@ -57,6 +57,9 @@ extension HandRollingTutorialViewModel {
             if chirality == .right {
                 guard let indexOfEntity = self.rightEntities.firstIndex(where: { $0.name == spiralEntity.name}) else { return }
                 self.rightEntities.remove(at: indexOfEntity)
+            } else {
+                guard let indexOfEntity = self.leftEntities.firstIndex(where: { $0.name == spiralEntity.name}) else { return }
+                self.leftEntities.remove(at: indexOfEntity)
             }
             spiralEntity.removeFromParent()
         }
