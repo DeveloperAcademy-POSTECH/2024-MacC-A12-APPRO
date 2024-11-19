@@ -10,14 +10,15 @@ import AVFAudio
 
 @Observable
 @MainActor
-class TutorialManager {
+class TutorialManager: NSObject, AVAudioPlayerDelegate {
     
     let stretchingPart: StretchingPart
     
     private var steps: [TutorialStep]
     private(set) var currentStepIndex = 0
-    
+    private var isCurrentInstructionCompleted: Bool = false
     static var audioPlayer: AVAudioPlayer?
+    var onAudioFinished: (() -> Void)? // 오디오 재생 완료 후 호출할 콜백
     
     init(stretching: StretchingPart) {
         self.stretchingPart = stretching
@@ -52,6 +53,7 @@ class TutorialManager {
         if let path = Bundle.main.path(forResource: currentStep?.audioFilename, ofType: "mp3"){
                do{
                    TutorialManager.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
+                   TutorialManager.audioPlayer?.delegate = self
                    TutorialManager.audioPlayer?.prepareToPlay()
                    TutorialManager.audioPlayer?.play()
 
@@ -63,6 +65,16 @@ class TutorialManager {
     
     func stopInstructionAudio() {
         TutorialManager.audioPlayer?.stop()
+    }
+    
+    // 오디오 재생 완료 감지
+    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        if flag {
+            Task { @MainActor in
+                onAudioFinished?() // 오디오 종료 시 콜백 호출
+                onAudioFinished = nil // 콜백 초기화
+            }
+        }
     }
 }
 
