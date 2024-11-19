@@ -65,7 +65,7 @@ final class EyeTutorialManager: TutorialManager {
         }
     }
     
-    func step1() {
+    func step1Done() {
         if let patchEntity = eyesEntity.findEntity(named: "patch"),
            let playbackController = playDisappearAnimation(entity: patchEntity) {
             patchEntity.scene?.publisher(for: AnimationEvents.PlaybackCompleted.self)

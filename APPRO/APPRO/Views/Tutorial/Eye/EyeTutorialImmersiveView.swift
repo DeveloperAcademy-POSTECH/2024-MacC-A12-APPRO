@@ -42,7 +42,7 @@ struct EyeTutorialImmersiveView: View {
                 .targetedToAnyEntity()
                 .onEnded { value in
                     if value.entity.name == "patch" {
-                        tutorialManager.step1()
+                        tutorialManager.step1Done()
                     }
                 }
         )
