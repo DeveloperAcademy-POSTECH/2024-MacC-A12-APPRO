@@ -36,6 +36,22 @@ extension HandRollingTutorialViewModel {
                 }
             }
             
+            // rotation recognition handling : left
+            if entityA.name == "GuideSphere_Left" && entityB.name.contains(regex)  {
+                let index: Int = Int(String(entityB.name.last!)) ?? 0
+                self.leftRotationCollisionArray[index] = true
+            } else if entityB.name == "GuideSphere_Left" && entityA.name.contains(regex) {
+                let index: Int = Int(String(entityA.name.last!)) ?? 0
+                self.leftRotationCollisionArray[index] = true
+            }
+            
+            if self.leftRotationCollisionArray.filter({ $0 == false }).isEmpty {
+                self.leftRotationCount += 1
+                for index in 0..<self.leftRotationCollisionArray.count {
+                    self.leftRotationCollisionArray[index] = false
+                }
+            }
+            
             Task {
                 if entityA.name == "Spiral" && entityB.name == "Cylinder_002" {
                     await self.spiralCollisionHandler(spiral: entityA, target: entityB)
@@ -70,7 +86,7 @@ extension HandRollingTutorialViewModel {
         // 조건 : 발사체와 과녁의 chirality 가 동일하고, 발사체의 회전수가 3 이상일 것.
         if  Int(spiralChiralityAndScore.suffix(1)) ?? 0 >= 3 && spiralChiralityAndScore.contains(targetChiralityName){
             try? animateForHittingTarget(targetEntity, spiralEntity: spiralEntity)
-            try? await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitRight(chirality: targetChiralityValue))
+            await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitRight(chirality: targetChiralityValue))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.removeTargetFromArrayAndContext(targetEntity: targetEntity, chirality: targetChiralityValue, canBeCountedAsScore: true)
@@ -78,7 +94,7 @@ extension HandRollingTutorialViewModel {
         } else {
             getWrongTargetColorChange(target as! ModelEntity, chirality: targetChiralityValue, intChangeTo: 1)
             try? animateForHittingTarget(targetEntity, spiralEntity: spiralEntity)
-            try? await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitWrong(chirality: targetChiralityValue))
+            await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitWrong(chirality: targetChiralityValue))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4 ) {
                 if let modelEntity = target as? ModelEntity {
@@ -90,10 +106,22 @@ extension HandRollingTutorialViewModel {
     
     private func removeTargetFromArrayAndContext (targetEntity: Entity, chirality: Chirality, canBeCountedAsScore: Bool) {
         targetEntity.removeFromParent()
-
-        rightTargetEntity = Entity()
+        
         if canBeCountedAsScore {
             rightHitCount += 1
+        }
+        
+        if chirality == .left  {
+            leftTargetEntity = Entity()
+            if canBeCountedAsScore {
+                leftHitCount += 1
+            }
+            
+        } else {
+            rightTargetEntity = Entity()
+            if canBeCountedAsScore {
+                rightHitCount += 1
+            }
         }
     }
     

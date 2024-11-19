@@ -18,11 +18,16 @@ struct TutorialAttachmentView: View {
             ZStack {
                 VStack(alignment: .trailing, spacing: 16) {
                     HStack {
+                        HStack(spacing: 16) {
+                            Button("Dismiss Immersive Space", systemImage: "multiply") {
+                                appState.appPhase = .choosingStretchingPart
+                            }
+                            .labelStyle(.iconOnly)
+                        }
                         Text("Tutorial")
                             .font(.extraLargeTitle2)
                         Spacer()
                         HStack(spacing: 16) {
-                            // TODO: Mute 버튼 추가
                             Button("Skip Tutorial", systemImage: "forward.end") {
                                 presentSkipAlert(true)
                             }
@@ -33,29 +38,29 @@ struct TutorialAttachmentView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .font(.system(size: 32, weight: .medium))
                         .multilineTextAlignment(.leading)
-                        .lineLimit(3)
+                        .lineLimit(4)
                         .onAppear {
-                            let audioFileName = "\(tutorialManager.stretchingPart)_1"
-                            tutorialManager.playInstructionAudio(audioFileName)
+                            tutorialManager.playInstructionAudio()
                         }
-                        .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, newValue in
-                            let audioFileName = "\(tutorialManager.stretchingPart)_\(newValue + 1)"
-                            tutorialManager.playInstructionAudio(audioFileName)
+                        .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, _ in
+                            tutorialManager.playInstructionAudio()
                         }
                     
                     Spacer()
-                    Button(tutorialManager.isLastStep ? "Done" : "Next") {
-                        if tutorialManager.isLastStep {
-                            tutorialManager.skip()
-                            appState.appPhase = .stretching
-                        } else {
-                            tutorialManager.advanceToNextStep()
+                    
+                    if let isNextButtonRequired = tutorialManager.currentStep?.isNextButtonRequired, isNextButtonRequired {
+                        Button(tutorialManager.isLastStep ? "Done" : "Next") {
+                            if tutorialManager.isLastStep {
+                                tutorialManager.skip()
+                                tutorialManager.stopInstructionAudio()
+                                appState.appPhase = .stretching
+                            } else {
+                                tutorialManager.advanceToNextStep()
+                            }
+                            
                         }
-                        
+                        .font(.title3)
                     }
-                    .controlSize(.large)
-                    .font(.title3)
-                    .disabled(!currentStep.isCompleted)
                 }
                 .frame(width: 800, height: 300)
                 .padding(32)
@@ -90,6 +95,8 @@ struct TutorialAttachmentView: View {
             Divider()
             Button("Yes") {
                 tutorialManager.skip()
+                tutorialManager.stopInstructionAudio()
+                appState.appPhase = .stretching
             }
             .frame(maxWidth: .infinity, maxHeight: 44)
             .buttonStyle(.borderless)
@@ -99,7 +106,7 @@ struct TutorialAttachmentView: View {
             .frame(maxWidth: .infinity, maxHeight: 44)
             .buttonStyle(.borderless)
         }
-        .frame(width: 320, height: tutorialManager.stretchingPart == .wrist ? 270 : 240)
+        .frame(width: 320, height: 240)
         .padding(20)
         .glassBackgroundEffect()
     }

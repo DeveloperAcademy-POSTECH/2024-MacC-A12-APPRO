@@ -17,35 +17,47 @@ struct HandRollingStretchingView: View {
             if viewModel.isStartingObjectVisible {
                 await viewModel.generateStartingObject(content)
             }
-            await viewModel.makeFirstEntitySetting(content)
+            await viewModel.makeFirstEntitySetting()
             viewModel.addEntity(content)
             viewModel.bringCollisionHandler(content)
             viewModel.subscribeSceneEvent(content)
             viewModel.addAttachmentView(content, attachments)
             
         } update: { content, attachments in
-            viewModel.addEntity(content)
             
-            if viewModel.isStartingObjectVisible {
-                viewModel.updateStartingComponentsTransform(content)
+            if viewModel.maxCount == viewModel.doneCount {
+                viewModel.showFinishAttachmentView(content, attachments)
             } else {
-                if !viewModel.areTargetTranslationUpdated {
+                if viewModel.isRetry {
+                    viewModel.deleteEndAttachmentView(content, attachments)
+                    viewModel.isRetry = false
+                }
+                
+                viewModel.addEntity(content)
+                
+                if viewModel.isStartingObjectVisible {
+                    viewModel.updateStartingComponentsTransform(content)
+                } else if !viewModel.areTargetTranslationUpdated {
                     viewModel.updateTargetsComponentTransform(content)
                 }
+                
+                if viewModel.isRightHandInFist {
+                    viewModel.updateGuideComponentsTransform(content, chirality: .right)
+                }
+                
+                if viewModel.isLeftHandInFist {
+                    viewModel.updateGuideComponentsTransform(content, chirality: .left)
+                }
+                
+                viewModel.addAttachmentView(content, attachments)
             }
-            
-            if viewModel.isRightHandInFist {
-                viewModel.updateGuideComponentsTransform(content, chirality: .right)
-            }
-            
-            if viewModel.isLeftHandInFist {
-                viewModel.updateGuideComponentsTransform(content, chirality: .left)
-            }
-            
-            viewModel.addAttachmentView(content, attachments)
         } attachments: {
             Attachment(id: viewModel.stretchingAttachmentViewID) {
                 StretchingAttachmentView(counter: viewModel, stretchingPart: .wrist)
+            }
+            
+            Attachment(id: viewModel.stretchingFinishAttachmentViewID) {
+                StretchingFinishAttachmentView(counter: viewModel, stretchingPart: .wrist)
             }
         }
         .task {
@@ -90,7 +102,7 @@ struct HandRollingStretchingView: View {
                 viewModel.rightEntities.append(viewModel.rightGuideRing)
                 viewModel.rightEntities.append(viewModel.rightGuideSphere)
                 Task {
-                    try? await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
+                    await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
                 }
             } else {
                 viewModel.rightGuideRing.removeFromParent()
@@ -100,10 +112,12 @@ struct HandRollingStretchingView: View {
         }
         .onChange(of: viewModel.isLeftHandInFist, initial: false) { _, isHandFistShape in
             if isHandFistShape {
+                if viewModel.isStartingObjectVisible { viewModel.isStartingObjectVisible = false}
+                
                 viewModel.leftEntities.append(viewModel.leftGuideRing)
                 viewModel.leftEntities.append(viewModel.leftGuideSphere)
                 Task {
-                    try? await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
+                    await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
                 }
             } else {
                 viewModel.leftGuideRing.removeFromParent()
@@ -142,14 +156,18 @@ struct HandRollingStretchingView: View {
                 viewModel.getRidOfStartingObject()
             }
         }
-        .onChange(of: viewModel.startObject, initial: false) {_, newValue in
+        .onChange(of: viewModel.startObject, initial: false) { _, newValue in
             if newValue.name == "StartingObject" {
                 Task {
-                    do {
-                        try await viewModel.playSpatialAudio(newValue, audioInfo: .handStartAppear)
-                    } catch {
-                        print(error)
-                    }
+                    await viewModel.playSpatialAudio(newValue, audioInfo: .handStartAppear)
+                }
+            }
+        }
+        .onChange(of: viewModel.doneCount, initial: false) { oldValue, newValue in
+            if oldValue > newValue && newValue == 0 {
+                Task {
+                    await viewModel.makeFirstEntitySetting(isRetry: true)
+                    viewModel.isRetry = true
                 }
             }
         }

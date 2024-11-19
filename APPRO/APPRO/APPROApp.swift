@@ -55,12 +55,15 @@ struct APPROApp: App {
             if let stretchingPart = appState.currentStretchingPart {
                 if appState.appPhase == .tutorial && !TutorialManager.isSkipped(part: stretchingPart) {
                     tutorialImmersiveView(part: stretchingPart)
+                        .preferredSurroundingsEffect(.semiDark)
                 } else {
                     stretchingImmersiveView(part: stretchingPart)
+                        .preferredSurroundingsEffect(appState.appPhase == .stretchingCompleted ? .ultraDark : .semiDark)
                 }
             }
         }
         .immersionStyle(selection: .constant(.mixed), in: .mixed)
+
     }
     
     @ViewBuilder
@@ -70,6 +73,7 @@ struct APPROApp: App {
             EmptyView()
         case .shoulder:
             ShoulderStretchingView()
+                .environment(appState)
         case .wrist:
             HandRollingStretchingView()
                 .environment(appState)
@@ -83,8 +87,8 @@ struct APPROApp: App {
             EyeTutorialImmersiveView()
                 .environment(appState)
         case .shoulder:
-            // TODO: 어깨 튜토리얼 몰입 뷰 추가
-            EmptyView()
+            ShoulderStretchingTutorialView()
+                .environment(appState)
         case .wrist:
             HandRollingTutorialView()
                 .environment(appState)

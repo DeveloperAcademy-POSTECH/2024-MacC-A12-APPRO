@@ -14,31 +14,35 @@ struct HandRollingTutorialView : View {
     @State var viewModel = HandRollingTutorialViewModel()
     @State var tutorialManager = TutorialManager(stretching: .wrist)
     
+    @State var isStartWarningDone = false
+    
     var body : some View {
         RealityView { content, attachments in
-            if viewModel.isStartingObjectVisible {
-                await viewModel.generateStartingObject(content)
-            }
-            
-            await viewModel.makeFirstEntitySetting(content)
-            viewModel.bringCollisionHandler(content)
-            viewModel.addAttachmentView(content, attachments)
-            viewModel.subscribeSceneEvent(content)
+            let textEntity = createTextEntity("Stay aware of your surroundings")
+            content.add(textEntity)
+            setTutorialToStart(content: content)
         } update : { content, attachments in
             viewModel.addEntity(content)
             
-            if viewModel.isStartingObjectVisible {
-                viewModel.updateStartingComponentsTransform(content)
+            if isStartWarningDone {
+                if viewModel.isStartingObjectVisible {
+                    viewModel.updateStartingComponentsTransform(content)
+                } else {
+                    viewModel.updateTargetComponentTransform(content)
+                }
+                
+                if viewModel.isRightHandInFist {
+                    viewModel.updateGuideComponentsTransform(content, chirality: .right)
+                }
+                
+                if viewModel.isLeftHandInFist {
+                    viewModel.updateGuideComponentsTransform(content, chirality: .left)
+                }
+                
+                viewModel.addAttachmentView(content, attachments)
             } else {
-                viewModel.updateTargetComponentTransform(content)
+                
             }
-            
-            if viewModel.isRightHandInFist {
-                viewModel.updateGuideComponentsTransform(content, chirality: .right)
-            }
-            
-            viewModel.addAttachmentView(content, attachments)
-            
         } attachments: {
             Attachment(id: viewModel.tutorialAttachmentViewID) {
                 TutorialAttachmentView(tutorialManager: tutorialManager)
@@ -68,12 +72,26 @@ struct HandRollingTutorialView : View {
                 }
                 
                 Task {
-                    try? await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
+                    await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
                 }
             } else {
                 viewModel.rightGuideRing.removeFromParent()
                 viewModel.rightGuideSphere.removeFromParent()
                 viewModel.rightEntities.removeAll()
+            }
+        }
+        .onChange(of: viewModel.isLeftHandInFist, initial: false) { _, isHandFistShape in            
+            if isHandFistShape && tutorialManager.isLastStep {
+                viewModel.leftEntities.append(viewModel.leftGuideRing)
+                viewModel.leftEntities.append(viewModel.leftGuideSphere)
+                
+                Task {
+                    await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
+                }
+            } else {
+                viewModel.leftGuideRing.removeFromParent()
+                viewModel.leftGuideSphere.removeFromParent()
+                viewModel.leftEntities.removeAll()
             }
         }
         .onChange(of: viewModel.isStartingObjectVisible, initial: false) {_, newValue in
@@ -82,21 +100,47 @@ struct HandRollingTutorialView : View {
             }
         }
         .onChange(of: tutorialManager.currentStepIndex, initial: false ) { _, currentStepIndex in
-            getNextTutorialStep(1)
-            getNextTutorialStep(2)
-            getNextTutorialStep(5)
+            if currentStepIndex == 1 {
+                viewModel.showTarget = true
+                getNextTutorialStep(1)
+            }
+            
+            getNextTutorialStep(4)
+            
+            if tutorialManager.isLastStep {
+                Task {
+                    await viewModel.makeDoneEntitySetting()
+                }
+            }
         }
         .onChange(of: viewModel.rightLaunchState, initial: false) { _, currentLaunchState in
             if currentLaunchState {
-                Task {
-                    viewModel.rightRotationForLaunchNumber = viewModel.rightRotationCount
-                    try? await viewModel.rightEntities.append(viewModel.generateLaunchObj(chirality: .right))
+                if tutorialManager.currentStepIndex >= 3  {
+                    Task {
+                        viewModel.rightRotationForLaunchNumber = viewModel.rightRotationCount
+                        try? await viewModel.rightEntities.append(viewModel.generateLaunchObj(chirality: .right))
+                    }
                 }
                 
                 DispatchQueue.main.async {
                     viewModel.rightLaunchState = false
                     viewModel.rightRotationCount = 0
-                    getNextTutorialStep(4)
+                    getNextTutorialStep(3)
+                }
+            }
+        }
+        .onChange(of: viewModel.leftLaunchState, initial: false) { _, currentLaunchState in
+            if currentLaunchState {
+                
+                Task {
+                    viewModel.leftRotationForLaunchNumber = viewModel.leftRotationCount
+                    try? await viewModel.leftEntities.append(viewModel.generateLaunchObj(chirality: .left))
+                }
+                
+                
+                DispatchQueue.main.async {
+                    viewModel.leftLaunchState = false
+                    viewModel.leftRotationCount = 0
                 }
             }
         }
@@ -105,10 +149,20 @@ struct HandRollingTutorialView : View {
             viewModel.getDifferentRingColor(viewModel.rightGuideRing, intChangeTo: Int32(colorValueChangedTo))
             
             Task {
-                await viewModel.playRotationChangeRingSound(newValue)
+                await viewModel.playRotationChangeRingSound(newValue, chirality: .right)
             }
             
-            getNextTutorialStep(3)
+            getNextTutorialStep(2)
+        }
+        .onChange(of: viewModel.leftRotationCount, initial: false) { _, newValue in
+            let colorValueChangedTo = min (newValue * 2, 6)
+            viewModel.getDifferentRingColor(viewModel.leftGuideRing, intChangeTo: Int32(colorValueChangedTo))
+            
+            Task {
+                await viewModel.playRotationChangeRingSound(newValue, chirality: .left)
+            }
+            
+            getNextTutorialStep(2)
         }
         .onChange(of: viewModel.rightHitCount, initial: false ) { oldNumber, newNumber in
             if oldNumber < newNumber {
@@ -116,7 +170,7 @@ struct HandRollingTutorialView : View {
             }
         }
         .onChange(of: viewModel.rightTargetEntity, initial: false ) {_, newOne in
-            // 0...5 : step 의 인덱스들 -> 이 이중에서 과녁이 없어진다면, 4, 5 단계 빼고는 유저가 튜토리얼 하는 과정에서 과녁을 없앤다면 새롭게 나와야한다. 
+            // 0...5 : step 의 인덱스들 -> 이 이중에서 과녁이 없어진다면, 4, 5 단계 빼고는 유저가 튜토리얼 하는 과정에서 과녁을 없앤다면 새롭게 나와야한다.
             if newOne.name != "GreenTarget_right" && tutorialManager.currentStepIndex >= 2 && tutorialManager.currentStepIndex < 4 {
                 Task {
                     await viewModel.rightTargetEntity = viewModel.bringTargetEntity(chirality: .right)
@@ -127,10 +181,48 @@ struct HandRollingTutorialView : View {
     
     private func getNextTutorialStep(_ currentStepIndex: Int) {
         if tutorialManager.currentStepIndex == currentStepIndex {
-            if currentStepIndex == 2 {
-                viewModel.showTarget = true
-            }
             tutorialManager.completeCurrentStep()
+        }
+    }
+    
+    func createTextEntity(_ text: String) -> ModelEntity {
+        let mesh = MeshResource.generateText(
+            text,
+            extrusionDepth: 0.001,
+            font: .systemFont(ofSize: CGFloat(0.1)),
+            containerFrame: .zero,
+            alignment: .center,
+            lineBreakMode: .byWordWrapping
+        )
+        
+        let material = SimpleMaterial(color: .white, roughness: 1.0, isMetallic: false )
+        let textEntity = ModelEntity(mesh: mesh, materials: [material])
+        let width = textEntity.model?.mesh.bounds.extents.x ?? 0
+        textEntity.name = "warning"
+        textEntity.position = .init(x: -width/2, y: viewModel.startingHeight == 0 ? 1.4 : viewModel.startingHeight + 0.3 , z: -3)
+        return textEntity
+    }
+    
+    private func setTutorialToStart(content: RealityViewContent) {
+        if tutorialManager.currentStepIndex == 0 {
+            guard let textEntity = content.entities.first(where: { $0.name == "warning" })  else { return }
+            withAnimation {
+                textEntity.isEnabled = true
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                Task {
+                    textEntity.removeFromParent()
+                    if viewModel.isStartingObjectVisible {
+                        await viewModel.generateStartingObject(content)
+                    }
+                    
+                    await viewModel.makeFirstEntitySetting()
+                    viewModel.bringCollisionHandler(content)
+                    viewModel.subscribeSceneEvent(content)
+                    isStartWarningDone = true
+                }
+            }
         }
     }
 }

@@ -34,6 +34,7 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     var fistReaderLeft: [Bool] = []
     
     let stretchingAttachmentViewID  = "StretchingAttachmentView"
+    let stretchingFinishAttachmentViewID  = "StretchingFinishAttachmentView"
     
     let frameInterval = 1
     var frameIndex = 0
@@ -50,6 +51,11 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     var rightTargetEntities : [Entity] = []
     
     var areTargetTranslationUpdated = false
+    
+    var ringOriginal = Entity()
+    var spiralOriginal = Entity()
+    var targetRightOriginal = Entity()
+    var targetLeftOriginal = Entity()
     
     var rightGuideRing = Entity()
     var rightGuideSphere = ModelEntity()
@@ -73,12 +79,16 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     var leftHitCount = 0
     var rightHitCount = 0
     
-    func makeFirstEntitySetting (_ content: RealityViewContent) async {
-        rightGuideRing = await generateGuideRing(chirality: .right)
-        rightGuideSphere = generateGuideSphere(chirality: .right)
-        
-        leftGuideRing = await generateGuideRing(chirality: .left)
-        leftGuideSphere = generateGuideSphere(chirality: .left)
+    var isRetry = false
+    
+    func makeFirstEntitySetting (isRetry: Bool = false) async {
+        if !isRetry {
+            rightGuideRing = await generateGuideRing(chirality: .right)
+            rightGuideSphere = generateGuideSphere(chirality: .right)
+            
+            leftGuideRing = await generateGuideRing(chirality: .left)
+            leftGuideSphere = generateGuideSphere(chirality: .left)
+        }
         
         rightTargetEntities = await bringTargetEntities([2,1,4], chirality: .right)
         
@@ -123,18 +133,26 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     }
     
     func generateGuideRing(chirality : Chirality) async  -> Entity  {
-        guard let guideRingEntity = try? await Entity(named: "Hand/wrist_ring", in: realityKitContentBundle) else { return Entity() }
-        guideRingEntity.name = chirality == .right ?  "Ring_Right" : "Ring_Left"
+        var ringEntity = Entity()
         
-        if chirality == .left {
-            getDifferentRingColor(guideRingEntity, intChangeTo: 1)
+        if ringOriginal.name == "" {
+            guard let guideRingEntityLoadedFromRCP = try? await Entity(named: "Hand/wrist_ring", in: realityKitContentBundle) else { return Entity() }
+            ringEntity = guideRingEntityLoadedFromRCP
+        } else {
+            ringEntity = ringOriginal.clone(recursive: true)
         }
         
-        return guideRingEntity
+        ringEntity.name = chirality == .right ?  "Ring_Right" : "Ring_Left"
+        
+        if chirality == .left {
+            getDifferentRingColor(ringEntity, intChangeTo: 1)
+        }
+        
+        return ringEntity
     }
     
     func generateGuideSphere(chirality : Chirality)-> ModelEntity  {
-        let guideSphereEntity = ModelEntity(mesh: .generateSphere(radius: 0.015), materials: [SimpleMaterial(color: .red, roughness: 0.0, isMetallic: false)]) // var to let
+        let guideSphereEntity = ModelEntity(mesh: .generateSphere(radius: 0.015), materials: [SimpleMaterial(color: .red, roughness: 0.0, isMetallic: false)])
         guideSphereEntity.name = chirality == .right ? "GuideSphere_Right" : "GuideSphere_Left"
         guideSphereEntity.generateCollisionShapes(recursive: false)
         
@@ -147,8 +165,18 @@ final class HandRollingStretchingViewModel: StretchingCounter {
         
         var result: [Entity] = []
         
+        if chirality == .right && targetRightOriginal.name == "" {
+            guard let targetRightLoadedFromRCP = try? await Entity(named: resourceUrl, in: realityKitContentBundle) else { return [] }
+            targetRightOriginal = targetRightLoadedFromRCP
+        }
+        
+        if chirality == .left && targetLeftOriginal.name == "" {
+            guard let targetLeftLoadedFromRCP = try? await Entity(named: resourceUrl, in: realityKitContentBundle) else { return [] }
+            targetLeftOriginal = targetLeftLoadedFromRCP
+        }
+        
         for targetScore in targetRotationCounts {
-            guard let targetEntity = try? await Entity(named: resourceUrl, in: realityKitContentBundle) else { return [] }
+            let targetEntity = chirality == .left ? targetLeftOriginal.clone(recursive: true) : targetRightOriginal.clone(recursive: true)
             let entityName = chirality == .left ? "BlueTarget_left_\(targetScore)" :"GreenTarget_right_\(targetScore)"
             
             targetEntity.name = entityName
@@ -238,5 +266,33 @@ final class HandRollingStretchingViewModel: StretchingCounter {
         }
         stretchingAttachmentView.position = .init(x: 0, y: startingHeight + 0.4, z: -1.2)
         content.add(stretchingAttachmentView)
+    }
+
+    func showFinishAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+        guard let stretchingAttachmentView = attachments.entity(for: stretchingAttachmentViewID) else {
+            dump("StretchingAttachmentView not found in attachments!")
+            return
+        }
+        
+        content.remove(stretchingAttachmentView)
+        
+        guard let stretchingFinishAttachmentView = attachments.entity(for: stretchingFinishAttachmentViewID) else {
+            dump("StretchingFinishAttachmentView not found in attachments!")
+            return
+        }
+        stretchingFinishAttachmentView.position = .init(x: 0.0, y: startingHeight + 0.4 , z: -1.2)
+        content.add(stretchingFinishAttachmentView)
+    }
+    
+    func deleteEndAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
+        guard let stretchingFinishAttachmentView = attachments.entity(for: stretchingFinishAttachmentViewID) else {
+            dump("StretchingFinishAttachmentView not found in attachments!")
+            return
+        }
+        content.remove(stretchingFinishAttachmentView)
+    }
+    
+    func makeDoneCountZero() {
+        doneCount = 0
     }
 }

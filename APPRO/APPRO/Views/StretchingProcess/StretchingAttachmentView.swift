@@ -43,7 +43,25 @@ struct StretchingAttachmentView: View {
                     .opacity(0.96)
                 HStack(spacing: 15) {
                     ForEach(0..<counter.maxCount, id: \.self) { idx in
-                        SetCheckCircle(isChecked: counter.doneCount == idx + 1)
+                        SetCheckCircle(isChecked: counter.doneCount >= idx + 1)
+                    }
+                }
+            }
+            
+            if counter.doneCount == counter.maxCount {
+                Divider()
+                
+                VStack {
+                    Button {
+                        counter.makeDoneCountZero()
+                    }label: {
+                        Text("Retry")
+                    }
+                    
+                    Button {
+                        appState.appPhase = .choosingStretchingPart
+                    }label: {
+                        Text("Finish")
                     }
                 }
             }
@@ -53,5 +71,4 @@ struct StretchingAttachmentView: View {
         .padding(.bottom, 24)
         .glassBackgroundEffect()
     }
-    
 }

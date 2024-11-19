@@ -13,13 +13,33 @@ struct ShoulderStretchingView: View {
     @State private var isColliding: Bool = false
     
     var body: some View {
-        RealityView { content in
+        RealityView { content, attachments in
             content.add(viewModel.contentEntity)
             await viewModel.setEntryRocket()
             viewModel.setHandRocketEntity()
             subscribeToCollisionEvents(content: content)
-        } update: { content in
-            viewModel.computeTransformHandTracking()
+            viewModel.subscribeSceneEvent(content)
+            viewModel.addAttachmentView(content, attachments)
+            viewModel.addShoulderTimerEntity()
+        } update: { content, attachments in
+            if viewModel.doneCount == viewModel.maxCount {
+                viewModel.showEndAttachmentView(content, attachments)
+            } else if viewModel.isRetry {
+                viewModel.deleteEndAttachmentView(content, attachments)
+                viewModel.addAttachmentView(content, attachments)
+                
+                viewModel.isRetry = false
+            } else {
+                viewModel.computeTransformHandTracking()
+            }
+        } attachments: {
+            Attachment(id: viewModel.stretchingAttachmentViewID) {
+                StretchingAttachmentView(counter: viewModel, stretchingPart: .shoulder)
+            }
+            
+            Attachment(id: viewModel.stretchingFinishAttachmentViewID) {
+                StretchingFinishAttachmentView(counter: viewModel, stretchingPart: .shoulder)
+            }
         }
         .upperLimbVisibility(.hidden)
         .ignoresSafeArea()
@@ -31,6 +51,19 @@ struct ShoulderStretchingView: View {
         }
         .task {
             await viewModel.updateHandTracking()
+        }
+        .onChange(of: viewModel.halfSetCount, initial: false ) { _, newValue in
+            if newValue / 2 <= viewModel.maxCount && newValue != 0{
+                if newValue % 2 == 0 {
+                    viewModel.doneCount += 1
+                }
+            }
+        }
+        .onChange(of: viewModel.doneCount, initial: false ) { oldValue, newValue in
+            if newValue < oldValue && newValue == 0 {
+                viewModel.isRetry = true
+                viewModel.halfSetCount = 0
+            }
         }
     }
     
@@ -55,6 +88,7 @@ struct ShoulderStretchingView: View {
             }else {
                 animationEvent.playbackController.entity?.removeFromParent()
                 executeCollisionAction()
+                viewModel.halfSetCount += 1
             }
         }
     }
@@ -63,8 +97,9 @@ struct ShoulderStretchingView: View {
         
         let collidedModelEntity = collisionEvent.entityB
         
-        if collidedModelEntity.name.contains("Timer") && !isColliding {
-            viewModel.playAnimation(animationEntity: viewModel.shoulderTimerEntity)
+        if collidedModelEntity.name.contains("TimerCollisionModel") && !isColliding {
+            viewModel.playCustomAnimation(timerEntity: viewModel.shoulderTimerEntity)
+            viewModel.initiateAllTimerProgress()
             isColliding = true
             return
         }
@@ -84,7 +119,6 @@ struct ShoulderStretchingView: View {
             // 마지막 엔터티 감지
             if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 2)") {
                 viewModel.addShoulderTimerEntity()
-                
             }
         }
     }
@@ -92,8 +126,10 @@ struct ShoulderStretchingView: View {
     // 충돌 종료를 감지하여 타이머를 중지
     func handleCollisionEnd(collisionEvent: CollisionEvents.Ended) {
         let entityName = collisionEvent.entityB.name
+        
         if entityName.contains("Timer") {
             viewModel.timerController?.stop()
+            viewModel.stopAllTimerProgress()
             isColliding = false
         }
     }

@@ -56,11 +56,11 @@ enum StretchingPart: String, Identifiable, CaseIterable {
             ]
         case .shoulder:
             [
-                "When you’re ready, stretch your right arm forward.",
-                "You've summoned the probe to your hand! From now on the rocket will follow your hand movement.",
-                "Your mission is to lead the probe to every stars and complete the journey.",
-                "Try to carry the probe to the stars without moving your legs. Use only your arm's movement.",
-                "Good. Now the probe needs to charge its fuel. Hold still for five seconds.",
+                "When you’re ready, stretch your right arm forward and try to hold a fist.",
+                "You've summoned the rocket to your hand! From now on the rocket will follow your hand movement.",
+                "Your mission is to lead the rocket to every stars and complete the journey. To see the stars, try to hold a fist. If you want to rearrange stars, hold a fist again.",
+                "Try to carry the rocket to the stars without moving your legs. Use only your arm's movement.",
+                "Good! This time, when you reach the space station, keep your arm in the same position for 5 seconds to refuel the rocket.",
                 "Great! Stretching your shoulder is the main focus in this content. Try to fix your position in one spot."
             ]
         }

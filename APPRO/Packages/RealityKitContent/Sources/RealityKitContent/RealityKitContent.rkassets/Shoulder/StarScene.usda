@@ -139,7 +139,7 @@ def Xform "Root"
                 {
                     token birthDirection = "Normal"
                     token birthLocation = "Surface"
-                    int64 burstCount = 100
+                    int64 burstCount = 30
                     float3 emissionDirection = (0, 0, 0)
                     double emissionDuration = 2
                     double emissionDurationVariation = 0
@@ -152,12 +152,12 @@ def Xform "Root"
                     bool loops = 0
                     float particleSpeed = 0.1
                     float particleSpeedVariation = 0.04
-                    float3 shapeSize = (0.05, 0.05, 0.05)
+                    float3 shapeSize = (0.01, 0.01, 0.01)
                     bool spawnInheritParentColor = 1
                     token spawnOccasion = "OnUpdate"
                     float spawnSpreadFactor = 0
                     float spawnSpreadFactorVariation = 0
-                    float spawnVelocityFactor = 1
+                    float spawnVelocityFactor = 0.2
                     double warmupDuration = 1.5
 
                     def RealityKitStruct "mainEmitter"
@@ -165,11 +165,11 @@ def Xform "Root"
                         float3 acceleration = (0, 0, 0)
                         token animationRepeatMode = "Looping"
                         token billboardMode = "Billboard"
-                        float birthRate = 100
+                        float birthRate = 10
                         float birthRateVariation = 0
                         token blendMode = "Additive"
                         float colorEvolutionPower = 1
-                        int64 columnCount = 4
+                        int64 columnCount = 2
                         float dampingFactor = 0.25
                         float4 endColorA = (1, 0.051991113, 1, 1)
                         float4 endColorB = (0, 0.98059916, 1, 1)
@@ -180,7 +180,7 @@ def Xform "Root"
                         bool isAnimated = 1
                         bool isLightingEnabled = 0
                         float noiseAnimationSpeed = 1
-                        float noiseScale = 1
+                        float noiseScale = 0.5
                         float noiseStrength = 0.1
                         token opacityOverLife = "GradualFadeInOut"
                         float particleAngle = 0
@@ -196,7 +196,7 @@ def Xform "Root"
                         float particleSizeVariation = 0.004
                         float3 radialGravityCenter = (1, 1, 0)
                         float radialGravityStrength = 0
-                        int64 rowCount = 4
+                        int64 rowCount = 2
                         float sizeMultiplierAtEndOfLifespan = 0.35
                         float sizeMultiplierAtEndOfLifespanPower = 3
                         token sortOrder = "IncreasingDepth"

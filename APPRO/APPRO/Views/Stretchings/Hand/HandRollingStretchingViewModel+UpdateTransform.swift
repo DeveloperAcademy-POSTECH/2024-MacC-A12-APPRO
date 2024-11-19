@@ -23,10 +23,10 @@ extension HandRollingStretchingViewModel {
         
         rightTargetEntities[0].transform.translation = .init(x: -0.6, y: startingHeight - 0.2, z: -0.8)
         rightTargetEntities[1].transform.translation = .init(x: -0.6, y: startingHeight + 0.4, z: -1.0)
-        rightTargetEntities[2].transform.translation = .init(x: 0.8, y: startingHeight + 0.3 , z: -0.7)
+        rightTargetEntities[2].transform.translation = .init(x: 0.9, y: startingHeight + 0.3 , z: -0.7)
         
-        leftTargetEntities[0].transform.translation = .init(x: -0.35, y: startingHeight + 0.1, z: -1.0)
-        leftTargetEntities[1].transform.translation = .init(x: 0.4, y: startingHeight + 0.2, z: -1.0)
+        leftTargetEntities[0].transform.translation = .init(x: -0.35, y: startingHeight, z: -1.0)
+        leftTargetEntities[1].transform.translation = .init(x: 0.5, y: startingHeight + 0.2, z: -1.0)
         leftTargetEntities[2].transform.translation = .init(x: 0.9, y: startingHeight - 0.2, z: -0.6)
     }
     
@@ -101,22 +101,21 @@ extension HandRollingStretchingViewModel {
         let intersection3D = middleKnucklePosition + normalizedVector * t
         
         let distanceToCenter = length(intersection3D - wristRingPosition)
-        if distanceToCenter <= ( radius / 4 )  {
+        if distanceToCenter <= ( radius / 8 )  {
             if chirality == .right {
                 rightGuideSphere.scale = .init(repeating: 0.01)
                 if rightRotationCount > 0 && !rightLaunchState {
                     DispatchQueue.main.async {
-                        self.rightLaunchState = true //TODO: 회전폭 반경은 더욱 좁게 설정되어야할 수도 있음.
+                        self.rightLaunchState = true
                     }
                 }
             } else {
                 leftGuideSphere.scale = .init(repeating: 0.01)
                 if leftRotationCount > 0 && !leftLaunchState {
                     DispatchQueue.main.async {
-                        self.leftLaunchState = true //TODO: 회전폭 반경은 더욱 좁게 설정되어야할 수도 있음.
+                        self.leftLaunchState = true
                     }
                 }
-                
             }
             return intersection3D
         }
@@ -142,14 +141,14 @@ extension HandRollingStretchingViewModel {
     }
     
     func playRotationChangeRingSound(_ newValue: Int, chirality : Chirality) async {
-        
         let guideRing = chirality == .left ? leftGuideRing : rightGuideRing
+        
         if newValue >= 3 {
-            try? await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationThreeTimes)
+            await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationThreeTimes)
         } else if newValue == 2 {
-            try? await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationTwice)
+            await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationTwice)
         } else if newValue == 1 {
-            try? await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationOnce)
+            await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationOnce)
         }
     }
 }
