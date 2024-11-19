@@ -76,7 +76,7 @@ final class EyeTutorialManager: TutorialManager {
                 .store(in: &cancellableBag)
         }
         playEyeLoopAnimation(entity: eyesEntity)
-        completeCurrentStep()
+        advanceToNextStep()
     }
     
     func handleLongPressingUpdate(value isLongPressing: Bool) {
@@ -92,7 +92,7 @@ final class EyeTutorialManager: TutorialManager {
     func handleLongPressOnEnded() {
         longPressGestureOnEnded = true
         playDisappearChickenAnimation(entity: chickenEntity)
-        completeCurrentStep()
+        advanceToNextStep()
     }
     
     func subscribeRingCollisionEvent(entity: Entity) {
