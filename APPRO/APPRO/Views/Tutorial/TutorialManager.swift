@@ -9,6 +9,7 @@ import Foundation
 import AVFAudio
 
 @Observable
+@MainActor
 class TutorialManager {
     
     let stretchingPart: StretchingPart
