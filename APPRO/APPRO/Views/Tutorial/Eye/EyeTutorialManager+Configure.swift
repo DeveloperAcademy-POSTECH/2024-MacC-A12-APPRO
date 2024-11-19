@@ -14,7 +14,7 @@ extension EyeTutorialManager {
         setClosureComponent(
             entity: attachmentView,
             distance: .attachment,
-            upward: 0.01
+            upward: 0.4
         )
     }
     
@@ -39,7 +39,7 @@ extension EyeTutorialManager {
     }
     
     func configureChickenEntity(entity: Entity) {
-        entity.setPosition(.init(x: -1.5, y: 0, z: 0), relativeTo: eyesEntity)
+        entity.setPosition(.init(x: -1, y: 0, z: 0), relativeTo: eyesEntity)
         entity.components.set(HoverEffectComponent(.highlight(.default)))
         entity.components.set(OpacityComponent(opacity: 0.0))
         entity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
@@ -49,8 +49,14 @@ extension EyeTutorialManager {
     func configureRingEntity(entity: Entity) async {
         ringEntity.components.set(OpacityComponent(opacity: 0))
         ringEntity.setPosition(.init(x: 0, y: 0, z: 0), relativeTo: eyesEntity)
+        ringEntity.orientation = eyesEntity.orientation
         
         await setRingCollisionComponent(entity: entity)
+    }
+    
+    func configureMonitorEntity(entity: Entity) {
+        entity.components.set(OpacityComponent(opacity: 0))
+        entity.setPosition(.init(x: -0.1, y: -0.05, z: 0.2), relativeTo: ringEntity)
     }
     
     private func setRingCollisionComponent(entity: Entity) async {
@@ -60,10 +66,11 @@ extension EyeTutorialManager {
             return
         }
         
-        guard let innerPlaneShapeResource = await generateShapeResource(entity: innerPlaneEntity, isConvex: false),
-        let restrictLineShapeResource = await generateShapeResource(entity: restrictLineEntity, isConvex: false) else {
+        guard let innerPlaneShapeResource = await generateShapeResource(entity: innerPlaneEntity, isConvex: true),
+              let restrictLineShapeResource = await generateShapeResource(entity: restrictLineEntity, isConvex: false) else {
             return
         }
+        
         innerPlaneEntity.components.set(CollisionComponent(shapes: [innerPlaneShapeResource], isStatic: true))
         restrictLineEntity.components.set(CollisionComponent(shapes: [restrictLineShapeResource], isStatic: true))
     }
