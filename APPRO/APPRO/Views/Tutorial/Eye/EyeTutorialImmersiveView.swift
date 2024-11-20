@@ -95,7 +95,7 @@ struct EyeTutorialImmersiveView: View {
     private func configureStep2() {
         tutorialManager.attachmentView.components.remove(ClosureComponent.self)
         
-        tutorialManager.completeCurrentStep()
+        tutorialManager.advanceToNextStep()
     }
     
     private func configureStep3(content: RealityViewContent) {
@@ -124,7 +124,7 @@ struct EyeTutorialImmersiveView: View {
         tutorialManager.playAppearAnimation(entity: ringEntity)
         tutorialManager.playAppearAnimation(entity: monitorEntity)
         
-        tutorialManager.completeCurrentStep()
+        tutorialManager.advanceToNextStep()
     }
     
 }
