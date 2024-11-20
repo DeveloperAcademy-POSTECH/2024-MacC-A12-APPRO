@@ -46,9 +46,7 @@ struct TutorialAttachmentView: View {
                         .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, _ in
                             tutorialManager.playInstructionAudio()
                         }
-                    
-                    Spacer()
-                    
+                                        
                     if tutorialManager.isLastStep {
                         Button("Done") {
                             tutorialManager.skip()
