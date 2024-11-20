@@ -23,7 +23,8 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     init(stretching: StretchingPart) {
         self.stretchingPart = stretching
         self.steps = stretching.tutorialInstructions.enumerated().map {
-            .init(instruction: $1, audioFilename: "\(stretching)_\($0 + 1)", isNextButtonRequired: TutorialManager.getNextButtonRequiredInfo(tutorialStretching: stretching)[$0]) }
+            .init(instruction: $1, audioFilename: "\(stretching)_\($0 + 1)" )
+        }
     }
     
     var isLastStep: Bool {
@@ -82,21 +83,6 @@ extension TutorialManager {
     
     static func isSkipped(part: StretchingPart) -> Bool {
         UserDefaults.standard.bool(forKey: "\(part)TutorialSkipped")
-    }
-    
-}
-
-extension TutorialManager {
-
-    static func getNextButtonRequiredInfo(tutorialStretching: StretchingPart) -> [Bool] {
-        switch tutorialStretching {
-        case .eyes:
-            [false, true, false, true]
-        case .wrist:
-            [false, true, false, false, true]
-        case .shoulder:
-            [false, true, false, false, false, true]
-        }
     }
     
 }

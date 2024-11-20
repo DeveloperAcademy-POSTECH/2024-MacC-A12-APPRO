@@ -49,19 +49,13 @@ struct TutorialAttachmentView: View {
                     
                     Spacer()
                     
-                    if let isNextButtonRequired = tutorialManager.currentStep?.isNextButtonRequired, isNextButtonRequired {
-                        Button(tutorialManager.isLastStep ? "Done" : "Next") {
-                            if tutorialManager.isLastStep {
-                                tutorialManager.skip()
-                                tutorialManager.stopInstructionAudio()
-                                appState.appPhase = .stretching
-                            } else {
-                                tutorialManager.advanceToNextStep()
-                            }
-                            
+                    if tutorialManager.isLastStep {
+                        Button("Done") {
+                            tutorialManager.skip()
+                            tutorialManager.stopInstructionAudio()
+                            appState.appPhase = .stretching
                         }
                         .font(.title3)
-                        .disabled(!currentStep.isCompleted)
                     }
                 }
                 .frame(width: 800, height: 300)
