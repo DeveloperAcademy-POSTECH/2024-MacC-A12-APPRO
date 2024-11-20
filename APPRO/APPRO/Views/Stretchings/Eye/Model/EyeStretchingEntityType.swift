@@ -7,10 +7,10 @@
 
 import Foundation
 
-enum EyeStretchingEntityType: String {
+enum EyeStretchingEntityType {
     
     case eyes
-    case chicken
+    case disturbEntity(type: DisturbEntityType)
     case ring
     case monitor
     
@@ -18,13 +18,24 @@ enum EyeStretchingEntityType: String {
         switch self {
         case .eyes:
             "Eye/eyes.usd"
-        case .chicken:
-            "Eye/chicken.usd"
+        case .disturbEntity(let type):
+            "Eye/DisturbEntity/\(type.rawValue).usd"
         case .ring:
             "Eye/eye_ring.usd"
         case .monitor:
             "Eye/monitor.usd"
         }
     }
+    
+}
+
+enum DisturbEntityType: String {
+    
+    case chicken
+    case game
+    case basketball
+    case burger
+    case pillow
+    case popcorn
     
 }

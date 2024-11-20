@@ -53,10 +53,11 @@ final class EyeTutorialManager: TutorialManager {
     func loadEntities() async -> Bool {
         do {
             eyesEntity = try await loadEntity(entityType: .eyes)
-            chickenEntity = try await loadEntity(entityType: .chicken)
+            chickenEntity = try await loadEntity(entityType: .disturbEntity(type: .chicken))
             ringEntity = try await loadEntity(entityType: .ring)
             monitorEntity = try await loadEntity(entityType: .monitor)
             originalChickenScale = chickenEntity.transform.scale
+            
             return true
         } catch {
             dump("loadEntities failed: \(error)")
