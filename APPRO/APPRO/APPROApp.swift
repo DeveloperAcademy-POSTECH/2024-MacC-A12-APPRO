@@ -70,7 +70,8 @@ struct APPROApp: App {
     private func stretchingImmersiveView(part: StretchingPart) -> some View {
         switch part {
         case .eyes:
-            EmptyView()
+            EyeStretchingView()
+                .environment(appState)
         case .shoulder:
             ShoulderStretchingView()
                 .environment(appState)
