@@ -61,7 +61,7 @@ enum StretchingPart: String, Identifiable, CaseIterable {
                 "Your mission is to lead the rocket to every stars and complete the journey. To see the stars, try to hold a fist. If you want to rearrange stars, hold a fist again.",
                 "Try to carry the rocket to the stars without moving your legs. Use only your arm's movement.",
                 "Good! This time, when you reach the space station, keep your arm in the same position for 5 seconds to refuel the rocket.",
-                "Great! Stretching your shoulder is the main focus in this content. Try to fix your position in one spot."
+                "Great! Stretching your shoulder is the main focus in this content. Try not to move your body around too much."
             ]
         }
     }
