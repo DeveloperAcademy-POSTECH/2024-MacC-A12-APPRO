@@ -40,11 +40,11 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     func advanceToNextStep() {
         // 마지막 단계 일때는 스킵
         guard !isLastStep else { return }
-        /// 재생 전에 콜백은 nil
+        /// 재생 후
         if isAudioFinished {
             self.currentStepIndex += 1
         } else {
-            /// 재생 전, 후에
+            /// 재생 전, 중
             onAudioFinished = {
                 self.currentStepIndex += 1
             }
