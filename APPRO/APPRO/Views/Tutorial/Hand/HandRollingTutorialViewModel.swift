@@ -63,9 +63,6 @@ final class HandRollingTutorialViewModel {
     var rightLaunchState = false
     var leftLaunchState = false
     
-    var fistReaderRight: [Bool] = []
-    var fistReaderLeft: [Bool] = []
-    
     var rightHitCount = 0
     var leftHitCount = 0
     
