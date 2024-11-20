@@ -42,11 +42,13 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
         guard !isLastStep else { return }
         /// 재생 후
         if isAudioFinished {
-            self.currentStepIndex += 1
+            currentStepIndex += 1
+            isAudioFinished = false
         } else {
             /// 재생 전, 중
             onAudioFinished = {
                 self.currentStepIndex += 1
+                self.isAudioFinished = false
             }
         }
     }
@@ -57,7 +59,6 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     }
     
     func playInstructionAudio() {
-        isAudioFinished = false
         if let path = Bundle.main.path(forResource: currentStep?.audioFilename, ofType: "mp3"){
                do{
                    TutorialManager.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
