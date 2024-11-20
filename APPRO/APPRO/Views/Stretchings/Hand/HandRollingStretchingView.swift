@@ -24,7 +24,6 @@ struct HandRollingStretchingView: View {
             viewModel.addAttachmentView(content, attachments)
             
         } update: { content, attachments in
-            
             if viewModel.maxCount == viewModel.doneCount {
                 viewModel.showFinishAttachmentView(content, attachments)
             } else {
@@ -168,6 +167,7 @@ struct HandRollingStretchingView: View {
                 Task {
                     await viewModel.makeFirstEntitySetting(isRetry: true)
                     viewModel.isRetry = true
+                    viewModel.areTargetTranslationUpdated = false
                 }
             }
         }

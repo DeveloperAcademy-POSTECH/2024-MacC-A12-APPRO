@@ -60,43 +60,13 @@ extension HandRollingTutorialViewModel {
         
         let distance = distance(thumbTransform, indexTransform)
         let isFistShape = distance <= 0.04
-        let isPalmOpened = distance >= 0.09
         
-        updateFistReader(for: chirality, isFistShape: isFistShape, isPalmOpened: isPalmOpened)
-    }
-    
-    private func updateFistReader(for chirality: Chirality, isFistShape: Bool, isPalmOpened: Bool) {
-        var fistReader = (chirality == .right ? fistReaderRight : fistReaderLeft)
-        let isHandInFist = (chirality == .right ? isRightHandInFist : isLeftHandInFist)
-        
-        fistReader.append(isHandInFist ? !isPalmOpened : isFistShape)
-        
-        if fistReader.count > 12 {
-            fistReader.removeFirst()
-        }
-        
-        if isAllSameResultOnFistReading(readingData: fistReader), fistReader.first != isHandInFist {
-            if chirality == .right {
-                isRightHandInFist = fistReader.first!
-                fistReaderRight = fistReader
-            } else {
-                isLeftHandInFist = fistReader.first!
-                fistReaderLeft = fistReader
-            }
+        if chirality == .left {
+            isLeftHandInFist = isFistShape
         } else {
-            if chirality == .right {
-                fistReaderRight = fistReader
-            } else {
-                fistReaderLeft = fistReader
-            }
+            isRightHandInFist = isFistShape
         }
     }
-    
-    func isAllSameResultOnFistReading(readingData: [Bool]) -> Bool {
-        guard let firstData = readingData.first else { return false }
-        return readingData.allSatisfy { $0 == firstData }
-    }
-    
     func getJointPosition(_ jointName: HandSkeleton.JointName, chirality : Chirality) -> simd_float3 {
         guard let handAnchor = chirality == .right ? latestHandTracking.right : latestHandTracking.left else { return .init() }
         guard let joint = handAnchor.handSkeleton?.joint(jointName) else { return .init() }

@@ -30,9 +30,6 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     var isRightHandInFist = false
     var isLeftHandInFist = false
     
-    var fistReaderRight: [Bool] = []
-    var fistReaderLeft: [Bool] = []
-    
     let stretchingAttachmentViewID  = "StretchingAttachmentView"
     let stretchingFinishAttachmentViewID  = "StretchingFinishAttachmentView"
     
