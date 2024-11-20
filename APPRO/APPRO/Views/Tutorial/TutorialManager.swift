@@ -45,6 +45,7 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
             currentStepIndex += 1
             isAudioFinished = false
         } else {
+            
             /// 재생 전, 중
             onAudioFinished = {
                 self.currentStepIndex += 1
@@ -79,9 +80,9 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         if flag {
             Task { @MainActor in
+                isAudioFinished = true
                 onAudioFinished?() // 오디오 종료시 콜백 호출
                 onAudioFinished = nil // 콜백 초기화
-                isAudioFinished = true
             }
         }
     }

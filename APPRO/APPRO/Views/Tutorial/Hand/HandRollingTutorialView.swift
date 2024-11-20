@@ -102,6 +102,7 @@ struct HandRollingTutorialView : View {
         .onChange(of: tutorialManager.currentStepIndex, initial: false ) { _, currentStepIndex in
             if currentStepIndex == 1 {
                 viewModel.showTarget = true
+                goToNextTutorialStep(1)
             }
             
             if tutorialManager.isLastStep {
