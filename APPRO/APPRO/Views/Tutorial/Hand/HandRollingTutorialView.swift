@@ -152,7 +152,7 @@ struct HandRollingTutorialView : View {
             goToNextTutorialStep(2)
         }
         .onChange(of: viewModel.leftRotationCount, initial: false) { _, newValue in
-            let colorValueChangedTo = min (newValue * 2, 6)
+            let colorValueChangedTo = min (newValue * 2 + 1, 7)
             viewModel.getDifferentRingColor(viewModel.leftGuideRing, intChangeTo: Int32(colorValueChangedTo))
             
             Task {
