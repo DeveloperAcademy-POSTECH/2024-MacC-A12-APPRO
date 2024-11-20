@@ -19,6 +19,7 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     private var isCurrentInstructionCompleted: Bool = false
     static var audioPlayer: AVAudioPlayer?
     var onAudioFinished: (() -> Void)? // 오디오 재생 완료 후 호출할 콜백
+    var isAudioFinished: Bool = false
     
     init(stretching: StretchingPart) {
         self.stretchingPart = stretching
@@ -35,14 +36,19 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
         steps[safe: currentStepIndex]
     }
     
-    func completeCurrentStep() {
-        guard steps.indices.contains(currentStepIndex) else { return }
-        
-        steps[currentStepIndex].isCompleted = true
-    }
-    
+    /// 행동 조건 완료시 실행
     func advanceToNextStep() {
-        currentStepIndex += 1
+        // 마지막 단계 일때는 스킵
+        guard !isLastStep else { return }
+        /// 재생 전에 콜백은 nil
+        if isAudioFinished {
+            self.currentStepIndex += 1
+        } else {
+            /// 재생 전, 후에
+            onAudioFinished = {
+                self.currentStepIndex += 1
+            }
+        }
     }
     
     func skip() {
@@ -51,13 +57,13 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     }
     
     func playInstructionAudio() {
+        isAudioFinished = false
         if let path = Bundle.main.path(forResource: currentStep?.audioFilename, ofType: "mp3"){
                do{
                    TutorialManager.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
                    TutorialManager.audioPlayer?.delegate = self
                    TutorialManager.audioPlayer?.prepareToPlay()
                    TutorialManager.audioPlayer?.play()
-
                } catch {
                    print("Error on Playing Instruction Audio : \(error)")
                }
@@ -72,8 +78,9 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         if flag {
             Task { @MainActor in
-                onAudioFinished?() // 오디오 종료 시 콜백 호출
+                onAudioFinished?() // 오디오 종료시 콜백 호출
                 onAudioFinished = nil // 콜백 초기화
+                isAudioFinished = true
             }
         }
     }
