@@ -53,8 +53,8 @@ struct ShoulderStretchingTutorialView: View {
         }
         .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, newValue in
             switch tutorialManager.currentStepIndex {
-            case 1, 5:
-                completeTutorialStep(newValue)
+            case 1:
+                tutorialManager.advanceToNextStep()
             case 4:
                 viewModel.resetModelEntities()
                 viewModel.createEntitiesOnEllipticalArc(handTransform: viewModel.rightHandTransform)
@@ -64,7 +64,9 @@ struct ShoulderStretchingTutorialView: View {
         }
         .onChange(of: viewModel.modelEntities) { _, newValue in
             if let _ = newValue.first(where: {$0.name.contains("rightModelEntity")}) {
-                goToNextTutorialStep(2)
+                if tutorialManager.currentStepIndex == 2 {
+                    tutorialManager.advanceToNextStep()
+                }
             }
         }
     }
@@ -88,10 +90,10 @@ struct ShoulderStretchingTutorialView: View {
             if animationEvent.playbackController.entity?.name == "EntryRocket" {
                 viewModel.entryRocketEntity.removeFromParent()
                 viewModel.addRightHandAnchor()
-                goToNextTutorialStep(0) // Tutorial Step 0 Completed
+                tutorialManager.advanceToNextStep()
             } else {
                 animationEvent.playbackController.entity?.removeFromParent()
-                goToNextTutorialStep(4)
+                tutorialManager.advanceToNextStep()
                 executeCollisionAction()
             }
         }
@@ -126,7 +128,9 @@ struct ShoulderStretchingTutorialView: View {
 
             // 마지막 엔터티 감지
             if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 2)") {
-                goToNextTutorialStep(3)
+                if tutorialManager.currentStepIndex == 3 {
+                    tutorialManager.advanceToNextStep()
+                }
                 
                 if tutorialManager.currentStepIndex >= 4  {
                     viewModel.addShoulderTimerEntity()
@@ -173,17 +177,6 @@ struct ShoulderStretchingTutorialView: View {
         return textEntity
     }
     
-    private func completeTutorialStep(_ currentStepIndex: Int) {
-        if tutorialManager.currentStepIndex == currentStepIndex {
-            // step이 넘어가고 바로 본 메서드가 실행되어 isPlaying 확인하지 않고 콜백으로 바로 호출
-            tutorialManager.onAudioFinished = {
-                DispatchQueue.main.async {
-                    tutorialManager.completeCurrentStep()
-                }
-            }
-        }
-    }
-    
     func setTutorialToStart(content: RealityViewContent) {
         if tutorialManager.currentStepIndex == 0 {
             guard let textEntity = viewModel.contentEntity.findEntity(named: "warning") else { return }
@@ -200,24 +193,6 @@ struct ShoulderStretchingTutorialView: View {
                     viewModel.subscribeSceneEvent(content)
                     isStartWarningDone = true
                 }
-            }
-        }
-    }
-    
-    private func goToNextTutorialStep(_ currentStepIndex: Int) {
-        // 현재 단계인지 확인
-        if tutorialManager.currentStepIndex == currentStepIndex {
-            // 오디오가 재생 중인지 확인
-            if TutorialManager.audioPlayer?.isPlaying == true {
-                // 오디오 재생 완료 후 다음 단계로 넘어가도록 설정
-                tutorialManager.onAudioFinished = {
-                    DispatchQueue.main.async {
-                        tutorialManager.advanceToNextStep()
-                    }
-                }
-            } else {
-                // 오디오가 재생 중이 아니면 바로 다음 단계로 이동
-                tutorialManager.advanceToNextStep()
             }
         }
     }
