@@ -23,6 +23,12 @@ extension EyeTutorialManager {
         setClosureComponent(entity: eyesEntity, distance: .eyes)
     }
     
+    func configureChickenEntity() {
+        chickenEntity.setPosition(.init(x: -1, y: 0, z: 0), relativeTo: eyesEntity)
+        chickenEntity.components.set(HoverEffectComponent(.highlight(.default)))
+        chickenEntity.components.set(OpacityComponent(opacity: 0.0))
+        chickenEntity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
+        chickenEntity.generateCollisionShapes(recursive: true)
     }
     
     func configureRingEntity() async throws {
@@ -32,9 +38,9 @@ extension EyeTutorialManager {
         try await ringEntity.setCollisionComponent()
     }
     
-    func configureMonitorEntity(entity: Entity) {
-        entity.components.set(OpacityComponent(opacity: 0))
-        entity.setPosition(.init(x: -0.1, y: -0.05, z: 0.2), relativeTo: ringEntity)
+    func configureMonitorEntity() {
+        monitorEntity.components.set(OpacityComponent(opacity: 0))
+        monitorEntity.setPosition(.init(x: -0.1, y: -0.05, z: 0.2), relativeTo: ringEntity)
     }
     
     private func setClosureComponent(
