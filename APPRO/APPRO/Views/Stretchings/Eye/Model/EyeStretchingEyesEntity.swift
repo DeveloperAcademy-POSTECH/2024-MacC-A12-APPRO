@@ -38,6 +38,12 @@ final class EyeStretchingEyesEntity: Entity {
         self.children.append(entity)
     }
     
+    func setPatchHoverEffectComponent() throws {
+        guard let patch else { throw EyeStretchingError.entityNotFound(name: "patch") }
+        
+        patch.components.set(HoverEffectComponent(.highlight(.default)))
+    }
+    
     func removePatch() throws {
         guard let patch else { throw EyeStretchingError.entityNotFound(name: "patch") }
         guard let scene else { throw EyeStretchingError.sceneNotFound }
