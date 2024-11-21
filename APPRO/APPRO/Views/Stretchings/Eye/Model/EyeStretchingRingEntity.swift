@@ -87,15 +87,11 @@ final class EyeStretchingRingEntity: Entity {
 // MARK: - Collision Subscription
 extension EyeStretchingRingEntity {
     
-    func subscribeCollisionEvent() {
-        guard let innerPlane, let restrictLine else {
-            dump("subscribeCollisionEvent failed: No innerPlane or restrictLine found")
-            return
-        }
-        guard let scene = self.scene else {
-            dump("subscribeCollisionEvent failed: Scene is not found")
-            return
-        }
+    func subscribeCollisionEvent() throws {
+        guard let innerPlane else { throw EyeStretchingError.entityNotFound(name: .innerPlaneEntityName) }
+        guard let restrictLine else { throw EyeStretchingError.entityNotFound(name: .restrictLineEntityName) }
+        guard let scene else { throw EyeStretchingError.sceneNotFound }
+        
         subscribeEyesInnerPlaneEvent(scene: scene, entity: innerPlane)
         subscribeEyesRestrictLineEvent(scene: scene, entity: restrictLine)
     }
