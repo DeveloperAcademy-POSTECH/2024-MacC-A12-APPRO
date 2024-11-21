@@ -39,30 +39,45 @@ final class EyeStretchingRingEntity: Entity {
         super.init()
     }
     
-    func configure() async throws {
+    func loadCoreEntity() async throws {
         let entity = try await Entity(
             named: EyeStretchingEntityType.ring.loadURL,
             in: realityKitContentBundle
         )
         self.children.append(entity)
+    }
+    
+    func setCollisionComponent() async throws {
+        guard let innerPlane else { throw EyeStretchingError.entityNotFound(name: "inner_plane") }
+        guard let restrictLine else { throw EyeStretchingError.entityNotFound(name: "restrict_line") }
         
-        try await setCollisionComponent()
+        let innerPlaneMeshResource = try generateMeshResource(modelEntityName: "Cylinder")
+        let restrictLineMeshResource = try generateMeshResource(modelEntityName: "Torus")
+        
+        let innerPlaneShapeResource = try await ShapeResource.generateShapeResource(
+            mesh: innerPlaneMeshResource,
+            isConvex: true
+        )
+        let restrictLineShapeResource = try await ShapeResource.generateShapeResource(
+            mesh: restrictLineMeshResource,
+            isConvex: false
+        )
+        
+        innerPlane.components.set(CollisionComponent(shapes: [innerPlaneShapeResource], isStatic: true))
+        restrictLine.components.set(CollisionComponent(shapes: [restrictLineShapeResource], isStatic: true))
     }
     
     private func updateShaderGraphParameter(_ eyesAreInside: Bool) throws {
         guard let torusModelEntity = self.findEntity(named: "Torus") as? ModelEntity else {
             throw EyeStretchingError.entityNotFound(name: "Torus")
         }
+        
         guard var shaderGraphMaterial = torusModelEntity.components[ModelComponent.self]?.materials.first as? ShaderGraphMaterial else {
-            dump("updateShaderGraphParameter failed: ShaderGraphMaterial not found")
-            return
+            throw EyeStretchingError.shaderGraphMaterialNotFound
         }
-        do {
-            try shaderGraphMaterial.setParameter(name: "EyesAreInside", value: .bool(eyesAreInside))
-            torusModelEntity.components[ModelComponent.self]?.materials = [shaderGraphMaterial]
-        } catch {
-            dump("updateShaderGraphParameter failed: \(error)")
-        }
+        
+        try shaderGraphMaterial.setParameter(name: "EyesAreInside", value: .bool(eyesAreInside))
+        torusModelEntity.components[ModelComponent.self]?.materials = [shaderGraphMaterial]
     }
 
 }
@@ -106,31 +121,6 @@ extension EyeStretchingRingEntity {
             self?.collisionState.restrictLineCollided = false
         }
         .store(in: &cancellableBag)
-    }
-    
-}
-
-// MARK: - Collision Shape
-private extension EyeStretchingRingEntity {
-    
-    func setCollisionComponent() async throws {
-        guard let innerPlane else { throw EyeStretchingError.entityNotFound(name: "inner_plane") }
-        guard let restrictLine else { throw EyeStretchingError.entityNotFound(name: "restrict_line") }
-        
-        let innerPlaneMeshResource = try generateMeshResource(modelEntityName: "Cylinder")
-        let restrictLineMeshResource = try generateMeshResource(modelEntityName: "Torus")
-        
-        let innerPlaneShapeResource = try await ShapeResource.generateShapeResource(
-            mesh: innerPlaneMeshResource,
-            isConvex: true
-        )
-        let restrictLineShapeResource = try await ShapeResource.generateShapeResource(
-            mesh: restrictLineMeshResource,
-            isConvex: false
-        )
-        
-        innerPlane.components.set(CollisionComponent(shapes: [innerPlaneShapeResource], isStatic: true))
-        restrictLine.components.set(CollisionComponent(shapes: [restrictLineShapeResource], isStatic: true))
     }
     
 }
