@@ -13,11 +13,11 @@ import RealityKitContent
 final class EyeStretchingRingEntity: Entity {
     
     private var innerPlane: Entity? {
-        self.findEntity(named: "inner_plane")
+        self.findEntity(named: .innerPlaneEntityName)
     }
     
     private var restrictLine: Entity? {
-        self.findEntity(named: "restrict_line")
+        self.findEntity(named: .restrictLineEntityName)
     }
     
     private var collisionState = EyeRingCollisionState(
@@ -134,5 +134,12 @@ private struct EyeRingCollisionState {
     var eyesAreInside: Bool {
         innerPlaneCollided && !restrictLineCollided
     }
+    
+}
+
+private extension String {
+    
+    static let innerPlaneEntityName = "inner_plane"
+    static let restrictLineEntityName = "restrict_line"
     
 }

@@ -13,15 +13,15 @@ import RealityKitContent
 final class EyeStretchingEyesEntity: Entity {
     
     private var leftEye: Entity? {
-        self.findEntity(named: "eye_left")
+        self.findEntity(named: .leftEyeEntityName)
     }
     
     private var rightEye: Entity? {
-        self.findEntity(named: "eye_right")
+        self.findEntity(named: .rightEyeEntityName)
     }
     
     private var patch: Entity? {
-        self.findEntity(named: "patch")
+        self.findEntity(named: .patchEntityName)
     }
     
     private var cancellabeBag = Set<AnyCancellable>()
@@ -66,8 +66,8 @@ final class EyeStretchingEyesEntity: Entity {
     }
     
     func setCollisionComponent() async throws {
-        guard let leftEye else { throw EyeStretchingError.entityNotFound(name: "eye_left") }
-        guard let rightEye else { throw EyeStretchingError.entityNotFound(name: "eye_right") }
+        guard let leftEye else { throw EyeStretchingError.entityNotFound(name: .leftEyeEntityName) }
+        guard let rightEye else { throw EyeStretchingError.entityNotFound(name: .rightEyeEntityName) }
         
         let leftEyeMesh = try generateMeshResource(modelEntityName: "Cylinder_left")
         let rightEyeMesh = try generateMeshResource(modelEntityName: "Cylinder_right")
@@ -82,5 +82,13 @@ final class EyeStretchingEyesEntity: Entity {
         leftEye.components.set(CollisionComponent(shapes: [leftEyeShapeResource]))
         rightEye.components.set(CollisionComponent(shapes: [rightEyeShapeResource]))
     }
+    
+}
+
+private extension String {
+    
+    static let leftEyeEntityName = "eye_left"
+    static let rightEyeEntityName = "eye_right"
+    static let patchEntityName = "patch"
     
 }
