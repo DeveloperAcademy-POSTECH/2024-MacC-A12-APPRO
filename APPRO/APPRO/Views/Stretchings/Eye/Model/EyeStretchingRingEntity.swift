@@ -51,7 +51,7 @@ final class EyeStretchingRingEntity: Entity {
     
     private func updateShaderGraphParameter(_ eyesAreInside: Bool) throws {
         guard let torusModelEntity = self.findEntity(named: "Torus") as? ModelEntity else {
-            throw EyeRingError.entityNotFound(name: "Torus")
+            throw EyeStretchingError.entityNotFound(name: "Torus")
         }
         guard var shaderGraphMaterial = torusModelEntity.components[ModelComponent.self]?.materials.first as? ShaderGraphMaterial else {
             dump("updateShaderGraphParameter failed: ShaderGraphMaterial not found")
@@ -114,8 +114,8 @@ extension EyeStretchingRingEntity {
 private extension EyeStretchingRingEntity {
     
     func setCollisionComponent() async throws {
-        guard let innerPlane else { throw EyeRingError.entityNotFound(name: "inner_plane") }
-        guard let restrictLine else { throw EyeRingError.entityNotFound(name: "restrict_line") }
+        guard let innerPlane else { throw EyeStretchingError.entityNotFound(name: "inner_plane") }
+        guard let restrictLine else { throw EyeStretchingError.entityNotFound(name: "restrict_line") }
         
         let innerPlaneMeshResource = try generateMeshResource(modelEntityName: "Cylinder")
         let restrictLineMeshResource = try generateMeshResource(modelEntityName: "Torus")
@@ -135,33 +135,14 @@ private extension EyeStretchingRingEntity {
     
     func generateMeshResource(modelEntityName: String) throws -> MeshResource {
         guard let modelEntity = self.findEntity(named: modelEntityName) as? ModelEntity else {
-            throw EyeRingError.entityNotFound(name: modelEntityName)
+            throw EyeStretchingError.entityNotFound(name: modelEntityName)
         }
         
         guard let mesh = modelEntity.model?.mesh else {
-            throw EyeRingError.modelComponentNotFound
+            throw EyeStretchingError.modelComponentNotFound
         }
         
         return mesh
-    }
-    
-}
-
-private enum EyeRingError: LocalizedError {
-    
-    case entityNotFound(name: String)
-    case shaderGraphMaterialNotFound
-    case modelComponentNotFound
-    
-    var errorDescription: String {
-        switch self {
-        case .entityNotFound(let name):
-            "Entity named '\(name)' not found"
-        case .shaderGraphMaterialNotFound:
-            "Shader Graph Material is not found"
-        case .modelComponentNotFound:
-            "Model Component is not found"
-        }
     }
     
 }
