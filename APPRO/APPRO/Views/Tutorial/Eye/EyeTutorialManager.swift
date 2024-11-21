@@ -17,7 +17,7 @@ final class EyeTutorialManager: TutorialManager {
     
     private var cancellableBag: Set<AnyCancellable> = []
     
-    private(set) var eyesEntity = Entity()
+    private(set) var eyesEntity = EyeStretchingEyesEntity()
     private(set) var chickenEntity = Entity()
     private(set) var ringEntity = EyeStretchingRingEntity()
     private(set) var monitorEntity = Entity()
@@ -37,8 +37,8 @@ final class EyeTutorialManager: TutorialManager {
     
     func loadEntities() async -> Bool {
         do {
-            eyesEntity = try await loadEntity(entityType: .eyes)
-            try await ringEntity.configure()
+            try await eyesEntity.loadCoreEntity()
+            try await ringEntity.loadCoreEntity()
             chickenEntity = try await loadEntity(entityType: .disturbEntity(type: .chicken))
             monitorEntity = try await loadEntity(entityType: .monitor)
             originalChickenScale = chickenEntity.transform.scale
@@ -52,16 +52,12 @@ final class EyeTutorialManager: TutorialManager {
     }
     
     func step1Done() {
-        if let patchEntity = eyesEntity.findEntity(named: "patch"),
-           let playbackController = playDisappearAnimation(entity: patchEntity) {
-            patchEntity.scene?.publisher(for: AnimationEvents.PlaybackCompleted.self)
-                .filter { $0.playbackController == playbackController }
-                .sink(receiveValue: { _ in
-                    patchEntity.removeFromParent()
-                })
-                .store(in: &cancellableBag)
+        do {
+            try eyesEntity.removePatch()
+            try eyesEntity.playLoopAnimation()
+        } catch {
+            dump("step1Done error occured: \(error)")
         }
-        playEyeLoopAnimation(entity: eyesEntity)
         advanceToNextStep()
     }
     
@@ -106,24 +102,6 @@ extension EyeTutorialManager {
 // MARK: - Animation Methods
 
 extension EyeTutorialManager {
-    
-    @discardableResult
-    func playAppearAnimation(entity: Entity) -> AnimationPlaybackController? {
-        playAnimation(
-            entity: entity,
-            definition: FromToByAnimation(from: Float(0.0), to: Float(1.0), bindTarget: .opacity),
-            duration: 1.0
-        )
-    }
-    
-    @discardableResult
-    func playDisappearAnimation(entity: Entity) -> AnimationPlaybackController? {
-        playAnimation(
-            entity: entity,
-            definition: FromToByAnimation(from: Float(1.0), to: Float(0.0), bindTarget: .opacity),
-            duration: 1.0
-        )
-    }
     
     private func playEnlargeChickenAnimation(entity: Entity) {
         var toTransform = entity.transform

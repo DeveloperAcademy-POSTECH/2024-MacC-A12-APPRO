@@ -18,38 +18,18 @@ extension EyeTutorialManager {
         )
     }
     
-    func configureEyesEntity(entity: Entity) {
-        setClosureComponent(entity: entity, distance: .eyes)
-        entity.findEntity(named: "patch")?.components.set(HoverEffectComponent(.highlight(.default)))
+    func configureEyesEntity() throws {
+        try eyesEntity.setPatchHoverEffectComponent()
+        setClosureComponent(entity: eyesEntity, distance: .eyes)
     }
     
-    func setEyeCollisionComponent(entity: Entity) async {
-        guard let leftEyeEntity = entity.findEntity(named: "eye_left"),
-              let rightEyeEntity = entity.findEntity(named: "eye_right") else {
-            dump("setEyeCollisionComponent failed: cannot find eye entities")
-            return
-        }
-        
-        guard let leftShapeResource = await generateShapeResource(entity: leftEyeEntity, isConvex: true),
-        let rightShapeResource = await generateShapeResource(entity: rightEyeEntity, isConvex: true) else {
-            return
-        }
-        leftEyeEntity.components.set(CollisionComponent(shapes: [leftShapeResource]))
-        rightEyeEntity.components.set(CollisionComponent(shapes: [rightShapeResource]))
     }
     
-    func configureChickenEntity(entity: Entity) {
-        entity.setPosition(.init(x: -1, y: 0, z: 0), relativeTo: eyesEntity)
-        entity.components.set(HoverEffectComponent(.highlight(.default)))
-        entity.components.set(OpacityComponent(opacity: 0.0))
-        entity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
-        entity.generateCollisionShapes(recursive: true)
-    }
-    
-    func configureRingEntity(entity: Entity) async {
+    func configureRingEntity() async throws {
         ringEntity.components.set(OpacityComponent(opacity: 0))
         ringEntity.setPosition(.init(x: 0, y: 0, z: 0), relativeTo: eyesEntity)
         ringEntity.orientation = eyesEntity.orientation
+        try await ringEntity.setCollisionComponent()
     }
     
     func configureMonitorEntity(entity: Entity) {
