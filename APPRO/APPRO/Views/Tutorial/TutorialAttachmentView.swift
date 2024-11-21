@@ -53,6 +53,7 @@ struct TutorialAttachmentView: View {
                             tutorialManager.stopInstructionAudio()
                             appState.appPhase = .stretching
                         }
+                        .disabled(!tutorialManager.isAudioFinished)
                         .font(.title3)
                     }
                 }
