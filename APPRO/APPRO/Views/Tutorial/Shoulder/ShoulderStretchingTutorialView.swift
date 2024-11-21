@@ -13,7 +13,6 @@ struct ShoulderStretchingTutorialView: View {
     @State private var tutorialManager = TutorialManager(stretching: .shoulder)
     @State private var viewModel = ShoulderStretchingTutorialViewModel()
     @State private var isColliding: Bool = false
-    
     @State var isStartWarningDone = false
     
     var body: some View {

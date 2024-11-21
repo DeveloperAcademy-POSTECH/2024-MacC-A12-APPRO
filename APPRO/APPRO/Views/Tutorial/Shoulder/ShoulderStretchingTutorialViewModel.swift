@@ -13,7 +13,6 @@ import ARKit
 @Observable
 @MainActor
 final class ShoulderStretchingTutorialViewModel {
-    
     var tutorialManager: TutorialManager?
     
     var contentEntity = Entity()
