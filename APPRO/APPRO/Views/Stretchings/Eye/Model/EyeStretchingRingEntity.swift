@@ -44,7 +44,8 @@ final class EyeStretchingRingEntity: Entity {
             named: EyeStretchingEntityType.ring.loadURL,
             in: realityKitContentBundle
         )
-        self.children.append(entity)
+        
+        addChild(entity)
     }
     
     func setCollisionComponent() async throws {

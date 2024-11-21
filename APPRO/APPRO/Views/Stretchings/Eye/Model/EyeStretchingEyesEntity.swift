@@ -35,7 +35,8 @@ final class EyeStretchingEyesEntity: Entity {
             named: EyeStretchingEntityType.eyes.loadURL,
             in: realityKitContentBundle
         )
-        self.children.append(entity)
+        
+        addChild(entity)
     }
     
     func setPatchHoverEffectComponent() throws {
