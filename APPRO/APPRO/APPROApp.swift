@@ -41,16 +41,11 @@ struct APPROApp: App {
                     await openImmersiveSpace(id: appState.immersiveSpaceID)
                     dismissWindow(id: appState.stretchingPartsWindowID)
                 } else {
+                    openWindow(id: appState.stretchingPartsWindowID)
                     await dismissImmersiveSpace()
                 }
             }
         }
-        .onChange(of: appState.appPhase) { _, newPhase in
-            if newPhase == .choosingStretchingPart {
-                openWindow(id: appState.stretchingPartsWindowID)
-            }
-        }
-        
         ImmersiveSpace(id: appState.immersiveSpaceID) {
             if let stretchingPart = appState.currentStretchingPart {
                 if appState.appPhase == .tutorial && !TutorialManager.isSkipped(part: stretchingPart) {
@@ -59,6 +54,13 @@ struct APPROApp: App {
                 } else {
                     stretchingImmersiveView(part: stretchingPart)
                         .preferredSurroundingsEffect(appState.appPhase == .stretchingCompleted ? .ultraDark : .semiDark)
+                }
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            Task {
+                if (newPhase == .background || newPhase == .inactive) {
+                    appState.appPhase = .choosingStretchingPart
                 }
             }
         }
