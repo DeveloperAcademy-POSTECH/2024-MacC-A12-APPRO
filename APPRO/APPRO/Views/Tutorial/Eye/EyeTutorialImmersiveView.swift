@@ -85,11 +85,12 @@ struct EyeTutorialImmersiveView: View {
     }
     
     private func configureStep1(content: RealityViewContent) {
-        let eyesEntity = tutorialManager.eyesEntity
-        
-        tutorialManager.configureEyesEntity(entity: eyesEntity)
-        
-        content.add(eyesEntity)
+        do {
+            try tutorialManager.configureEyesEntity()
+            content.add(tutorialManager.eyesEntity)
+        } catch {
+            dump("configureStep1 failed: \(error)")
+        }
     }
     
     private func configureStep2() {
@@ -99,32 +100,39 @@ struct EyeTutorialImmersiveView: View {
     }
     
     private func configureStep3(content: RealityViewContent) {
-        let chickenEntity = tutorialManager.chickenEntity
-        
-        tutorialManager.configureChickenEntity(entity: chickenEntity)
-        tutorialManager.playAppearAnimation(entity: chickenEntity)
-        
-        content.add(chickenEntity)
+        do {
+            let chickenEntity = tutorialManager.chickenEntity
+            content.add(chickenEntity)
+            tutorialManager.configureChickenEntity()
+            try chickenEntity.playOpacityAnimation(from: 0.0, to: 1.0)
+        } catch {
+            dump("configureStep3 failed: \(error)")
+        }
     }
     
     private func configureStep4(content: RealityViewContent) async {
-        let ringEntity = tutorialManager.ringEntity
-        let eyesEntity = tutorialManager.eyesEntity
-        let monitorEntity = tutorialManager.monitorEntity
-        
-        tutorialManager.chickenEntity.removeFromParent()
-        content.add(ringEntity)
-        content.add(monitorEntity)
-        
-        await tutorialManager.configureRingEntity(entity: ringEntity)
-        tutorialManager.configureMonitorEntity(entity: monitorEntity)
-        await tutorialManager.setEyeCollisionComponent(entity: eyesEntity)
-        
-        ringEntity.subscribeCollisionEvent()
-        tutorialManager.playAppearAnimation(entity: ringEntity)
-        tutorialManager.playAppearAnimation(entity: monitorEntity)
-        
-        tutorialManager.completeCurrentStep()
+        do {
+            let eyesEntity = tutorialManager.eyesEntity
+            let ringEntity = tutorialManager.ringEntity
+            let monitorEntity = tutorialManager.monitorEntity
+            
+            tutorialManager.chickenEntity.removeFromParent()
+            content.add(ringEntity)
+            content.add(monitorEntity)
+            
+            try ringEntity.playOpacityAnimation(from: 0.0, to: 1.0)
+            try monitorEntity.playOpacityAnimation(from: 0.0, to: 1.0)
+            
+            try await tutorialManager.configureRingEntity()
+            try await eyesEntity.setCollisionComponent()
+            
+            tutorialManager.configureMonitorEntity()
+            ringEntity.subscribeCollisionEvent()
+            
+            tutorialManager.completeCurrentStep()
+        } catch {
+            dump("configureStep4 failed: \(error)")
+        }
     }
     
 }
