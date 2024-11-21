@@ -5,6 +5,7 @@
 //  Created by 정상윤 on 11/21/24.
 //
 
+import Foundation
 import RealityKit
 
 extension Entity {
@@ -19,6 +20,22 @@ extension Entity {
         }
         
         return mesh
+    }
+    
+    @discardableResult
+    func playOpacityAnimation(
+        from: Float,
+        to: Float,
+        duration: TimeInterval
+    ) throws -> AnimationPlaybackController {
+        let animationDefinition = FromToByAnimation(
+            from: from,
+            to: to,
+            bindTarget: .opacity
+        )
+        let animationResource = try AnimationResource.generate(with: animationDefinition)
+        
+        return self.playAnimation(animationResource, transitionDuration: duration)
     }
     
 }
