@@ -133,18 +133,6 @@ private extension EyeStretchingRingEntity {
         restrictLine.components.set(CollisionComponent(shapes: [restrictLineShapeResource], isStatic: true))
     }
     
-    func generateMeshResource(modelEntityName: String) throws -> MeshResource {
-        guard let modelEntity = self.findEntity(named: modelEntityName) as? ModelEntity else {
-            throw EyeStretchingError.entityNotFound(name: modelEntityName)
-        }
-        
-        guard let mesh = modelEntity.model?.mesh else {
-            throw EyeStretchingError.modelComponentNotFound
-        }
-        
-        return mesh
-    }
-    
 }
 
 private struct EyeRingCollisionState {
