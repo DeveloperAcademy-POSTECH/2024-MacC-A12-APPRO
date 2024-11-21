@@ -50,12 +50,16 @@ struct EyeTutorialImmersiveView: View {
         )
         .gesture(
             LongPressGesture(minimumDuration: 2.0)
-                .targetedToEntity(tutorialManager.chickenEntity)
+                .targetedToEntity(where: .has(LongPressGestureComponent.self))
                 .updating($isLongPressing) { currentValue, gestureState, _ in
                     gestureState = currentValue.gestureValue
                 }
-                .onEnded { _ in
-                    tutorialManager.handleLongPressOnEnded()
+                .onEnded { value in
+                    guard let longPressGesture = value.entity.components[LongPressGestureComponent.self] else {
+                        dump("No LongPressGestureComponent found")
+                        return
+                    }
+                    longPressGesture.onEnded()
                 }
         )
         .onChange(of: isLongPressing) {
