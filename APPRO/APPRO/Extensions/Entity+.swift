@@ -12,11 +12,11 @@ extension Entity {
     
     func generateMeshResource(modelEntityName: String) throws -> MeshResource {
         guard let modelEntity = self.findEntity(named: modelEntityName) as? ModelEntity else {
-            throw EyeStretchingError.entityNotFound(name: modelEntityName)
+            throw EntityError.entityNotFound(name: modelEntityName)
         }
         
         guard let mesh = modelEntity.model?.mesh else {
-            throw EyeStretchingError.modelComponentNotFound
+            throw EntityError.modelComponentNotFound
         }
         
         return mesh
@@ -65,3 +65,17 @@ enum EntityError: LocalizedError {
     
 }
 
+protocol HasChildren {
+    associatedtype ChildrenEntity: RawRepresentable<String>
+}
+
+extension HasChildren where Self: Entity {
+    
+    func getChild(_ child: ChildrenEntity) throws -> Entity {
+        guard let childEntity = findEntity(named: child.rawValue) else {
+            throw EntityError.entityNotFound(name: child.rawValue)
+        }
+        return childEntity
+    }
+    
+}
