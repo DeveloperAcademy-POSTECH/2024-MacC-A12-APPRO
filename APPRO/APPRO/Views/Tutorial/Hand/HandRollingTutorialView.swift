@@ -18,6 +18,7 @@ struct HandRollingTutorialView : View {
     
     var body : some View {
         RealityView { content, attachments in
+            viewModel.subscribeSceneEvent(content)
             let textEntity = createTextEntity("Stay aware of your surroundings")
             content.add(textEntity)
             setTutorialToStart(content: content)
@@ -218,7 +219,6 @@ struct HandRollingTutorialView : View {
                     
                     await viewModel.makeFirstEntitySetting()
                     viewModel.bringCollisionHandler(content)
-                    viewModel.subscribeSceneEvent(content)
                     isStartWarningDone = true
                 }
             }
