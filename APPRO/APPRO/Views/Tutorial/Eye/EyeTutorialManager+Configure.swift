@@ -19,6 +19,11 @@ extension EyeTutorialManager {
     }
     
     func configureEyesEntity() throws {
+        let patch = try eyesEntity.getChild(.patch)
+        let tapGestureComponent = TapGestureComponent { [weak self] in
+            self?.step1Done()
+        }
+        patch.components.set(tapGestureComponent)
         try eyesEntity.setPatchHoverEffectComponent()
         setClosureComponent(entity: eyesEntity, distance: .eyes)
     }

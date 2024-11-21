@@ -39,11 +39,13 @@ struct EyeTutorialImmersiveView: View {
         }
         .gesture(
             TapGesture()
-                .targetedToAnyEntity()
+                .targetedToEntity(where: .has(TapGestureComponent.self))
                 .onEnded { value in
-                    if value.entity.name == "patch" {
-                        tutorialManager.step1Done()
+                    guard let tapGestureComponent = value.entity.components[TapGestureComponent.self] else {
+                        dump("No TapGestureComponent found")
+                        return
                     }
+                    tapGestureComponent.onEnded()
                 }
         )
         .gesture(
@@ -127,7 +129,7 @@ struct EyeTutorialImmersiveView: View {
             try await eyesEntity.setCollisionComponent()
             
             tutorialManager.configureMonitorEntity()
-            ringEntity.subscribeCollisionEvent()
+            try ringEntity.subscribeCollisionEvent()
             
             tutorialManager.completeCurrentStep()
         } catch {
