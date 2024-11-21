@@ -12,14 +12,6 @@ import RealityKitContent
 
 final class EyeStretchingRingEntity: Entity {
     
-    private var innerPlane: Entity? {
-        self.findEntity(named: .innerPlaneEntityName)
-    }
-    
-    private var restrictLine: Entity? {
-        self.findEntity(named: .restrictLineEntityName)
-    }
-    
     private var collisionState = EyeRingCollisionState(
         restrictLineCollided: false,
         innerPlaneCollided: false
@@ -49,8 +41,8 @@ final class EyeStretchingRingEntity: Entity {
     }
     
     func setCollisionComponent() async throws {
-        guard let innerPlane else { throw EyeStretchingError.entityNotFound(name: "inner_plane") }
-        guard let restrictLine else { throw EyeStretchingError.entityNotFound(name: "restrict_line") }
+        let innerPlane = try getChild(.innerPlane)
+        let restrictLine = try getChild(.restrictLine)
         
         let innerPlaneMeshResource = try generateMeshResource(modelEntityName: "Cylinder")
         let restrictLineMeshResource = try generateMeshResource(modelEntityName: "Torus")
@@ -69,12 +61,12 @@ final class EyeStretchingRingEntity: Entity {
     }
     
     private func updateShaderGraphParameter(_ eyesAreInside: Bool) throws {
-        guard let torusModelEntity = self.findEntity(named: "Torus") as? ModelEntity else {
-            throw EyeStretchingError.entityNotFound(name: "Torus")
+        guard let torusModelEntity = findEntity(named: "Torus") as? ModelEntity else {
+            throw EntityError.entityNotFound(name: "Torus")
         }
         
         guard var shaderGraphMaterial = torusModelEntity.components[ModelComponent.self]?.materials.first as? ShaderGraphMaterial else {
-            throw EyeStretchingError.shaderGraphMaterialNotFound
+            throw EntityError.shaderGraphMaterialNotFound
         }
         
         try shaderGraphMaterial.setParameter(name: "EyesAreInside", value: .bool(eyesAreInside))
@@ -88,9 +80,9 @@ final class EyeStretchingRingEntity: Entity {
 extension EyeStretchingRingEntity {
     
     func subscribeCollisionEvent() throws {
-        guard let innerPlane else { throw EyeStretchingError.entityNotFound(name: .innerPlaneEntityName) }
-        guard let restrictLine else { throw EyeStretchingError.entityNotFound(name: .restrictLineEntityName) }
-        guard let scene else { throw EyeStretchingError.sceneNotFound }
+        guard let scene else { throw EntityError.sceneNotFound }
+        let innerPlane = try getChild(.innerPlane)
+        let restrictLine = try getChild(.restrictLine)
         
         subscribeEyesInnerPlaneEvent(scene: scene, entity: innerPlane)
         subscribeEyesRestrictLineEvent(scene: scene, entity: restrictLine)
@@ -122,6 +114,15 @@ extension EyeStretchingRingEntity {
     
 }
 
+extension EyeStretchingRingEntity: HasChildren {
+    
+    enum ChildrenEntity: String {
+        case innerPlane = "inner_plane"
+        case restrictLine = "restrict_line"
+    }
+    
+}
+
 private struct EyeRingCollisionState {
     
     var restrictLineCollided: Bool
@@ -130,12 +131,5 @@ private struct EyeRingCollisionState {
     var eyesAreInside: Bool {
         innerPlaneCollided && !restrictLineCollided
     }
-    
-}
-
-private extension String {
-    
-    static let innerPlaneEntityName = "inner_plane"
-    static let restrictLineEntityName = "restrict_line"
     
 }

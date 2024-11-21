@@ -12,18 +12,6 @@ import RealityKitContent
 
 final class EyeStretchingEyesEntity: Entity {
     
-    private var leftEye: Entity? {
-        self.findEntity(named: .leftEyeEntityName)
-    }
-    
-    private var rightEye: Entity? {
-        self.findEntity(named: .rightEyeEntityName)
-    }
-    
-    private var patch: Entity? {
-        self.findEntity(named: .patchEntityName)
-    }
-    
     private var cancellabeBag = Set<AnyCancellable>()
     
     required init() {
@@ -40,14 +28,14 @@ final class EyeStretchingEyesEntity: Entity {
     }
     
     func setPatchHoverEffectComponent() throws {
-        guard let patch else { throw EyeStretchingError.entityNotFound(name: "patch") }
+        let patch = try getChild(.patch)
         
         patch.components.set(HoverEffectComponent(.highlight(.default)))
     }
     
     func removePatch() throws {
-        guard let patch else { throw EyeStretchingError.entityNotFound(name: "patch") }
-        guard let scene else { throw EyeStretchingError.sceneNotFound }
+        guard let scene else { throw EntityError.sceneNotFound }
+        let patch = try getChild(.patch)
         
         try patch.playOpacityAnimation(from: 1.0, to: 0.0, duration: 1.0)
         
@@ -59,15 +47,15 @@ final class EyeStretchingEyesEntity: Entity {
     
     func playLoopAnimation() throws {
         guard let animationResource = availableAnimations.first?.repeat() else {
-            throw EyeStretchingError.availabeAnimationNotFound
+            throw EntityError.availabeAnimationNotFound
         }
         
         playAnimation(animationResource)
     }
     
     func setCollisionComponent() async throws {
-        guard let leftEye else { throw EyeStretchingError.entityNotFound(name: .leftEyeEntityName) }
-        guard let rightEye else { throw EyeStretchingError.entityNotFound(name: .rightEyeEntityName) }
+        let leftEye = try getChild(.leftEye)
+        let rightEye = try getChild(.rightEye)
         
         let leftEyeMesh = try generateMeshResource(modelEntityName: "Cylinder_left")
         let rightEyeMesh = try generateMeshResource(modelEntityName: "Cylinder_right")
@@ -85,10 +73,12 @@ final class EyeStretchingEyesEntity: Entity {
     
 }
 
-private extension String {
+extension EyeStretchingEyesEntity: HasChildren {
     
-    static let leftEyeEntityName = "eye_left"
-    static let rightEyeEntityName = "eye_right"
-    static let patchEntityName = "patch"
+    enum ChildrenEntity: String {
+        case leftEye = "eye_left"
+        case rightEye = "eye_right"
+        case patch = "patch"
+    }
     
 }
