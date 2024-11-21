@@ -50,29 +50,11 @@ extension EyeTutorialManager {
         ringEntity.components.set(OpacityComponent(opacity: 0))
         ringEntity.setPosition(.init(x: 0, y: 0, z: 0), relativeTo: eyesEntity)
         ringEntity.orientation = eyesEntity.orientation
-        
-        await setRingCollisionComponent(entity: entity)
     }
     
     func configureMonitorEntity(entity: Entity) {
         entity.components.set(OpacityComponent(opacity: 0))
         entity.setPosition(.init(x: -0.1, y: -0.05, z: 0.2), relativeTo: ringEntity)
-    }
-    
-    private func setRingCollisionComponent(entity: Entity) async {
-        guard let innerPlaneEntity = ringEntity.findEntity(named: "inner_plane"),
-              let restrictLineEntity = ringEntity.findEntity(named: "restrict_line") else {
-            dump("configureRingChildrenEntities failed: No innerPlaneEntity or restrictLineEntity found")
-            return
-        }
-        
-        guard let innerPlaneShapeResource = await generateShapeResource(entity: innerPlaneEntity, isConvex: true),
-              let restrictLineShapeResource = await generateShapeResource(entity: restrictLineEntity, isConvex: false) else {
-            return
-        }
-        
-        innerPlaneEntity.components.set(CollisionComponent(shapes: [innerPlaneShapeResource], isStatic: true))
-        restrictLineEntity.components.set(CollisionComponent(shapes: [restrictLineShapeResource], isStatic: true))
     }
     
     private func setClosureComponent(

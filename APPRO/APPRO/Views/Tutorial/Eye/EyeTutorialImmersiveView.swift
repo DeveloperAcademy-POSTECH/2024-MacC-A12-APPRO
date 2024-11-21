@@ -120,7 +120,7 @@ struct EyeTutorialImmersiveView: View {
         tutorialManager.configureMonitorEntity(entity: monitorEntity)
         await tutorialManager.setEyeCollisionComponent(entity: eyesEntity)
         
-        tutorialManager.subscribeRingCollisionEvent(entity: ringEntity)
+        ringEntity.subscribeCollisionEvent()
         tutorialManager.playAppearAnimation(entity: ringEntity)
         tutorialManager.playAppearAnimation(entity: monitorEntity)
         

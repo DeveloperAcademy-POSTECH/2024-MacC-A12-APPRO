@@ -19,7 +19,7 @@ final class EyeTutorialManager: TutorialManager {
     
     private(set) var eyesEntity = Entity()
     private(set) var chickenEntity = Entity()
-    private(set) var ringEntity = Entity()
+    private(set) var ringEntity = EyeStretchingRingEntity()
     private(set) var monitorEntity = Entity()
     
     private(set) var attachmentView = Entity()
@@ -27,21 +27,6 @@ final class EyeTutorialManager: TutorialManager {
     private var originalChickenScale: Float3 = .init()
     private var largeChickenScale: Float3 {
         originalChickenScale * 1.5
-    }
-    
-    private var eyesCollidingInnerPlane = true {
-        didSet {
-            updateRingEntityParameter(entity: ringEntity)
-        }
-    }
-    private var eyesCollidingRestrictLine = false {
-        didSet {
-            updateRingEntityParameter(entity: ringEntity)
-        }
-    }
-    
-    private var eyesIsInside: Bool {
-        eyesCollidingInnerPlane && !eyesCollidingRestrictLine
     }
     
     private var longPressGestureOnEnded = false
@@ -53,8 +38,8 @@ final class EyeTutorialManager: TutorialManager {
     func loadEntities() async -> Bool {
         do {
             eyesEntity = try await loadEntity(entityType: .eyes)
+            try await ringEntity.configure()
             chickenEntity = try await loadEntity(entityType: .disturbEntity(type: .chicken))
-            ringEntity = try await loadEntity(entityType: .ring)
             monitorEntity = try await loadEntity(entityType: .monitor)
             originalChickenScale = chickenEntity.transform.scale
             
@@ -94,61 +79,6 @@ final class EyeTutorialManager: TutorialManager {
         longPressGestureOnEnded = true
         playDisappearChickenAnimation(entity: chickenEntity)
         advanceToNextStep()
-    }
-    
-    func subscribeRingCollisionEvent(entity: Entity) {
-        guard let innerPlaneEntity = ringEntity.findEntity(named: "inner_plane"),
-              let restrictLineEntity = ringEntity.findEntity(named: "restrict_line") else {
-            dump("subscribeRingCollisionEvent failed: No innerPlaneEntity or restrictLineEntity found")
-            return
-        }
-        guard let scene = entity.scene else {
-            dump("subscribeRingCollisionEvent failed: Scene is not found")
-            return
-        }
-        subscribeEyesInnerPlaneEvent(scene: scene, entity: innerPlaneEntity)
-        subscribeEyesRestrictLineEvent(scene: scene, entity: restrictLineEntity)
-    }
-    
-    private func subscribeEyesInnerPlaneEvent(scene: RealityKit.Scene, entity: Entity) {
-        scene.subscribe(to: CollisionEvents.Began.self, on: entity) { [weak self] _ in
-            self?.eyesCollidingInnerPlane = true
-        }
-        .store(in: &cancellableBag)
-        
-        scene.subscribe(to: CollisionEvents.Ended.self, on: entity) { [weak self] _ in
-            self?.eyesCollidingInnerPlane = false
-        }
-        .store(in: &cancellableBag)
-    }
-    
-    private func subscribeEyesRestrictLineEvent(scene: RealityKit.Scene, entity: Entity) {
-        scene.subscribe(to: CollisionEvents.Began.self, on: entity) { [weak self] _ in
-            self?.eyesCollidingRestrictLine = true
-        }
-        .store(in: &cancellableBag)
-        
-        scene.subscribe(to: CollisionEvents.Ended.self, on: entity) { [weak self] _ in
-            self?.eyesCollidingRestrictLine = false
-        }
-        .store(in: &cancellableBag)
-    }
-    
-    private func updateRingEntityParameter(entity: Entity) {
-        guard let torusModelEntity = entity.findEntity(named: "Torus") as? ModelEntity else {
-            dump("updateRingEntityParameter failed: Torus ModelEntity not found")
-            return
-        }
-        guard var shaderGraphMaterial = torusModelEntity.components[ModelComponent.self]?.materials.first as? ShaderGraphMaterial else {
-            dump("updateRingEntityParameter failed: ShaderGraphMaterial not found")
-            return
-        }
-        do {
-            try shaderGraphMaterial.setParameter(name: "EyeIsInside", value: .bool(eyesIsInside))
-            torusModelEntity.components[ModelComponent.self]?.materials = [shaderGraphMaterial]
-        } catch {
-            dump("updateRingEntityParameter failed: \(error)")
-        }
     }
     
 }
