@@ -17,6 +17,7 @@ struct APPROApp: App {
     @Environment(\.scenePhase) private var scenePhase
     
     init() {
+        TapGestureComponent.registerComponent()
         ClosureComponent.registerComponent()
         ClosureSystem.registerSystem()
     }
