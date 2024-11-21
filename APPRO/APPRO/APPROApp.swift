@@ -46,21 +46,22 @@ struct APPROApp: App {
                 }
             }
         }
+        .onChange(of: scenePhase) { _, newPhase in
+            Task {
+                if (newPhase == .background || newPhase == .inactive) {
+                    appState.appPhase = .choosingStretchingPart
+                }
+            }
+        }
+
         ImmersiveSpace(id: appState.immersiveSpaceID) {
-            if let stretchingPart = appState.currentStretchingPart {
+            if let stretchingPart = appState.currentStretchingPart, scenePhase == .active {
                 if appState.appPhase == .tutorial && !TutorialManager.isSkipped(part: stretchingPart) {
                     tutorialImmersiveView(part: stretchingPart)
                         .preferredSurroundingsEffect(.semiDark)
                 } else {
                     stretchingImmersiveView(part: stretchingPart)
                         .preferredSurroundingsEffect(appState.appPhase == .stretchingCompleted ? .ultraDark : .semiDark)
-                }
-            }
-        }
-        .onChange(of: scenePhase) { _, newPhase in
-            Task {
-                if (newPhase == .background || newPhase == .inactive) {
-                    appState.appPhase = .choosingStretchingPart
                 }
             }
         }
