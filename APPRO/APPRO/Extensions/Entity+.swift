@@ -26,7 +26,7 @@ extension Entity {
     func playOpacityAnimation(
         from: Float,
         to: Float,
-        duration: TimeInterval
+        duration: TimeInterval = 1.0
     ) throws -> AnimationPlaybackController {
         let animationDefinition = FromToByAnimation(
             from: from,
