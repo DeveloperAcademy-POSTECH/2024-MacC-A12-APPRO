@@ -30,7 +30,7 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     
     deinit {
         Task { @MainActor in
-            TutorialManager.audioPlayer?.stop()
+            TutorialManager.audioPlayer = nil
         }
     }
     
