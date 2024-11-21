@@ -37,10 +37,14 @@ extension HandRollingTutorialViewModel {
                 
                 if anchor.chirality == .left {
                     latestHandTracking.left = anchor
-                    isHandInFistShape(chirality: .left)
+                    if !isLeftHandInFist {
+                        isHandInFistShape(chirality: .left)
+                    }
                 } else if anchor.chirality == .right {
                     latestHandTracking.right = anchor
-                    isHandInFistShape(chirality: .right)
+                    if !isRightHandInFist {
+                        isHandInFistShape(chirality: .right)
+                    }
                 }
                 
             default:

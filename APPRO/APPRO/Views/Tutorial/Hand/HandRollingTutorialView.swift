@@ -67,9 +67,6 @@ struct HandRollingTutorialView : View {
                 if viewModel.isStartingObjectVisible { viewModel.isStartingObjectVisible = false}
                 
                 viewModel.rightEntities.append(viewModel.rightGuideRing)
-                if tutorialManager.currentStepIndex > 1 {
-                    viewModel.rightEntities.append(viewModel.rightGuideSphere)
-                }
                 
                 Task {
                     await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
@@ -80,7 +77,7 @@ struct HandRollingTutorialView : View {
                 viewModel.rightEntities.removeAll()
             }
         }
-        .onChange(of: viewModel.isLeftHandInFist, initial: false) { _, isHandFistShape in            
+        .onChange(of: viewModel.isLeftHandInFist && tutorialManager.isLastStep, initial: false) { _, isHandFistShape in
             if isHandFistShape && tutorialManager.isLastStep {
                 viewModel.leftEntities.append(viewModel.leftGuideRing)
                 viewModel.leftEntities.append(viewModel.leftGuideSphere)
@@ -102,6 +99,11 @@ struct HandRollingTutorialView : View {
         .onChange(of: tutorialManager.currentStepIndex, initial: false ) { _, currentStepIndex in
             if currentStepIndex == 1 {
                 viewModel.showTarget = true
+                goToNextTutorialStep(1)
+            }
+            
+            if tutorialManager.currentStepIndex == 2 {
+                viewModel.rightEntities.append(viewModel.rightGuideSphere)
             }
             
             if tutorialManager.isLastStep {
