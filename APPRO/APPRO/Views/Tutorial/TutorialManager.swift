@@ -28,6 +28,12 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
         }
     }
     
+    deinit {
+        Task { @MainActor in
+            TutorialManager.audioPlayer?.stop()
+        }
+    }
+    
     var isLastStep: Bool {
         currentStepIndex == steps.count - 1
     }
