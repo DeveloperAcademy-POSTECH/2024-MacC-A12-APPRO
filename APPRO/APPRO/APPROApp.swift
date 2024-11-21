@@ -47,10 +47,8 @@ struct APPROApp: App {
             }
         }
         .onChange(of: scenePhase) { _, newPhase in
-            Task {
-                if (newPhase == .background || newPhase == .inactive) {
-                    appState.appPhase = .choosingStretchingPart
-                }
+            if (newPhase == .background || newPhase == .inactive) {
+                appState.appPhase = .choosingStretchingPart
             }
         }
 
