@@ -13,12 +13,12 @@ struct ShoulderStretchingTutorialView: View {
     @State private var tutorialManager = TutorialManager(stretching: .shoulder)
     @State private var viewModel = ShoulderStretchingTutorialViewModel()
     @State private var isColliding: Bool = false
-    
     @State var isStartWarningDone = false
     
     var body: some View {
         RealityView { content, attachments in
             content.add(viewModel.contentEntity)
+            viewModel.subscribeSceneEvent(content)
             let textEntity = createTextEntity("Stay aware of your surroundings")
             viewModel.contentEntity.addChild(textEntity)
             setTutorialToStart(content: content)
@@ -73,7 +73,6 @@ struct ShoulderStretchingTutorialView: View {
     
     func subscribeToCollisionEvents(content: RealityViewContent) {
         guard let rightCollisionModel = viewModel.handRocketEntity.findEntity(named: "RocketCollisionModel") as? ModelEntity else { return }
-        
         // 충돌 시작 감지
         _ = content.subscribe(to: CollisionEvents.Began.self, on: rightCollisionModel) { collisionEvent in
             setCollisionAction(collisionEvent: collisionEvent)
@@ -190,7 +189,6 @@ struct ShoulderStretchingTutorialView: View {
                     await viewModel.setEntryRocket()
                     viewModel.setHandRocketEntity()
                     subscribeToCollisionEvents(content: content)
-                    viewModel.subscribeSceneEvent(content)
                     isStartWarningDone = true
                 }
             }

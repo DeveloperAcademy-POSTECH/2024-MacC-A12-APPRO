@@ -13,9 +13,6 @@ import ARKit
 @Observable
 @MainActor
 final class ShoulderStretchingTutorialViewModel {
-    
-    var tutorialManager: TutorialManager?
-    
     var contentEntity = Entity()
     var modelEntities: [Entity] = []
     var handEntities: [Entity] = []
