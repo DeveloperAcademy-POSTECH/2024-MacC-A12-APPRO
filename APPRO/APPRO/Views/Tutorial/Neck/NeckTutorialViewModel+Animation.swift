@@ -1,0 +1,43 @@
+//
+//  NeckTutorialViewModel.swift
+//  APPRO
+//
+//  Created by marty.academy on 11/21/24.
+//
+
+import SwiftUI
+import RealityKit
+import RealityKitContent
+
+extension NeckTutorialViewModel {
+
+    func playAppearAnimation(entity: Entity) -> AnimationPlaybackController? {
+        playAnimation(
+            entity: entity,
+            definition: FromToByAnimation(from: Float(0.0), to: Float(1.0), bindTarget: .opacity),
+            duration: 1.0
+        )
+    }
+    
+    func playDisappearAnimation(entity: Entity) -> AnimationPlaybackController? {
+        playAnimation(
+            entity: entity,
+            definition: FromToByAnimation(from: Float(1.0), to: Float(0.0), bindTarget: .opacity),
+            duration: 0.2
+        )
+    }
+    
+    private func playAnimation(
+        entity: Entity,
+        definition: AnimationDefinition,
+        duration: TimeInterval = 0
+    ) -> AnimationPlaybackController? {
+        do {
+            let resource = try AnimationResource.generate(with: definition)
+            return entity.playAnimation(resource, transitionDuration: duration)
+        } catch {
+            dump("playAnimation failed: \(error)")
+            return nil
+        }
+    }
+}
