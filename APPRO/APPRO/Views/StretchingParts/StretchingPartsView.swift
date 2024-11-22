@@ -27,6 +27,7 @@ struct StretchingPartsView: View {
                 }
                 GridRow {
                     StretchingCard(stretching: .shoulder)
+                    StretchingCard(stretching: .neck)
                 }
             }
         }

@@ -81,6 +81,8 @@ struct APPROApp: App {
         case .wrist:
             HandRollingStretchingView()
                 .environment(appState)
+        case .neck:
+            EmptyView()
         }
     }
     
@@ -96,7 +98,9 @@ struct APPROApp: App {
         case .wrist:
             HandRollingTutorialView()
                 .environment(appState)
+        case .neck:
+            NeckTutorialView()
+                .environment(appState)
         }
     }
-    
 }
