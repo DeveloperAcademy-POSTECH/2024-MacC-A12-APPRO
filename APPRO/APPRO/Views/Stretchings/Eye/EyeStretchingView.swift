@@ -12,6 +12,12 @@ struct EyeStretchingView: View {
     
     @State private var viewModel = EyeStretchingViewModel()
     @State private var allEntitiesLoaded = false
+    @State private var configureCompleted: [EyeStretchingPhase: Bool] = [
+        .waiting: false,
+        .ready: false,
+        .started: false,
+        .finished: false
+    ]
     
     var body: some View {
         RealityView { content, attachments in
@@ -65,20 +71,26 @@ struct EyeStretchingView: View {
         phase: EyeStretchingPhase
     ) {
         Task {
-            do {
-                switch phase {
-                case .waiting:
-                    try configureWaitingPhase(content: content)
-                case .ready:
-                    try await configureReadyPhase(content: content)
-                case .started:
-                    configureStartedPhase(content: content)
-                    break
-                case .finished:
-                    break
+            if configureCompleted[phase] == false {
+                do {
+                    switch phase {
+                    case .waiting:
+                        try configureWaitingPhase(content: content)
+                        configureCompleted[phase] = true
+                    case .ready:
+                        try await configureReadyPhase(content: content)
+                        configureCompleted[phase] = true
+                    case .started:
+                        configureStartedPhase(content: content)
+                        configureCompleted[phase] = true
+                        break
+                    case .finished:
+                        configureCompleted[phase] = true
+                        break
+                    }
+                } catch {
+                    dump("EyeStretchingView configure failed: \(error)")
                 }
-            } catch {
-                dump("EyeStretchingView configure failed: \(error)")
             }
         }
     }
