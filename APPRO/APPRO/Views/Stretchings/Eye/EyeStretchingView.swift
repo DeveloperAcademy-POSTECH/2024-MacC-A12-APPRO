@@ -26,14 +26,10 @@ struct EyeStretchingView: View {
             }
         } update: { content, attachments in
             if allEntitiesLoaded {
-                do {
-                    try configure(
-                        content: content,
-                        phase: viewModel.stretchingPhase
-                    )
-                } catch {
-                    dump("EyeStretchingView configure failed: \(error)")
-                }
+                configure(
+                    content: content,
+                    phase: viewModel.stretchingPhase
+                )
             }
         } attachments: {
             Attachment(id: viewModel.attachmentViewID) {
@@ -67,20 +63,39 @@ struct EyeStretchingView: View {
     private func configure(
         content: RealityViewContent,
         phase: EyeStretchingPhase
-    ) throws {
-        switch phase {
-        case .waiting:
-            try configureWaitingPhase(content: content)
-        case .started:
-            break
-        case .finished:
-            break
+    ) {
+        Task {
+            do {
+                switch phase {
+                case .waiting:
+                    try configureWaitingPhase(content: content)
+                case .started:
+                    try await configureStartedPhase(content: content)
+                    break
+                case .finished:
+                    break
+                }
+            } catch {
+                dump("EyeStretchingView configure failed: \(error)")
+            }
         }
     }
     
     private func configureWaitingPhase(content: RealityViewContent) throws {
         try viewModel.configureEyesEntity()
         content.add(viewModel.eyesEntity)
+    }
+    
+    private func configureStartedPhase(content: RealityViewContent) async throws {
+        let ringEntity = viewModel.ringEntity
+        let eyesEntity = viewModel.eyesEntity
+        
+        content.add(viewModel.ringEntity)
+        
+        try await eyesEntity.setCollisionComponent()
+        try await viewModel.configureRingEntity()
+        
+        try ringEntity.playOpacityAnimation(from: 0.0, to: 1.0)
     }
     
 }

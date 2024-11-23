@@ -23,6 +23,7 @@ final class EyeStretchingViewModel: StretchingCounter {
     private(set) var stretchingPhase: EyeStretchingPhase = .waiting
     
     private(set) var eyesEntity = EyeStretchingEyesEntity()
+    private(set) var ringEntity = EyeStretchingRingEntity()
     private(set) var attachmentView = Entity()
     
     func makeDoneCountZero() {
@@ -31,12 +32,14 @@ final class EyeStretchingViewModel: StretchingCounter {
     
     func loadEntities() async throws {
         try await eyesEntity.loadCoreEntity()
+        try await ringEntity.loadCoreEntity()
     }
     
     func patchTapped() {
         do {
             try eyesEntity.removePatch()
             try eyesEntity.playLoopAnimation()
+            attachmentView.components.remove(ClosureComponent.self)
             stretchingPhase = .started
         } catch {
             dump("patchTapped failed: \(error)")

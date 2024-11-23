@@ -29,6 +29,14 @@ extension EyeStretchingViewModel {
         setClosureComponent(entity: eyesEntity, distance: .eyes)
     }
     
+    func configureRingEntity() async throws {
+        ringEntity.components.set(OpacityComponent(opacity: 0))
+        ringEntity.setPosition(.init(x: 0, y: 0, z: 0), relativeTo: eyesEntity)
+        ringEntity.orientation = eyesEntity.orientation
+        try await ringEntity.setCollisionComponent()
+        try ringEntity.subscribeCollisionEvent()
+    }
+    
     private func setClosureComponent(
         entity: Entity,
         distance: Float,
