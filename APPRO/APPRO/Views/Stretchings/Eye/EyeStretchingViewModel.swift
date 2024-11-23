@@ -33,6 +33,16 @@ final class EyeStretchingViewModel: StretchingCounter {
         try await eyesEntity.loadCoreEntity()
     }
     
+    func patchTapped() {
+        do {
+            try eyesEntity.removePatch()
+            try eyesEntity.playLoopAnimation()
+            stretchingPhase = .started
+        } catch {
+            dump("patchTapped failed: \(error)")
+        }
+    }
+    
     func addAttachmentView(content: RealityViewContent, attachments: RealityViewAttachments) throws {
         guard let attachmentView = attachments.entity(for: attachmentViewID) else {
             throw EntityError.entityNotFound(name: attachmentViewID)
