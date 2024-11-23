@@ -10,6 +10,7 @@ import Foundation
 enum EyeStretchingPhase: Equatable {
     
     case waiting
+    case ready
     case started
     case finished
     

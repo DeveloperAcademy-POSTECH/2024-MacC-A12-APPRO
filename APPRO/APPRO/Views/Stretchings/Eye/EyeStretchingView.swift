@@ -69,8 +69,9 @@ struct EyeStretchingView: View {
                 switch phase {
                 case .waiting:
                     try configureWaitingPhase(content: content)
+                case .ready:
+                    try await configureReadyPhase(content: content)
                 case .started:
-                    try await configureStartedPhase(content: content)
                     break
                 case .finished:
                     break
@@ -86,7 +87,7 @@ struct EyeStretchingView: View {
         content.add(viewModel.eyesEntity)
     }
     
-    private func configureStartedPhase(content: RealityViewContent) async throws {
+    private func configureReadyPhase(content: RealityViewContent) async throws {
         let ringEntity = viewModel.ringEntity
         let eyesEntity = viewModel.eyesEntity
         let monitorEntity = viewModel.monitorEntity

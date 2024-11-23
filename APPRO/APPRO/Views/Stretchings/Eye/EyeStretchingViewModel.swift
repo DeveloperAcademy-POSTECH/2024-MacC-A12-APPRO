@@ -45,7 +45,7 @@ final class EyeStretchingViewModel: StretchingCounter {
             try eyesEntity.removePatch()
             try eyesEntity.playLoopAnimation()
             attachmentView.components.remove(ClosureComponent.self)
-            stretchingPhase = .started
+            stretchingPhase = .ready
         } catch {
             dump("patchTapped failed: \(error)")
         }
