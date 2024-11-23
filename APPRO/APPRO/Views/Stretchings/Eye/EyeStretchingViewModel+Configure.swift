@@ -53,8 +53,14 @@ extension EyeStretchingViewModel {
         }
         
         for (index, entity) in disturbEntities.enumerated() {
-            entity.setPosition(positions[index] * 1 / ringEntity.scale, relativeTo: ringEntity)
-            entity.orientation = eyesEntity.orientation
+            entity.setPosition(
+                positions[index] * 1 / ringEntity.scale,
+                relativeTo: ringEntity
+            )
+            entity.transform.rotation = .init(
+                angle: Float.random(in: -0.4...0.4),
+                axis: [0, 0, 1]
+            )
         }
     }
     
