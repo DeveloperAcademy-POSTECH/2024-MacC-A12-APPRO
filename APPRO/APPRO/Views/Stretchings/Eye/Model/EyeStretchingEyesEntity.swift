@@ -16,6 +16,8 @@ final class EyeStretchingEyesEntity: Entity {
     
     required init() {
         super.init()
+        
+        self.transform.scale = [0.7, 0.7, 0.7]
     }
     
     func loadCoreEntity() async throws {
