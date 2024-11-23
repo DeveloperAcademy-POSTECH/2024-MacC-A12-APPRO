@@ -15,7 +15,7 @@ struct TutorialAttachmentView: View {
     
     var body: some View {
         if let currentStep = tutorialManager.currentStep {
-            ZStack {
+            ZStack(alignment: .top) {
                 VStack(alignment: .trailing, spacing: 16) {
                     HStack {
                         HStack(spacing: 16) {
@@ -35,6 +35,7 @@ struct TutorialAttachmentView: View {
                             .labelStyle(.iconOnly)
                         }
                     }
+                    
                     Text(currentStep.instruction)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .font(.system(size: 32, weight: .medium))
@@ -46,7 +47,7 @@ struct TutorialAttachmentView: View {
                         .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, _ in
                             tutorialManager.playInstructionAudio()
                         }
-                                        
+                    
                     if tutorialManager.isLastStep {
                         Button("Done") {
                             tutorialManager.skip()
@@ -57,8 +58,6 @@ struct TutorialAttachmentView: View {
                         .font(.title3)
                     }
                 }
-                .frame(width: 800, height: 300)
-                .padding(32)
                 .opacity(showSkipAlert ? 0.3 : 1.0)
                 .blur(radius: showSkipAlert ? 1.5 : 0.0)
                 
@@ -66,8 +65,11 @@ struct TutorialAttachmentView: View {
                     .opacity(showSkipAlert ? 1.0 : 0.0)
                 
             }
+            .padding(32)
+            .frame(width: 800) // ZStack에서 VStack 혹은 alertView의 height 중 큰값으로 결정됨
             .glassBackgroundEffect()
         }
+        
     }
     
     private func presentSkipAlert(_ show: Bool) {
@@ -93,15 +95,15 @@ struct TutorialAttachmentView: View {
                 tutorialManager.stopInstructionAudio()
                 appState.appPhase = .stretching
             }
-            .frame(maxWidth: .infinity, maxHeight: 44)
+            .frame(maxWidth: .infinity, maxHeight: 30)
             .buttonStyle(.borderless)
             Button("No", role: .cancel) {
                 presentSkipAlert(false)
             }
-            .frame(maxWidth: .infinity, maxHeight: 44)
+            .frame(maxWidth: .infinity, maxHeight: 30)
             .buttonStyle(.borderless)
         }
-        .frame(width: 320, height: 240)
+        .frame(width: 320, height: 180)
         .padding(20)
         .glassBackgroundEffect()
     }
