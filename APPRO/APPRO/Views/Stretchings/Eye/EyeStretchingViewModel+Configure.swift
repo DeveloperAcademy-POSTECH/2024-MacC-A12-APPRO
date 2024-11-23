@@ -37,6 +37,13 @@ extension EyeStretchingViewModel {
         try ringEntity.subscribeCollisionEvent()
     }
     
+    func configureMonitorEntity() {
+        monitorEntity.transform.scale = [0.2, 0.2, 0.2]
+        monitorEntity.transform.rotation = .init(angle: -0.5, axis: [0, 1, 0])
+        monitorEntity.components.set(OpacityComponent(opacity: 0))
+        monitorEntity.setPosition(.init(x: -0.15, y: -0.17, z: 0.35), relativeTo: ringEntity)
+    }
+    
     private func setClosureComponent(
         entity: Entity,
         distance: Float,

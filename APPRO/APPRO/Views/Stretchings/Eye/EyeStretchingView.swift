@@ -89,13 +89,17 @@ struct EyeStretchingView: View {
     private func configureStartedPhase(content: RealityViewContent) async throws {
         let ringEntity = viewModel.ringEntity
         let eyesEntity = viewModel.eyesEntity
+        let monitorEntity = viewModel.monitorEntity
         
-        content.add(viewModel.ringEntity)
+        content.add(ringEntity)
+        content.add(monitorEntity)
         
         try await eyesEntity.setCollisionComponent()
         try await viewModel.configureRingEntity()
+        viewModel.configureMonitorEntity()
         
         try ringEntity.playOpacityAnimation(from: 0.0, to: 1.0)
+        try monitorEntity.playOpacityAnimation(from: 0.0, to: 1.0)
     }
     
 }

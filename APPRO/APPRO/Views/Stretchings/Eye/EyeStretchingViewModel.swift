@@ -24,6 +24,7 @@ final class EyeStretchingViewModel: StretchingCounter {
     
     private(set) var eyesEntity = EyeStretchingEyesEntity()
     private(set) var ringEntity = EyeStretchingRingEntity()
+    private(set) var monitorEntity = Entity()
     private(set) var attachmentView = Entity()
     
     func makeDoneCountZero() {
@@ -33,6 +34,10 @@ final class EyeStretchingViewModel: StretchingCounter {
     func loadEntities() async throws {
         try await eyesEntity.loadCoreEntity()
         try await ringEntity.loadCoreEntity()
+        monitorEntity = try await Entity(
+            named: EyeStretchingEntityType.monitor.loadURL,
+            in: realityKitContentBundle
+        )
     }
     
     func patchTapped() {
