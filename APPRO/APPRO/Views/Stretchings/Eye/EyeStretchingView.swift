@@ -72,6 +72,7 @@ struct EyeStretchingView: View {
                 case .ready:
                     try await configureReadyPhase(content: content)
                 case .started:
+                    configureStartedPhase(content: content)
                     break
                 case .finished:
                     break
@@ -81,7 +82,7 @@ struct EyeStretchingView: View {
             }
         }
     }
-    
+         
     private func configureWaitingPhase(content: RealityViewContent) throws {
         try viewModel.configureEyesEntity()
         content.add(viewModel.eyesEntity)
@@ -101,6 +102,16 @@ struct EyeStretchingView: View {
         
         try ringEntity.playOpacityAnimation(from: 0.0, to: 1.0)
         try monitorEntity.playOpacityAnimation(from: 0.0, to: 1.0)
+        
+        viewModel.stretchingPhase = .started
+    }
+    
+    private func configureStartedPhase(content: RealityViewContent) {
+        let disturbEntities = viewModel.disturbEntities
+        
+        viewModel.configureDisturbEntities()
+        
+        disturbEntities.forEach { content.add($0) }
     }
     
 }

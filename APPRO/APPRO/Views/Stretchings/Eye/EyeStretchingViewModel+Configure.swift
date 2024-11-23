@@ -44,6 +44,20 @@ extension EyeStretchingViewModel {
         monitorEntity.setPosition(.init(x: -0.15, y: -0.17, z: 0.35), relativeTo: ringEntity)
     }
     
+    func configureDisturbEntities() {
+        let positions = generateDisturbEntityPositions()
+        
+        guard disturbEntities.count == positions.count else {
+            dump("Disturb Entities and positions count mismatch")
+            return
+        }
+        
+        for (index, entity) in disturbEntities.enumerated() {
+            entity.setPosition(positions[index] * 1 / ringEntity.scale, relativeTo: ringEntity)
+            entity.orientation = eyesEntity.orientation
+        }
+    }
+    
     private func setClosureComponent(
         entity: Entity,
         distance: Float,
@@ -59,6 +73,27 @@ extension EyeStretchingViewModel {
             entity.look(at: currentTranslation, from: targetPosition, relativeTo: nil, forward: forwardDirection)
         }
         entity.components.set(closureComponent)
+    }
+    
+    private func generateDisturbEntityPositions() -> [Float3] {
+        let width: Float = 1.2
+        let height: Float = 0.8
+        let dx: [Float] = [-1, 1, 1, -1]
+        let dy: [Float] = [1, 1, -1, -1]
+        var positions: Set<Float3> = []
+        
+        for angle in stride(from: Float(0.0), through: Float(90.0), by: Float(30.0)) {
+            let radian = angle * (Float.pi / 180)
+            for k in 0..<4 {
+                let position = Float3(
+                    round(dx[k] * width * cos(radian) * pow(10, 2)) / pow(10, 2),
+                    round(dy[k] * height * sin(radian) * pow(10, 2)) / pow(10, 2),
+                    0
+                )
+                positions.insert(position)
+            }
+        }
+        return Array(positions)
     }
     
 }
