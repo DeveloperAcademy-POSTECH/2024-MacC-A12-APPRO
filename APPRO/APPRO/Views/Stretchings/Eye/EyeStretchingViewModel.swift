@@ -79,7 +79,7 @@ final class EyeStretchingViewModel: StretchingCounter {
                 entities.append(entity)
                 entities.append(entity.clone(recursive: true))
             }
-            return entities
+            return entities.shuffled()
         }
         self.disturbEntities = disturbEntities
     }
