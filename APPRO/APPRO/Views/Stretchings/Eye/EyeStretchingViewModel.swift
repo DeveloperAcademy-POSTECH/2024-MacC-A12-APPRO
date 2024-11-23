@@ -20,10 +20,17 @@ final class EyeStretchingViewModel: StretchingCounter {
     
     let headTracker = HeadTracker()
     
+    private(set) var stretchingPhase: EyeStretchingPhase = .waiting
+    
+    private(set) var eyesEntity = EyeStretchingEyesEntity()
     private(set) var attachmentView = Entity()
     
     func makeDoneCountZero() {
         doneCount = 0
+    }
+    
+    func loadEntities() async throws {
+        try await eyesEntity.loadCoreEntity()
     }
     
     func addAttachmentView(content: RealityViewContent, attachments: RealityViewAttachments) throws {

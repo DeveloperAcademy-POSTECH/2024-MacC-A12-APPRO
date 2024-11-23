@@ -17,6 +17,18 @@ extension EyeStretchingViewModel {
         )
     }
     
+    func configureEyesEntity() throws {
+        let hoverEffectComponent = HoverEffectComponent(.spotlight(.default))
+        let tapGestureComponent = TapGestureComponent { [weak self] in
+            self?.patchTapped()
+        }
+        try eyesEntity.setPatchComponents([
+            hoverEffectComponent,
+            tapGestureComponent]
+        )
+        setClosureComponent(entity: eyesEntity, distance: .eyes)
+    }
+    
     private func setClosureComponent(
         entity: Entity,
         distance: Float,
