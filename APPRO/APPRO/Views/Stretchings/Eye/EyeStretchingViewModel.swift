@@ -20,11 +20,12 @@ final class EyeStretchingViewModel: StretchingCounter {
     
     let headTracker = HeadTracker()
     
-    private(set) var stretchingPhase: EyeStretchingPhase = .waiting
+    var stretchingPhase: EyeStretchingPhase = .waiting
     
     private(set) var eyesEntity = EyeStretchingEyesEntity()
     private(set) var ringEntity = EyeStretchingRingEntity()
     private(set) var monitorEntity = Entity()
+    private(set) var disturbEntities: [EyeStretchingDisturbEntity] = []
     private(set) var attachmentView = Entity()
     
     func makeDoneCountZero() {
@@ -38,6 +39,7 @@ final class EyeStretchingViewModel: StretchingCounter {
             named: EyeStretchingEntityType.monitor.loadURL,
             in: realityKitContentBundle
         )
+        try await initializeDisturbEntities()
     }
     
     func patchTapped() {
@@ -58,6 +60,28 @@ final class EyeStretchingViewModel: StretchingCounter {
         
         self.attachmentView = attachmentView
         content.add(attachmentView)
+    }
+    
+    private func initializeDisturbEntities() async throws {
+        let disturbEntities: [EyeStretchingDisturbEntity] = try await withThrowingTaskGroup(
+            of: EyeStretchingDisturbEntity.self
+        ) { taskGroup in
+            DisturbEntityType.allCases.forEach { type in
+                taskGroup.addTask { @MainActor in
+                    let disturbEntity = EyeStretchingDisturbEntity()
+                    try await disturbEntity.loadCoreEntity(type: type)
+                    return disturbEntity
+                }
+            }
+            var entities: [EyeStretchingDisturbEntity] = []
+            
+            for try await entity in taskGroup {
+                entities.append(entity)
+                entities.append(entity.clone(recursive: true))
+            }
+            return entities
+        }
+        self.disturbEntities = disturbEntities
     }
     
 }

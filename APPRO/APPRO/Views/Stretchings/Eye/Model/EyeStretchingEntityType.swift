@@ -29,7 +29,7 @@ enum EyeStretchingEntityType {
     
 }
 
-enum DisturbEntityType: String {
+enum DisturbEntityType: String, CaseIterable {
     
     case chicken
     case game
