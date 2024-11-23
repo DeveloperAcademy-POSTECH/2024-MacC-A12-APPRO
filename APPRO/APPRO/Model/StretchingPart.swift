@@ -50,7 +50,7 @@ enum StretchingPart: String, Identifiable, CaseIterable {
             [
                 "When you’re ready, stretch your right arm forward and try to hold a fist.",
                 "You've gained the energy shooter! From now on, the ring reacts to your fist. Your mission is to hit all the targets with your energy shooter.",
-                "Bending your fist creates a sphere that keeps track of your fist rotation. Charge the energy by rotating the sphere around the ring. The ring will turn black if fully charged.",
+                "Bending your fist creates a sphere that keeps track of your fist rotation. Charge the energy by rotating the sphere around the ring. The ring will turn white if fully charged.",
                 "When charged enough, the ring will shoot the spiral energy. If not fully charged, the target won't disappear even if it's hit.",
                 "Great! Stretching your wrist is the main focus in this content. Hittable target differs for each wrist, so use both. Try not to move your body around too much."
             ]
