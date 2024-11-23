@@ -30,7 +30,7 @@ final class EyeStretchingRingEntity: Entity {
     required init() {
         super.init()
         
-        self.transform.scale = [0.35, 0.35, 0.35]
+        self.transform.scale = [0.37, 0.37, 0.37]
     }
     
     func loadCoreEntity() async throws {

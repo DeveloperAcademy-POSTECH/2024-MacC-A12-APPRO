@@ -10,7 +10,7 @@ import RealityKitContent
 
 final class EyeStretchingDisturbEntity: Entity {
     
-    private let originalScale: Float3 = [0.2, 0.2, 0.2]
+    private let originalScale: Float3 = [0.17, 0.17, 0.17]
     private var largeScale: Float3 {
         originalScale * 1.5
     }
