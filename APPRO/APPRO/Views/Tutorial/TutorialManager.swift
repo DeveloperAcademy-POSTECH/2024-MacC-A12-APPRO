@@ -17,7 +17,7 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     private var steps: [TutorialStep]
     private(set) var currentStepIndex = 0
     private var isCurrentInstructionCompleted: Bool = false
-    static var audioPlayer: AVAudioPlayer?
+    var audioPlayer: AVAudioPlayer?
     var onAudioFinished: (() -> Void)? // 오디오 재생 완료 후 호출할 콜백
     var isAudioFinished: Bool = false
     
@@ -27,13 +27,7 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
             .init(instruction: $1, audioFilename: "\(stretching)_\($0 + 1)" )
         }
     }
-    
-    deinit {
-        Task { @MainActor in
-            TutorialManager.audioPlayer = nil
-        }
-    }
-    
+   
     var isLastStep: Bool {
         currentStepIndex == steps.count - 1
     }
@@ -53,9 +47,9 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
         } else {
             
             /// 재생 전, 중
-            onAudioFinished = {
-                self.currentStepIndex += 1
-                self.isAudioFinished = false
+            onAudioFinished = { [weak self] in
+                self?.currentStepIndex += 1
+                self?.isAudioFinished = false
             }
         }
     }
@@ -68,10 +62,10 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     func playInstructionAudio() {
         if let path = Bundle.main.path(forResource: currentStep?.audioFilename, ofType: "mp3"){
                do{
-                   TutorialManager.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
-                   TutorialManager.audioPlayer?.delegate = self
-                   TutorialManager.audioPlayer?.prepareToPlay()
-                   TutorialManager.audioPlayer?.play()
+                   audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
+                   audioPlayer?.delegate = self
+                   audioPlayer?.prepareToPlay()
+                   audioPlayer?.play()
                } catch {
                    print("Error on Playing Instruction Audio : \(error)")
                }
@@ -79,7 +73,7 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     }
     
     func stopInstructionAudio() {
-        TutorialManager.audioPlayer?.stop()
+        audioPlayer?.stop()
     }
     
     // 오디오 재생 완료 감지
