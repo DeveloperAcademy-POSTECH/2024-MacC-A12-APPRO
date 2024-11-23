@@ -14,7 +14,15 @@ struct EyeStretchingView: View {
     
     var body: some View {
         RealityView { content, attachments in
-            
+            do {
+                try viewModel.addAttachmentView(
+                    content: content,
+                    attachments: attachments
+                )
+                viewModel.configureAttachmentView()
+            } catch {
+                dump("RealityView make failed: \(error)")
+            }
         } update: { content, attachments in
             
         } attachments: {

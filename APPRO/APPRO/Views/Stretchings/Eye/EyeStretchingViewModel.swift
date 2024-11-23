@@ -5,7 +5,7 @@
 //  Created by 정상윤 on 11/23/24.
 //
 
-import Foundation
+import SwiftUI
 import RealityKit
 import RealityKitContent
 
@@ -18,8 +18,21 @@ final class EyeStretchingViewModel: StretchingCounter {
     
     let attachmentViewID = "StretchingAttachmentView"
     
+    let headTracker = HeadTracker()
+    
+    private(set) var attachmentView = Entity()
+    
     func makeDoneCountZero() {
         doneCount = 0
+    }
+    
+    func addAttachmentView(content: RealityViewContent, attachments: RealityViewAttachments) throws {
+        guard let attachmentView = attachments.entity(for: attachmentViewID) else {
+            throw EntityError.entityNotFound(name: attachmentViewID)
+        }
+        
+        self.attachmentView = attachmentView
+        content.add(attachmentView)
     }
     
 }
