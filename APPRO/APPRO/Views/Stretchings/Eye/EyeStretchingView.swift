@@ -70,13 +70,17 @@ struct EyeStretchingView: View {
     ) throws {
         switch phase {
         case .waiting:
-            try viewModel.configureEyesEntity()
-            content.add(viewModel.eyesEntity)
+            try configureWaitingPhase(content: content)
         case .started:
             break
         case .finished:
             break
         }
+    }
+    
+    private func configureWaitingPhase(content: RealityViewContent) throws {
+        try viewModel.configureEyesEntity()
+        content.add(viewModel.eyesEntity)
     }
     
 }
