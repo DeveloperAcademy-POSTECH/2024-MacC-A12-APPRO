@@ -29,10 +29,10 @@ final class EyeStretchingEyesEntity: Entity {
         addChild(entity)
     }
     
-    func setPatchHoverEffectComponent() throws {
+    func setPatchComponents(_ components: [Component]) throws {
         let patch = try getChild(.patch)
         
-        patch.components.set(HoverEffectComponent(.highlight(.default)))
+        patch.components.set(components)
     }
     
     func removePatch() throws {
