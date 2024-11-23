@@ -74,23 +74,6 @@ extension EyeTutorialManager {
         entity.components.set(closureComponent)
     }
     
-    private func generateShapeResource(entity: Entity, isConvex: Bool) async -> ShapeResource? {
-        guard let modelEntity = entity.children.filter({ $0 is ModelEntity }).first as? ModelEntity,
-              let mesh = modelEntity.model?.mesh else {
-            dump("generateShapeResourceByMesh failed: No mesh found in \(entity.name)")
-            return nil
-        }
-        
-        do {
-            return isConvex
-            ? try await ShapeResource.generateConvex(from: mesh)
-            : try await ShapeResource.generateStaticMesh(from: mesh)
-        } catch {
-            dump("generateShapeResourceByMesh failed: \(error)")
-            return nil
-        }
-    }
-    
 }
 
 private extension Float {
