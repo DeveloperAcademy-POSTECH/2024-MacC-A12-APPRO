@@ -109,7 +109,7 @@ struct EyeTutorialImmersiveView: View {
         do {
             let chickenEntity = tutorialManager.chickenEntity
             content.add(chickenEntity)
-            tutorialManager.configureChickenEntity()
+            try tutorialManager.configureChickenEntity()
             try chickenEntity.playOpacityAnimation(from: 0.0, to: 1.0)
         } catch {
             dump("configureStep3 failed: \(error)")

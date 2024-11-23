@@ -18,7 +18,7 @@ final class EyeTutorialManager: TutorialManager {
     private var cancellableBag: Set<AnyCancellable> = []
     
     private(set) var eyesEntity = EyeStretchingEyesEntity()
-    private(set) var chickenEntity = Entity()
+    private(set) var chickenEntity = EyeStretchingDisturbEntity()
     private(set) var ringEntity = EyeStretchingRingEntity()
     private(set) var monitorEntity = Entity()
     
@@ -39,9 +39,8 @@ final class EyeTutorialManager: TutorialManager {
         do {
             try await eyesEntity.loadCoreEntity()
             try await ringEntity.loadCoreEntity()
-            chickenEntity = try await loadEntity(entityType: .disturbEntity(type: .chicken))
+            try await chickenEntity.loadCoreEntity(type: .chicken)
             monitorEntity = try await loadEntity(entityType: .monitor)
-            originalChickenScale = chickenEntity.transform.scale
             
             return true
         } catch {
@@ -65,15 +64,15 @@ final class EyeTutorialManager: TutorialManager {
         guard longPressGestureOnEnded == false else { return }
         
         if isLongPressing {
-            playEnlargeChickenAnimation(entity: chickenEntity)
+            chickenEntity.enlarge()
         } else {
-            playReduceChickenAnimation(entity: chickenEntity)
+            chickenEntity.reduce()
         }
     }
     
-    func handleLongPressOnEnded() {
+    func longPressOnEnded() {
         longPressGestureOnEnded = true
-        playDisappearChickenAnimation(entity: chickenEntity)
+        chickenEntity.disappear()
         advanceToNextStep()
     }
     
@@ -103,45 +102,12 @@ extension EyeTutorialManager {
 
 extension EyeTutorialManager {
     
-    private func playEnlargeChickenAnimation(entity: Entity) {
-        var toTransform = entity.transform
-        toTransform.scale = largeChickenScale
-        entity.move(to: toTransform, relativeTo: nil)
-    }
-    
-    private func playReduceChickenAnimation(entity: Entity) {
-        var toTransform = entity.transform
-        toTransform.scale = originalChickenScale
-        entity.move(to: toTransform, relativeTo: nil)
-    }
-    
-    private func playDisappearChickenAnimation(entity: Entity) {
-        var transform = entity.transform
-        transform.scale = .zero
-        entity.move(to: transform, relativeTo: nil, duration: 0.5)
-    }
-    
     private func playEyeLoopAnimation(entity: Entity) {
         guard let animationResource = eyesEntity.availableAnimations.first?.repeat() else {
             dump("playEyeLoopAnimation failed: No availbale animations")
             return
         }
         eyesEntity.playAnimation(animationResource)
-    }
-    
-    @discardableResult
-    private func playAnimation(
-        entity: Entity,
-        definition: AnimationDefinition,
-        duration: TimeInterval = 0
-    ) -> AnimationPlaybackController? {
-        do {
-            let resource = try AnimationResource.generate(with: definition)
-            return entity.playAnimation(resource, transitionDuration: duration)
-        } catch {
-            dump("playAnimation failed: \(error)")
-            return nil
-        }
     }
     
 }
