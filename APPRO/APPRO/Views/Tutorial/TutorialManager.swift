@@ -27,6 +27,10 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
             .init(instruction: $1, audioFilename: "\(stretching)_\($0 + 1)" )
         }
     }
+    
+    deinit {
+        debugPrint(self, "디이닛")
+    }
    
     var isLastStep: Bool {
         currentStepIndex == steps.count - 1
@@ -74,6 +78,11 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     
     func stopInstructionAudio() {
         audioPlayer?.stop()
+    }
+    
+    func removeAudioPlayer() {
+        audioPlayer?.delegate = nil
+        audioPlayer = nil
     }
     
     // 오디오 재생 완료 감지
