@@ -12,18 +12,12 @@ import RealityKitContent
 
 final class EyeStretchingRingEntity: Entity {
     
-    private var collisionState = EyeRingCollisionState(
-        restrictLineCollided: false,
-        innerPlaneCollided: false
-    ) {
-        didSet {
-            do {
-                try updateShaderGraphParameter(collisionState.eyesAreInside)
-            } catch {
-                dump(error)
-            }
-        }
-    }
+    let collisionState = CurrentValueSubject<EyeRingCollisionState, Never>(
+        .init(
+            restrictLineCollided: false,
+            innerPlaneCollided: false
+        )
+    )
     
     private var cancellableBag = Set<AnyCancellable>()
     
@@ -31,6 +25,16 @@ final class EyeStretchingRingEntity: Entity {
         super.init()
         
         self.transform.scale = [0.37, 0.37, 0.37]
+        self.collisionState
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                do {
+                    try self?.updateShaderGraphParameter(state.eyesAreInside)
+                } catch {
+                    dump("updateShaderGraphParameter failed: \(error)")
+                }
+            }
+            .store(in: &cancellableBag)
     }
     
     func loadCoreEntity() async throws {
@@ -92,24 +96,32 @@ extension EyeStretchingRingEntity {
     
     private func subscribeEyesInnerPlaneEvent(scene: RealityKit.Scene, entity: Entity) {
         scene.subscribe(to: CollisionEvents.Began.self, on: entity) { [weak self] _ in
-            self?.collisionState.innerPlaneCollided = true
+            guard let self else { return }
+            
+            collisionState.send(collisionState.value.replacing(innerPlane: true))
         }
         .store(in: &cancellableBag)
         
         scene.subscribe(to: CollisionEvents.Ended.self, on: entity) { [weak self] _ in
-            self?.collisionState.innerPlaneCollided = false
+            guard let self else { return }
+            
+            collisionState.send(collisionState.value.replacing(innerPlane: false))
         }
         .store(in: &cancellableBag)
     }
     
     private func subscribeEyesRestrictLineEvent(scene: RealityKit.Scene, entity: Entity) {
         scene.subscribe(to: CollisionEvents.Began.self, on: entity) { [weak self] _ in
-            self?.collisionState.restrictLineCollided = true
+            guard let self else { return }
+            
+            collisionState.send(collisionState.value.replacing(restrictLine: true))
         }
         .store(in: &cancellableBag)
         
         scene.subscribe(to: CollisionEvents.Ended.self, on: entity) { [weak self] _ in
-            self?.collisionState.restrictLineCollided = false
+            guard let self else { return }
+            
+            collisionState.send(collisionState.value.replacing(restrictLine: false))
         }
         .store(in: &cancellableBag)
     }
@@ -125,13 +137,27 @@ extension EyeStretchingRingEntity: HasChildren {
     
 }
 
-private struct EyeRingCollisionState {
+struct EyeRingCollisionState {
     
-    var restrictLineCollided: Bool
-    var innerPlaneCollided: Bool
+    let restrictLineCollided: Bool
+    let innerPlaneCollided: Bool
     
     var eyesAreInside: Bool {
         innerPlaneCollided && !restrictLineCollided
+    }
+    
+    func replacing(restrictLine: Bool) -> Self {
+        .init(
+            restrictLineCollided: restrictLine,
+            innerPlaneCollided: innerPlaneCollided
+        )
+    }
+    
+    func replacing(innerPlane: Bool) -> Self {
+        .init(
+            restrictLineCollided: restrictLineCollided,
+            innerPlaneCollided: innerPlane
+        )
     }
     
 }
