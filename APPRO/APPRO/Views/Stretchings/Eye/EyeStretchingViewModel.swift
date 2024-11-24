@@ -75,6 +75,7 @@ final class EyeStretchingViewModel: StretchingCounter {
     }
     
     func resetTimer() {
+        timerTask?.cancel()
         timerTask = Task {
             do {
                 repeat {
@@ -85,15 +86,24 @@ final class EyeStretchingViewModel: StretchingCounter {
                     }
                 } while(!Task.isCancelled)
             } catch {
-                dump("startTimer failed: \(error)")
+                dump("timerTask failed: \(error)")
             }
+        }
+    }
+    
+    func handleLongPressingUpdate(value isLongPressing: Bool) {
+        guard let currentDisturbEntity else { return }
+        
+        if isLongPressing {
+            currentDisturbEntity.enlarge()
+        } else {
+            currentDisturbEntity.reduce()
         }
     }
     
     private func initializeDisturbEntities() async throws {
         let disturbEntities: [EyeStretchingDisturbEntity] = try await withThrowingTaskGroup(
             of: EyeStretchingDisturbEntity.self
-        ) { taskGroup in
         ) { [weak self] taskGroup in
             DisturbEntityType.allCases.forEach { type in
                 taskGroup.addTask { @MainActor in

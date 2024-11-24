@@ -18,6 +18,7 @@ struct EyeStretchingView: View {
         .started: false,
         .finished: false
     ]
+    @GestureState private var isLongPressing = false
     
     var body: some View {
         RealityView { content, attachments in
@@ -68,6 +69,26 @@ struct EyeStretchingView: View {
                     component.onEnded()
                 }
         )
+        .gesture(
+            LongPressGesture(minimumDuration: 2.0)
+                .targetedToEntity(where: .has(LongPressGestureComponent.self))
+                .updating($isLongPressing) { currentValue, gestureState, _ in
+                    gestureState = currentValue.gestureValue
+                }
+                .onEnded { value in
+                    guard let longPressGesture = value.entity.components[LongPressGestureComponent.self] else {
+                        dump("No LongPressGestureComponent found")
+                        return
+                    }
+                    longPressGesture.onEnded()
+                }
+        )
+        .onChange(of: isLongPressing) { _, isLongPressing in
+            viewModel.handleLongPressingUpdate(value: isLongPressing)
+        }
+        .onChange(of: viewModel.currentDisturbEntity) { prevEntity, _ in
+            prevEntity?.disappear()
+        }
     }
     
     private func showCurrentDisturbEntity(
@@ -140,7 +161,7 @@ private extension EyeStretchingView {
     }
     
     func configureStartedPhase(content: RealityViewContent) {
-        viewModel.configureDisturbEntities()
+        viewModel.setDisturbEntitiesPosition()
         viewModel.resetTimer()
     }
     
