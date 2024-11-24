@@ -44,7 +44,7 @@ extension EyeStretchingViewModel {
         monitorEntity.setPosition(.init(x: -0.15, y: -0.17, z: 0.35), relativeTo: ringEntity)
     }
     
-    func configureDisturbEntities() {
+    func setDisturbEntitiesPosition() {
         let positions = generateDisturbEntityPositions()
         
         guard disturbEntities.count == positions.count else {

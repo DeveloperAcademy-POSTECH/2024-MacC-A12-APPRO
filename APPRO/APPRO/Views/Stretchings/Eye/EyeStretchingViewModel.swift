@@ -94,10 +94,12 @@ final class EyeStretchingViewModel: StretchingCounter {
         let disturbEntities: [EyeStretchingDisturbEntity] = try await withThrowingTaskGroup(
             of: EyeStretchingDisturbEntity.self
         ) { taskGroup in
+        ) { [weak self] taskGroup in
             DisturbEntityType.allCases.forEach { type in
                 taskGroup.addTask { @MainActor in
                     let disturbEntity = EyeStretchingDisturbEntity()
                     try await disturbEntity.loadCoreEntity(type: type)
+                    try self?.configureDisturbEntity(type: type, entity: disturbEntity)
                     return disturbEntity
                 }
             }
@@ -110,6 +112,24 @@ final class EyeStretchingViewModel: StretchingCounter {
             return entities.shuffled()
         }
         self.disturbEntities = disturbEntities
+    }
+    
+    private func configureDisturbEntity(
+        type: DisturbEntityType,
+        entity: EyeStretchingDisturbEntity
+    ) throws {
+        entity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
+        entity.components.set(OpacityComponent(opacity: 0.0))
+        entity.components.set(HoverEffectComponent(.spotlight(.default)))
+        
+        try entity.setGestureComponent(
+            type: type,
+            component: LongPressGestureComponent { [weak self] in
+                self?.resetTimer()
+                self?.doneCount += 1
+                self?.currentDisturbEntityIndex += 1
+            }
+        )
     }
     
 }
