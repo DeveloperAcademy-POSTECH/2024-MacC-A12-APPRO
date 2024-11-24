@@ -20,7 +20,7 @@ struct HandRollingStretchingView: View {
             }
             await viewModel.makeFirstEntitySetting()
             viewModel.addEntity(content)
-            viewModel.bringCollisionHandler(content)ㅇ
+            viewModel.bringCollisionHandler(content)
             viewModel.addAttachmentView(content, attachments)
             
         } update: { content, attachments in
