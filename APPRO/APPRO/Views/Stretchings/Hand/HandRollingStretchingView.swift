@@ -14,13 +14,13 @@ struct HandRollingStretchingView: View {
     
     var body: some View {
         RealityView { content, attachments in
+            viewModel.subscribeSceneEvent(content)
             if viewModel.isStartingObjectVisible {
                 await viewModel.generateStartingObject(content)
             }
             await viewModel.makeFirstEntitySetting()
             viewModel.addEntity(content)
-            viewModel.bringCollisionHandler(content)
-            viewModel.subscribeSceneEvent(content)
+            viewModel.bringCollisionHandler(content)ㅇ
             viewModel.addAttachmentView(content, attachments)
             
         } update: { content, attachments in
