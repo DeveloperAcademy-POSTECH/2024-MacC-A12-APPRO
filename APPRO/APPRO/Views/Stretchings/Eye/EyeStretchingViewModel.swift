@@ -28,6 +28,18 @@ final class EyeStretchingViewModel: StretchingCounter {
     private(set) var disturbEntities: [EyeStretchingDisturbEntity] = []
     private(set) var attachmentView = Entity()
     
+    private var currentDisturbEntityIndex: Int = 0
+    private var timerTask: Task<Void, Never>?
+    
+    var currentDisturbEntity: EyeStretchingDisturbEntity? {
+        guard disturbEntities.indices.contains(currentDisturbEntityIndex) else {
+            timerTask?.cancel()
+            return nil
+        }
+        
+        return disturbEntities[currentDisturbEntityIndex]
+    }
+    
     func makeDoneCountZero() {
         doneCount = 0
     }
@@ -60,6 +72,22 @@ final class EyeStretchingViewModel: StretchingCounter {
         
         self.attachmentView = attachmentView
         content.add(attachmentView)
+    }
+    
+    func resetTimer() {
+        timerTask = Task {
+            do {
+                repeat {
+                    try await Task.sleep(nanoseconds: 5 * 1000000000)
+                    try currentDisturbEntity?.playOpacityAnimation(from: 1.0, to: 0.0)
+                    await MainActor.run {
+                        currentDisturbEntityIndex += 1
+                    }
+                } while(!Task.isCancelled)
+            } catch {
+                dump("startTimer failed: \(error)")
+            }
+        }
     }
     
     private func initializeDisturbEntities() async throws {

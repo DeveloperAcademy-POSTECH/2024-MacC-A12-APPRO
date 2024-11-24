@@ -61,6 +61,7 @@ extension EyeStretchingViewModel {
                 angle: Float.random(in: -0.4...0.4),
                 axis: [0, 0, 1]
             )
+            entity.components.set(OpacityComponent(opacity: 0.0))
         }
     }
     

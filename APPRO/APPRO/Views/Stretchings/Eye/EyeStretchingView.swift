@@ -37,6 +37,10 @@ struct EyeStretchingView: View {
                     phase: viewModel.stretchingPhase
                 )
             }
+            showCurrentDisturbEntity(
+                content: content,
+                entity: viewModel.currentDisturbEntity
+            )
         } attachments: {
             Attachment(id: viewModel.attachmentViewID) {
                 StretchingAttachmentView(
@@ -66,8 +70,23 @@ struct EyeStretchingView: View {
         )
     }
     
+    private func showCurrentDisturbEntity(
         content: RealityViewContent,
+        entity: EyeStretchingDisturbEntity?
     ) {
+        guard let entity else {
+            dump("showCurrentDisturbEntity failed: CurrentDisturbEntity is nil")
+            return
+        }
+        do {
+            content.add(entity)
+            try entity.playOpacityAnimation(from: 0.0, to: 1.0)
+        } catch {
+            dump("showCurrentDisturbEntity failed: \(error)")
+        }
+    }
+    
+}
 
 private extension EyeStretchingView {
     
