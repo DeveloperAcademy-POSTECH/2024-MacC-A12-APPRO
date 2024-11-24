@@ -24,8 +24,8 @@ extension EyeStretchingViewModel {
         }
         try eyesEntity.setPatchComponents([
             hoverEffectComponent,
-            tapGestureComponent]
-        )
+            tapGestureComponent
+        ])
         setClosureComponent(entity: eyesEntity, distance: .eyes)
     }
     
