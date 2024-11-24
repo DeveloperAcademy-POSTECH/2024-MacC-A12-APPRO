@@ -18,6 +18,7 @@ struct HandRollingTutorialView : View {
     
     var body : some View {
         RealityView { content, attachments in
+            viewModel.subscribeSceneEvent(content)
             let textEntity = createTextEntity("Stay aware of your surroundings")
             content.add(textEntity)
             setTutorialToStart(content: content)
@@ -67,9 +68,6 @@ struct HandRollingTutorialView : View {
                 if viewModel.isStartingObjectVisible { viewModel.isStartingObjectVisible = false}
                 
                 viewModel.rightEntities.append(viewModel.rightGuideRing)
-                if tutorialManager.currentStepIndex > 1 {
-                    viewModel.rightEntities.append(viewModel.rightGuideSphere)
-                }
                 
                 Task {
                     await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
@@ -80,7 +78,7 @@ struct HandRollingTutorialView : View {
                 viewModel.rightEntities.removeAll()
             }
         }
-        .onChange(of: viewModel.isLeftHandInFist, initial: false) { _, isHandFistShape in            
+        .onChange(of: viewModel.isLeftHandInFist && tutorialManager.isLastStep, initial: false) { _, isHandFistShape in
             if isHandFistShape && tutorialManager.isLastStep {
                 viewModel.leftEntities.append(viewModel.leftGuideRing)
                 viewModel.leftEntities.append(viewModel.leftGuideSphere)
@@ -102,6 +100,11 @@ struct HandRollingTutorialView : View {
         .onChange(of: tutorialManager.currentStepIndex, initial: false ) { _, currentStepIndex in
             if currentStepIndex == 1 {
                 viewModel.showTarget = true
+                goToNextTutorialStep(1)
+            }
+            
+            if tutorialManager.currentStepIndex == 2 {
+                viewModel.rightEntities.append(viewModel.rightGuideSphere)
             }
             
             if tutorialManager.isLastStep {
@@ -152,7 +155,7 @@ struct HandRollingTutorialView : View {
             goToNextTutorialStep(2)
         }
         .onChange(of: viewModel.leftRotationCount, initial: false) { _, newValue in
-            let colorValueChangedTo = min (newValue * 2, 6)
+            let colorValueChangedTo = min (newValue * 2 + 1, 7)
             viewModel.getDifferentRingColor(viewModel.leftGuideRing, intChangeTo: Int32(colorValueChangedTo))
             
             Task {
@@ -216,7 +219,6 @@ struct HandRollingTutorialView : View {
                     
                     await viewModel.makeFirstEntitySetting()
                     viewModel.bringCollisionHandler(content)
-                    viewModel.subscribeSceneEvent(content)
                     isStartWarningDone = true
                 }
             }

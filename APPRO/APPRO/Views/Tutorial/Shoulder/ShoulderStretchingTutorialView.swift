@@ -13,30 +13,25 @@ struct ShoulderStretchingTutorialView: View {
     @State private var tutorialManager = TutorialManager(stretching: .shoulder)
     @State private var viewModel = ShoulderStretchingTutorialViewModel()
     @State private var isColliding: Bool = false
-    
     @State var isStartWarningDone = false
     
     var body: some View {
         RealityView { content, attachments in
             content.add(viewModel.contentEntity)
+            viewModel.subscribeSceneEvent(content)
             let textEntity = createTextEntity("Stay aware of your surroundings")
             viewModel.contentEntity.addChild(textEntity)
             setTutorialToStart(content: content)
             
         } update: { content, attachments in
-            
-            switch tutorialManager.currentStepIndex {
-            case 0:
+            if tutorialManager.currentStepIndex == 0 {
                 if isStartWarningDone {
                     viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
                     viewModel.addAttachmentView(content,attachments)
                 } else {
                     viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
                 }
-            default:
-                completeTutorialStep(1)
-                completeTutorialStep(5) // The last step in the tutorial
-                
+            } else {
                 viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
             }
             
@@ -57,21 +52,27 @@ struct ShoulderStretchingTutorialView: View {
             await viewModel.updateHandTracking()
         }
         .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, newValue in
-            if newValue == 4 {
+            switch tutorialManager.currentStepIndex {
+            case 1:
+                tutorialManager.advanceToNextStep()
+            case 4:
                 viewModel.resetModelEntities()
                 viewModel.createEntitiesOnEllipticalArc(handTransform: viewModel.rightHandTransform)
+            default:
+                break
             }
         }
         .onChange(of: viewModel.modelEntities) { _, newValue in
             if let _ = newValue.first(where: {$0.name.contains("rightModelEntity")}) {
-                completeTutorialStep(2)
+                if tutorialManager.currentStepIndex == 2 {
+                    tutorialManager.advanceToNextStep()
+                }
             }
         }
     }
     
     func subscribeToCollisionEvents(content: RealityViewContent) {
         guard let rightCollisionModel = viewModel.handRocketEntity.findEntity(named: "RocketCollisionModel") as? ModelEntity else { return }
-        
         // 충돌 시작 감지
         _ = content.subscribe(to: CollisionEvents.Began.self, on: rightCollisionModel) { collisionEvent in
             setCollisionAction(collisionEvent: collisionEvent)
@@ -88,10 +89,10 @@ struct ShoulderStretchingTutorialView: View {
             if animationEvent.playbackController.entity?.name == "EntryRocket" {
                 viewModel.entryRocketEntity.removeFromParent()
                 viewModel.addRightHandAnchor()
-                completeTutorialStep(0) // Tutorial Step 0 Completed
+                tutorialManager.advanceToNextStep()
             } else {
                 animationEvent.playbackController.entity?.removeFromParent()
-                completeTutorialStep(4)
+                tutorialManager.advanceToNextStep()
                 executeCollisionAction()
             }
         }
@@ -126,7 +127,9 @@ struct ShoulderStretchingTutorialView: View {
 
             // 마지막 엔터티 감지
             if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 2)") {
-                completeTutorialStep(3)
+                if tutorialManager.currentStepIndex == 3 {
+                    tutorialManager.advanceToNextStep()
+                }
                 
                 if tutorialManager.currentStepIndex >= 4  {
                     viewModel.addShoulderTimerEntity()
@@ -173,12 +176,6 @@ struct ShoulderStretchingTutorialView: View {
         return textEntity
     }
     
-    private func completeTutorialStep(_ currentStepIndex: Int) {
-        if tutorialManager.currentStepIndex == currentStepIndex {
-            tutorialManager.completeCurrentStep()
-        }
-    }
-    
     func setTutorialToStart(content: RealityViewContent) {
         if tutorialManager.currentStepIndex == 0 {
             guard let textEntity = viewModel.contentEntity.findEntity(named: "warning") else { return }
@@ -192,7 +189,6 @@ struct ShoulderStretchingTutorialView: View {
                     await viewModel.setEntryRocket()
                     viewModel.setHandRocketEntity()
                     subscribeToCollisionEvents(content: content)
-                    viewModel.subscribeSceneEvent(content)
                     isStartWarningDone = true
                 }
             }

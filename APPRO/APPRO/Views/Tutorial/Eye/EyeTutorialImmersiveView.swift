@@ -102,7 +102,7 @@ struct EyeTutorialImmersiveView: View {
     private func configureStep2() {
         tutorialManager.attachmentView.components.remove(ClosureComponent.self)
         
-        tutorialManager.completeCurrentStep()
+        tutorialManager.advanceToNextStep()
     }
     
     private func configureStep3(content: RealityViewContent) {
@@ -135,7 +135,7 @@ struct EyeTutorialImmersiveView: View {
             tutorialManager.configureMonitorEntity()
             try ringEntity.subscribeCollisionEvent()
             
-            tutorialManager.completeCurrentStep()
+            tutorialManager.advanceToNextStep()
         } catch {
             dump("configureStep4 failed: \(error)")
         }

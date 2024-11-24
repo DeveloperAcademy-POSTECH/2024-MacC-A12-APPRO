@@ -43,18 +43,19 @@ struct APPROApp: App {
                     await openImmersiveSpace(id: appState.immersiveSpaceID)
                     dismissWindow(id: appState.stretchingPartsWindowID)
                 } else {
+                    openWindow(id: appState.stretchingPartsWindowID)
                     await dismissImmersiveSpace()
                 }
             }
         }
-        .onChange(of: appState.appPhase) { _, newPhase in
-            if newPhase == .choosingStretchingPart {
-                openWindow(id: appState.stretchingPartsWindowID)
+        .onChange(of: scenePhase) { _, newPhase in
+            if (newPhase == .background || newPhase == .inactive) {
+                appState.appPhase = .choosingStretchingPart
             }
         }
-        
+
         ImmersiveSpace(id: appState.immersiveSpaceID) {
-            if let stretchingPart = appState.currentStretchingPart {
+            if let stretchingPart = appState.currentStretchingPart, scenePhase == .active {
                 if appState.appPhase == .tutorial && !TutorialManager.isSkipped(part: stretchingPart) {
                     tutorialImmersiveView(part: stretchingPart)
                         .preferredSurroundingsEffect(.semiDark)

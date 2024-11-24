@@ -10,19 +10,28 @@ import AVFAudio
 
 @Observable
 @MainActor
-class TutorialManager {
+class TutorialManager: NSObject, AVAudioPlayerDelegate {
     
     let stretchingPart: StretchingPart
     
     private var steps: [TutorialStep]
     private(set) var currentStepIndex = 0
-    
+    private var isCurrentInstructionCompleted: Bool = false
     static var audioPlayer: AVAudioPlayer?
+    var onAudioFinished: (() -> Void)? // 오디오 재생 완료 후 호출할 콜백
+    var isAudioFinished: Bool = false
     
     init(stretching: StretchingPart) {
         self.stretchingPart = stretching
         self.steps = stretching.tutorialInstructions.enumerated().map {
-            .init(instruction: $1, audioFilename: "\(stretching)_\($0 + 1)", isNextButtonRequired: TutorialManager.getNextButtonRequiredInfo(tutorialStretching: stretching)[$0]) }
+            .init(instruction: $1, audioFilename: "\(stretching)_\($0 + 1)" )
+        }
+    }
+    
+    deinit {
+        Task { @MainActor in
+            TutorialManager.audioPlayer = nil
+        }
     }
     
     var isLastStep: Bool {
@@ -33,14 +42,22 @@ class TutorialManager {
         steps[safe: currentStepIndex]
     }
     
-    func completeCurrentStep() {
-        guard steps.indices.contains(currentStepIndex) else { return }
-        
-        steps[currentStepIndex].isCompleted = true
-    }
-    
+    /// 행동 조건 완료시 실행
     func advanceToNextStep() {
-        currentStepIndex += 1
+        // 마지막 단계 일때는 스킵
+        guard !isLastStep else { return }
+        /// 재생 후
+        if isAudioFinished {
+            currentStepIndex += 1
+            isAudioFinished = false
+        } else {
+            
+            /// 재생 전, 중
+            onAudioFinished = {
+                self.currentStepIndex += 1
+                self.isAudioFinished = false
+            }
+        }
     }
     
     func skip() {
@@ -52,10 +69,10 @@ class TutorialManager {
         if let path = Bundle.main.path(forResource: currentStep?.audioFilename, ofType: "mp3"){
                do{
                    TutorialManager.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
+                   TutorialManager.audioPlayer?.delegate = self
                    TutorialManager.audioPlayer?.prepareToPlay()
                    TutorialManager.audioPlayer?.play()
-
-               }catch {
+               } catch {
                    print("Error on Playing Instruction Audio : \(error)")
                }
            }
@@ -64,27 +81,23 @@ class TutorialManager {
     func stopInstructionAudio() {
         TutorialManager.audioPlayer?.stop()
     }
+    
+    // 오디오 재생 완료 감지
+    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        if flag {
+            Task { @MainActor in
+                isAudioFinished = true
+                onAudioFinished?() // 오디오 종료시 콜백 호출
+                onAudioFinished = nil // 콜백 초기화
+            }
+        }
+    }
 }
 
 extension TutorialManager {
     
     static func isSkipped(part: StretchingPart) -> Bool {
         UserDefaults.standard.bool(forKey: "\(part)TutorialSkipped")
-    }
-    
-}
-
-extension TutorialManager {
-
-    static func getNextButtonRequiredInfo(tutorialStretching: StretchingPart) -> [Bool] {
-        switch tutorialStretching {
-        case .eyes:
-            [false, true, false, true]
-        case .wrist:
-            [false, true, false, false, true]
-        case .shoulder:
-            [false, true, false, false, false, true]
-        }
     }
     
 }
