@@ -29,7 +29,7 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     }
     
     deinit {
-        debugPrint(self, "디이닛")
+        debugPrint(self, "deinited")
     }
    
     var isLastStep: Bool {
@@ -78,11 +78,6 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     
     func stopInstructionAudio() {
         audioPlayer?.stop()
-    }
-    
-    func removeAudioPlayer() {
-        audioPlayer?.delegate = nil
-        audioPlayer = nil
     }
     
     // 오디오 재생 완료 감지
