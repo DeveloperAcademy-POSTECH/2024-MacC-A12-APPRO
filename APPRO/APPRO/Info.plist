@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSHandsTrackingUsageDescription</key>
+	<string>This App require Hand Tracking by ARKit Session</string>
+	<key>NSWorldSensingUsageDescription</key>
+	<string>This App require World Tracking by ARKit Session</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationPreferredDefaultSceneSessionRole</key>
@@ -19,9 +23,5 @@
 			</array>
 		</dict>
 	</dict>
-	<key>NSHandsTrackingUsageDescription</key>
-	<string>This App require Hand Tracking by ARKit Session</string>
-	<key>NSWorldSensingUsageDescription</key>
-	<string>This App require World Tracking by ARKit Session</string>
 </dict>
 </plist>
