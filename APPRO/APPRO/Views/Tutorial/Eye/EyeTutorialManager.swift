@@ -30,11 +30,21 @@ final class EyeTutorialManager: TutorialManager {
     }
     
     private var longPressGestureOnEnded = false
-    
+        
     init() {
         super.init(stretching: .eyes)
     }
     
+    deinit {
+        cancellableBag.removeAll()
+        debugPrint(self, "deinited")
+    }
+
+    func resetAttactmentViewEntity() {
+        attachmentView.components.removeAll()
+        attachmentView = Entity()
+    }
+
     func loadEntities() async -> Bool {
         do {
             try await eyesEntity.loadCoreEntity()
@@ -45,7 +55,6 @@ final class EyeTutorialManager: TutorialManager {
             return true
         } catch {
             dump("loadEntities failed: \(error)")
-            
             return false
         }
     }
@@ -87,7 +96,7 @@ extension EyeTutorialManager {
             dump("addAttachmentView failed: \(attachmentViewID) not found in attachments")
             return
         }
-        
+        attachmentView.name = "attachmentView"
         content.add(attachmentView)
         self.attachmentView = attachmentView
     }

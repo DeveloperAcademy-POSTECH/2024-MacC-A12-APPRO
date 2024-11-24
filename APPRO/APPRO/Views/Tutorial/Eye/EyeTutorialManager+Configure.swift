@@ -10,7 +10,7 @@ import RealityKit
 
 extension EyeTutorialManager {
     
-    func configureAttachmentView(entity: Entity) {
+    func configureAttachmentView() {
         setClosureComponent(
             entity: attachmentView,
             distance: .attachment,

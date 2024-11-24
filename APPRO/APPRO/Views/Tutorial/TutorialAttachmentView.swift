@@ -41,9 +41,6 @@ struct TutorialAttachmentView: View {
                         .font(.system(size: 32, weight: .medium))
                         .multilineTextAlignment(.leading)
                         .lineLimit(4)
-                        .onAppear {
-                            tutorialManager.playInstructionAudio()
-                        }
                         .onChange(of: tutorialManager.currentStepIndex, initial: false) { _, _ in
                             tutorialManager.playInstructionAudio()
                         }
@@ -58,6 +55,9 @@ struct TutorialAttachmentView: View {
                         .font(.title3)
                     }
                 }
+                .onAppear {
+                    tutorialManager.playInstructionAudio()
+                }
                 .opacity(showSkipAlert ? 0.3 : 1.0)
                 .blur(radius: showSkipAlert ? 1.5 : 0.0)
                 
@@ -69,7 +69,6 @@ struct TutorialAttachmentView: View {
             .frame(width: 800) // ZStack에서 VStack 혹은 alertView의 height 중 큰값으로 결정됨
             .glassBackgroundEffect()
         }
-        
     }
     
     private func presentSkipAlert(_ show: Bool) {
