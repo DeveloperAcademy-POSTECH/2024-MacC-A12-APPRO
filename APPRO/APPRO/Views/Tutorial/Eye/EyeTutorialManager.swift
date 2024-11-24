@@ -34,6 +34,7 @@ final class EyeTutorialManager: TutorialManager {
             updateRingEntityParameter(entity: ringEntity)
         }
     }
+    
     private var eyesCollidingRestrictLine = false {
         didSet {
             updateRingEntityParameter(entity: ringEntity)
@@ -45,11 +46,21 @@ final class EyeTutorialManager: TutorialManager {
     }
     
     private var longPressGestureOnEnded = false
-    
+        
     init() {
         super.init(stretching: .eyes)
     }
     
+    deinit {
+        cancellableBag.removeAll()
+        debugPrint(self, "deinited")
+    }
+
+    func resetAttactmentViewEntity() {
+        attachmentView.components.removeAll()
+        attachmentView = Entity()
+    }
+
     func loadEntities() async -> Bool {
         do {
             eyesEntity = try await loadEntity(entityType: .eyes)
@@ -60,7 +71,6 @@ final class EyeTutorialManager: TutorialManager {
             return true
         } catch {
             dump("loadEntities failed: \(error)")
-            
             return false
         }
     }
@@ -161,7 +171,7 @@ extension EyeTutorialManager {
             dump("addAttachmentView failed: \(attachmentViewID) not found in attachments")
             return
         }
-        
+        attachmentView.name = "attachmentView"
         content.add(attachmentView)
         self.attachmentView = attachmentView
     }

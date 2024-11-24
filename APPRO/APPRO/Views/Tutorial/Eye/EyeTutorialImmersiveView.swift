@@ -19,7 +19,7 @@ struct EyeTutorialImmersiveView: View {
     var body: some View {
         RealityView { content, attachments in
             tutorialManager.addAttachmentView(content: content, attachments: attachments)
-            tutorialManager.configureAttachmentView(entity: tutorialManager.attachmentView)
+            tutorialManager.configureAttachmentView()
         }
         update: { content, _ in
             if entitiesAllLoaded {
@@ -33,6 +33,9 @@ struct EyeTutorialImmersiveView: View {
             Attachment(id: tutorialManager.attachmentViewID) {
                 TutorialAttachmentView(tutorialManager: tutorialManager)
             }
+        }
+        .onDisappear {
+            tutorialManager.resetAttactmentViewEntity()
         }
         .task {
             entitiesAllLoaded = await tutorialManager.loadEntities()
@@ -86,15 +89,12 @@ struct EyeTutorialImmersiveView: View {
     
     private func configureStep1(content: RealityViewContent) {
         let eyesEntity = tutorialManager.eyesEntity
-        
         tutorialManager.configureEyesEntity(entity: eyesEntity)
-        
         content.add(eyesEntity)
     }
     
     private func configureStep2() {
         tutorialManager.attachmentView.components.remove(ClosureComponent.self)
-        
         tutorialManager.advanceToNextStep()
     }
     
