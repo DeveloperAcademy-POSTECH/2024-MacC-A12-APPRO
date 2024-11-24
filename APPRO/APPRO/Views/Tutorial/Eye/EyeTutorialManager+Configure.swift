@@ -18,61 +18,44 @@ extension EyeTutorialManager {
         )
     }
     
-    func configureEyesEntity(entity: Entity) {
-        setClosureComponent(entity: entity, distance: .eyes)
-        entity.findEntity(named: "patch")?.components.set(HoverEffectComponent(.highlight(.default)))
+    func configureEyesEntity() throws {
+        let hoverEffectComponent = HoverEffectComponent(.spotlight(.default))
+        let tapGestureComponent = TapGestureComponent { [weak self] in
+            self?.step1Done()
+        }
+        try eyesEntity.setPatchComponents([
+            hoverEffectComponent, tapGestureComponent
+        ])
+        setClosureComponent(entity: eyesEntity, distance: .eyes)
     }
     
-    func setEyeCollisionComponent(entity: Entity) async {
-        guard let leftEyeEntity = entity.findEntity(named: "eye_left"),
-              let rightEyeEntity = entity.findEntity(named: "eye_right") else {
-            dump("setEyeCollisionComponent failed: cannot find eye entities")
-            return
-        }
+    func configureChickenEntity() throws {
+        chickenEntity.setPosition(.init(x: -1, y: 0, z: 0), relativeTo: eyesEntity)
+        chickenEntity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
+        chickenEntity.components.set(OpacityComponent(opacity: 0.0))
+        chickenEntity.components.set(HoverEffectComponent(.spotlight(.default)))
         
-        guard let leftShapeResource = await generateShapeResource(entity: leftEyeEntity, isConvex: true),
-        let rightShapeResource = await generateShapeResource(entity: rightEyeEntity, isConvex: true) else {
-            return
+        let longPressGesture = LongPressGestureComponent { [weak self] in
+            self?.longPressOnEnded()
         }
-        leftEyeEntity.components.set(CollisionComponent(shapes: [leftShapeResource]))
-        rightEyeEntity.components.set(CollisionComponent(shapes: [rightShapeResource]))
+        try chickenEntity.setGestureComponent(
+            type: .chicken,
+            component: longPressGesture
+        )
     }
     
-    func configureChickenEntity(entity: Entity) {
-        entity.setPosition(.init(x: -1, y: 0, z: 0), relativeTo: eyesEntity)
-        entity.components.set(HoverEffectComponent(.highlight(.default)))
-        entity.components.set(OpacityComponent(opacity: 0.0))
-        entity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
-        entity.generateCollisionShapes(recursive: true)
-    }
-    
-    func configureRingEntity(entity: Entity) async {
+    func configureRingEntity() async throws {
         ringEntity.components.set(OpacityComponent(opacity: 0))
         ringEntity.setPosition(.init(x: 0, y: 0, z: 0), relativeTo: eyesEntity)
         ringEntity.orientation = eyesEntity.orientation
-        
-        await setRingCollisionComponent(entity: entity)
+        try await ringEntity.setCollisionComponent()
     }
     
-    func configureMonitorEntity(entity: Entity) {
-        entity.components.set(OpacityComponent(opacity: 0))
-        entity.setPosition(.init(x: -0.1, y: -0.05, z: 0.2), relativeTo: ringEntity)
-    }
-    
-    private func setRingCollisionComponent(entity: Entity) async {
-        guard let innerPlaneEntity = ringEntity.findEntity(named: "inner_plane"),
-              let restrictLineEntity = ringEntity.findEntity(named: "restrict_line") else {
-            dump("configureRingChildrenEntities failed: No innerPlaneEntity or restrictLineEntity found")
-            return
-        }
-        
-        guard let innerPlaneShapeResource = await generateShapeResource(entity: innerPlaneEntity, isConvex: true),
-              let restrictLineShapeResource = await generateShapeResource(entity: restrictLineEntity, isConvex: false) else {
-            return
-        }
-        
-        innerPlaneEntity.components.set(CollisionComponent(shapes: [innerPlaneShapeResource], isStatic: true))
-        restrictLineEntity.components.set(CollisionComponent(shapes: [restrictLineShapeResource], isStatic: true))
+    func configureMonitorEntity() {
+        monitorEntity.transform.scale = [0.2, 0.2, 0.2]
+        monitorEntity.transform.rotation = .init(angle: -0.5, axis: [0, 1, 0])
+        monitorEntity.components.set(OpacityComponent(opacity: 0))
+        monitorEntity.setPosition(.init(x: -0.15, y: -0.17, z: 0.35), relativeTo: ringEntity)
     }
     
     private func setClosureComponent(
@@ -90,23 +73,6 @@ extension EyeTutorialManager {
             entity.look(at: currentTranslation, from: targetPosition, relativeTo: nil, forward: forwardDirection)
         }
         entity.components.set(closureComponent)
-    }
-    
-    private func generateShapeResource(entity: Entity, isConvex: Bool) async -> ShapeResource? {
-        guard let modelEntity = entity.children.filter({ $0 is ModelEntity }).first as? ModelEntity,
-              let mesh = modelEntity.model?.mesh else {
-            dump("generateShapeResourceByMesh failed: No mesh found in \(entity.name)")
-            return nil
-        }
-        
-        do {
-            return isConvex
-            ? try await ShapeResource.generateConvex(from: mesh)
-            : try await ShapeResource.generateStaticMesh(from: mesh)
-        } catch {
-            dump("generateShapeResourceByMesh failed: \(error)")
-            return nil
-        }
     }
     
 }
