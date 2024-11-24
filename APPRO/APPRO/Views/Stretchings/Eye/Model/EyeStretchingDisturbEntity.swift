@@ -47,13 +47,13 @@ final class EyeStretchingDisturbEntity: Entity {
     func reduce() {
         var transform = transform
         transform.scale = originalScale
-        move(to: transform, relativeTo: nil, duration: 1.5)
+        move(to: transform, relativeTo: nil, duration: 1)
     }
     
     func disappear() {
         var transform = transform
         transform.scale = .zero
-        move(to: transform, relativeTo: nil, duration: 1)
+        move(to: transform, relativeTo: nil, duration: 0.5)
     }
     
 }
