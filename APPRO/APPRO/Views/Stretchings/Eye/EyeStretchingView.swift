@@ -66,10 +66,12 @@ struct EyeStretchingView: View {
         )
     }
     
-    private func configure(
         content: RealityViewContent,
-        phase: EyeStretchingPhase
     ) {
+
+private extension EyeStretchingView {
+    
+    func configure(content: RealityViewContent, phase: EyeStretchingPhase) {
         Task {
             if configureCompleted[phase] == false {
                 do {
@@ -94,13 +96,13 @@ struct EyeStretchingView: View {
             }
         }
     }
-         
-    private func configureWaitingPhase(content: RealityViewContent) throws {
+    
+    func configureWaitingPhase(content: RealityViewContent) throws {
         try viewModel.configureEyesEntity()
         content.add(viewModel.eyesEntity)
     }
     
-    private func configureReadyPhase(content: RealityViewContent) async throws {
+    func configureReadyPhase(content: RealityViewContent) async throws {
         let ringEntity = viewModel.ringEntity
         let eyesEntity = viewModel.eyesEntity
         let monitorEntity = viewModel.monitorEntity
@@ -118,12 +120,9 @@ struct EyeStretchingView: View {
         viewModel.stretchingPhase = .started
     }
     
-    private func configureStartedPhase(content: RealityViewContent) {
-        let disturbEntities = viewModel.disturbEntities
-        
+    func configureStartedPhase(content: RealityViewContent) {
         viewModel.configureDisturbEntities()
-        
-        disturbEntities.forEach { content.add($0) }
+        viewModel.resetTimer()
     }
     
 }
