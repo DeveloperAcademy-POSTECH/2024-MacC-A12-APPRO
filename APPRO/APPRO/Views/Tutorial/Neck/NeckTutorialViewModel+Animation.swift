@@ -40,4 +40,12 @@ extension NeckTutorialViewModel {
             return nil
         }
     }
+    
+    func playPredefinedAnimation(animationEntity: Entity) {
+        for animation in animationEntity.availableAnimations {
+            let animation = animation.repeat(count: 1)
+            timerController = animationEntity.playAnimation(animation, transitionDuration: 0.0, startsPaused: false)
+            break
+        }
+    }
 }

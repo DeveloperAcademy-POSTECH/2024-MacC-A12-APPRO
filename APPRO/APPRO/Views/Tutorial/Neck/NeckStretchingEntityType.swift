@@ -19,7 +19,7 @@ enum NeckStretchingEntityType: String {
         case .coin:
             "Neck/coin.usda"
         case .timer:
-            "Neck/timer.usda"
+            "Neck/NeckTimer.usda"
         }
     }
 }

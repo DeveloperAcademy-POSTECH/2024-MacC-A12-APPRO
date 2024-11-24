@@ -14,16 +14,17 @@ struct NeckTutorialView: View {
     @State private var tutorialManager = TutorialManager(stretching: .neck)
     
     @State private var areEntitiesAllLoaded = false
+    @State private var isAttachmentViewadjusted = false
     @State private var tutorialPreparations = Array(repeating: false, count: 5)
+    
     
     var body : some View {
         RealityView { content, attachments in
             viewModel.addAttachmentView(content, attachments)
-            // TODO: attachmentView 위치 조정하기. x, y, 고정하고 위치만 가변.
-            
         } update: { content, _ in
             if areEntitiesAllLoaded {
                 handleCurrentTutorialStep(content, currentStepIndex: tutorialManager.currentStepIndex)
+                viewModel.addCoinEntity(content)
             }
         }
         attachments: {
@@ -34,8 +35,28 @@ struct NeckTutorialView: View {
         .task {
             areEntitiesAllLoaded = await viewModel.loadEntities()
         }
-        
-        // TODO: onTabGesture에서 configureFirstStep -> Done
+        .gesture(
+            TapGesture()
+                .targetedToAnyEntity()
+                .onEnded { tapEvent in
+                    
+                    // Pig's the most exterior-close model entity name : ______
+                    if tapEvent.entity.name == "______" {
+                        if tutorialManager.currentStepIndex == 0 {
+                            makeDoneFirstStep()
+                            tutorialPreparations[0] = true
+                        } else if viewModel.coinEntities.count == 0 {
+                            viewModel.makeSemiCircleWithCoins()
+                            if tutorialManager.currentStepIndex == 1 {
+                                makeDoneSecondStep()
+                            }
+                        } else {
+                            viewModel.resetCoins()
+                        }
+                    }
+                }
+        )
+        .onChange(of: viewModel.coinEntities, initial: false) {}
     }
     
     private func handleCurrentTutorialStep(_ content: RealityViewContent, currentStepIndex: Int) {
@@ -45,9 +66,9 @@ struct NeckTutorialView: View {
                 case 0:
                     prepareFirstStep(content)
                 case 1:
-                    print(0)
+                    prepareSecondStep()
                 case 2:
-                    print(0)
+                    prepareThirdStep(content)
                 case 3:
                     print(0)
                 default :
@@ -58,8 +79,27 @@ struct NeckTutorialView: View {
     }
     
     private func prepareFirstStep(_ content: RealityViewContent) {
-//        viewModel.configurePigEntity()
+        viewModel.configureInitialSettingToPig()
         viewModel.locatedPigOnFixedLocation()
+        
+        viewModel.adjustAttachmentViewLocation()
         content.add(viewModel.pigEntity)
+    }
+    
+    private func makeDoneFirstStep () {
+        viewModel.configureDeviceTrackingToPigEntity()
+        tutorialManager.advanceToNextStep()
+    }
+    
+    private func prepareSecondStep () {
+        tutorialPreparations[1] = true
+    }
+    
+    private func makeDoneSecondStep() {
+        tutorialManager.advanceToNextStep()
+    }
+    
+    private func prepareThirdStep(_ content: RealityViewContent) {
+        viewModel.subscribePigCollisionEvent(content)
     }
 }

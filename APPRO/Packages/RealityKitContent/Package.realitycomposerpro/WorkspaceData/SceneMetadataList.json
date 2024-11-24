@@ -109,7 +109,9 @@
       [
         "3419DEFD-0AD7-4EE4-87F3-5218846DE923",
         "Root",
-        "neck_coin_animation"
+        "coin",
+        "Null",
+        "Boole"
       ],
       {
         "isExpanded" : true,
@@ -143,6 +145,25 @@
       {
         "isExpanded" : true,
         "isLocked" : false
+      },
+      [
+        "3419DEFD-0AD7-4EE4-87F3-5218846DE923",
+        "Root",
+        "coin"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "3419DEFD-0AD7-4EE4-87F3-5218846DE923",
+        "Root",
+        "coin",
+        "Null"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
       }
     ]
   },
@@ -172,6 +193,18 @@
         "3751220F-31D9-40D0-9DBF-3DF28D9550EB",
         "root",
         "target_002"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      }
+    ]
+  },
+  "3797A59E-C7D0-4B14-B4BB-D37EBFF832F3" : {
+    "objectMetadataList" : [
+      [
+        "3797A59E-C7D0-4B14-B4BB-D37EBFF832F3",
+        "Root"
       ],
       {
         "isExpanded" : true,
