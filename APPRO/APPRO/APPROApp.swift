@@ -17,6 +17,8 @@ struct APPROApp: App {
     @Environment(\.scenePhase) private var scenePhase
     
     init() {
+        LongPressGestureComponent.registerComponent()
+        TapGestureComponent.registerComponent()
         ClosureComponent.registerComponent()
         ClosureSystem.registerSystem()
     }
@@ -71,7 +73,8 @@ struct APPROApp: App {
     private func stretchingImmersiveView(part: StretchingPart) -> some View {
         switch part {
         case .eyes:
-            EmptyView()
+            EyeStretchingView()
+                .environment(appState)
         case .shoulder:
             ShoulderStretchingView()
                 .environment(appState)
