@@ -11,19 +11,85 @@
 def Xform "Root"
 {
     quatf xformOp:orient = (0.99999994, 0, 0, 0)
-    float3 xformOp:scale = (1, 1, 1)
+    float3 xformOp:scale = (0.2, 0.2, 0.2)
     float3 xformOp:translate = (0, 0, 0)
     uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
-    def "neck_pig_naanimation2" (
+    def "pig" (
         active = true
-        prepend references = @neck_pig_naanimation2.usdz@
+        references = @neck_pig_naanimation2.usdz@
     )
     {
         quatf xformOp:orient = (1, 0, 0, 0)
         float3 xformOp:scale = (0.009999999, 0.009999999, 0.009999999)
         double3 xformOp:translate = (0, 0, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def RealityKitComponent "InputTarget"
+        {
+            uniform token info:id = "RealityKit.InputTarget"
+        }
+
+        over "______" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = None (
+                bindMaterialAs = "weakerThanDescendants"
+            )
+            quatf xformOp:orient = (1, 0, 0, 0)
+            float3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+            over "neckpigdobject"
+            {
+                def RealityKitComponent "InputTarget"
+                {
+                    uniform token info:id = "RealityKit.InputTarget"
+                }
+
+                over "pigobject"
+                {
+                    over "pig"
+                    {
+                    }
+                }
+            }
+
+            def RealityKitComponent "Collider"
+            {
+                uint group = 1
+                uniform token info:id = "RealityKit.Collider"
+                uint mask = 4294967295
+                token type = "Default"
+
+                def RealityKitStruct "Shape"
+                {
+                    float3 extent = (189.4854, 131.5023, 158.05426)
+                    token shapeType = "Box"
+
+                    def RealityKitStruct "pose"
+                    {
+                        float3 position = (0.0042266846, 6.782814, -7.0536156)
+                    }
+                }
+            }
+        }
+
+        over "Materials"
+        {
+            over "Mat"
+            {
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+
+                over "PreviewSurface"
+                {
+                    float inputs:opacityThreshold = 0
+                }
+            }
+        }
     }
 }
 

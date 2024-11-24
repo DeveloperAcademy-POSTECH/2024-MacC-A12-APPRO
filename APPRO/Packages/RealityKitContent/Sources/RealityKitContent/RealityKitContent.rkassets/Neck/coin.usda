@@ -10,9 +10,12 @@
 
 def Xform "Root"
 {
-    def "neck_coin_animation" (
+    float3 xformOp:scale = (0.2, 0.2, 0.2)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+    def "coin" (
         active = true
-        prepend references = @neck_coin_animation.usdz@
+        references = @neck_coin_animation.usdz@
     )
     {
         quatf xformOp:orient = (1, 0, 0, 0)
@@ -30,6 +33,40 @@ def Xform "Root"
                 over "PreviewSurface"
                 {
                     float inputs:opacityThreshold = 0
+                }
+            }
+        }
+
+        over "Null"
+        {
+            over "Boole" (
+                customData = {
+                    dictionary RE = {
+                        dictionary mesh = {
+                            dictionary v1 = {
+                                bool reorderVertexCaching = 0
+                            }
+                        }
+                    }
+                }
+            )
+            {
+                def RealityKitComponent "Collider"
+                {
+                    uint group = 1
+                    uniform token info:id = "RealityKit.Collider"
+                    uint mask = 4294967295
+                    token type = "Default"
+
+                    def RealityKitStruct "Shape"
+                    {
+                        float3 extent = (74.84062, 74.84062, 14.968125)
+                        token shapeType = "Box"
+
+                        def RealityKitStruct "pose"
+                        {
+                        }
+                    }
                 }
             }
         }
