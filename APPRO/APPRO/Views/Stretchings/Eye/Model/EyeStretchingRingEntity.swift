@@ -25,16 +25,6 @@ final class EyeStretchingRingEntity: Entity {
         super.init()
         
         self.transform.scale = [0.37, 0.37, 0.37]
-        self.collisionState
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                do {
-                    try self?.updateShaderGraphParameter(state.eyesAreInside)
-                } catch {
-                    dump("updateShaderGraphParameter failed: \(error)")
-                }
-            }
-            .store(in: &cancellableBag)
     }
     
     func loadCoreEntity() async throws {
@@ -64,6 +54,21 @@ final class EyeStretchingRingEntity: Entity {
         
         innerPlane.components.set(CollisionComponent(shapes: [innerPlaneShapeResource], isStatic: true))
         restrictLine.components.set(CollisionComponent(shapes: [restrictLineShapeResource], isStatic: true))
+        
+        handleCollisionState()
+    }
+    
+    private func handleCollisionState() {
+        collisionState
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                do {
+                    try self?.updateShaderGraphParameter(state.eyesAreInside)
+                } catch {
+                    dump("updateShaderGraphParameter failed: \(error)")
+                }
+            }
+            .store(in: &cancellableBag)
     }
     
     private func updateShaderGraphParameter(_ eyesAreInside: Bool) throws {
