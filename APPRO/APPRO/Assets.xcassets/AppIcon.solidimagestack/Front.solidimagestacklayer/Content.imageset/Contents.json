@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "ICON_FRONT.png",
       "idiom" : "vision",
       "scale" : "2x"
     }
