@@ -162,6 +162,7 @@ private extension EyeStretchingView {
     
     func configureStartedPhase(content: RealityViewContent) {
         viewModel.setDisturbEntitiesPosition()
+        viewModel.handleEyeRingCollisionState()
         viewModel.resetTimer()
     }
     

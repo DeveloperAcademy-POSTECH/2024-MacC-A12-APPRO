@@ -5,6 +5,7 @@
 //  Created by 정상윤 on 11/23/24.
 //
 
+import Combine
 import SwiftUI
 import RealityKit
 import RealityKitContent
@@ -30,6 +31,8 @@ final class EyeStretchingViewModel: StretchingCounter {
     
     private var currentDisturbEntityIndex: Int = 0
     private var timerTask: Task<Void, Never>?
+    
+    private var cancellableBag: Set<AnyCancellable> = []
     
     var currentDisturbEntity: EyeStretchingDisturbEntity? {
         guard disturbEntities.indices.contains(currentDisturbEntityIndex) else {
@@ -140,6 +143,22 @@ final class EyeStretchingViewModel: StretchingCounter {
                 self?.currentDisturbEntityIndex += 1
             }
         )
+    }
+    
+    func handleEyeRingCollisionState() {
+        ringEntity.collisionState
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                guard let self,
+                      let currentDisturbEntity else { return }
+                
+                if state.eyesAreInside {
+                    currentDisturbEntity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
+                } else {
+                    currentDisturbEntity.components.remove(InputTargetComponent.self)
+                }
+            }
+            .store(in: &cancellableBag)
     }
     
 }
