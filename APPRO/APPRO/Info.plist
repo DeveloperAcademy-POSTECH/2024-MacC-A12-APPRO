@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>NSHandsTrackingUsageDescription</key>
-	<string>This App require Hand Tracking by ARKit Session</string>
+	<string>Your hand gestures are tracked to provide immersive interaction with the app.</string>
 	<key>NSWorldSensingUsageDescription</key>
-	<string>This App require World Tracking by ARKit Session</string>
+	<string>We use your body position and movements to create personalized and interactive AR experiences.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationPreferredDefaultSceneSessionRole</key>
