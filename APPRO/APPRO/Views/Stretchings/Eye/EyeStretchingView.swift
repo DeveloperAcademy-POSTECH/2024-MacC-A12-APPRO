@@ -66,7 +66,7 @@ struct EyeStretchingView: View {
                 }
         )
         .gesture(
-            LongPressGesture(minimumDuration: 2.0)
+            LongPressGesture(minimumDuration: 1.0)
                 .targetedToEntity(where: .has(LongPressGestureComponent.self))
                 .updating($isLongPressing) { currentValue, gestureState, _ in
                     gestureState = currentValue.gestureValue
