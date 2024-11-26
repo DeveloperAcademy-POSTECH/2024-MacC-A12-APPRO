@@ -43,6 +43,9 @@ final class EyeStretchingViewModel: StretchingCounter {
     
     func makeDoneCountZero() {
         doneCount = 0
+        
+        currentDisturbEntityIndex = 0
+        stretchingPhase = .start
     }
     
     func loadEntities() async throws {
@@ -113,7 +116,6 @@ final class EyeStretchingViewModel: StretchingCounter {
         entity: EyeStretchingDisturbEntity
     ) throws {
         entity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
-        entity.components.set(OpacityComponent(opacity: 0.0))
         entity.components.set(HoverEffectComponent(.spotlight(.default)))
         
         try entity.setGestureComponent(

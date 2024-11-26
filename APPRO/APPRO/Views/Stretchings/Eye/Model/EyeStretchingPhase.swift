@@ -11,7 +11,8 @@ enum EyeStretchingPhase: Equatable {
     
     case waiting
     case ready
-    case started
+    case start
+    case stretching
     case finished
     
 }

@@ -12,12 +12,6 @@ struct EyeStretchingView: View {
     
     @State private var viewModel = EyeStretchingViewModel()
     @State private var allEntitiesLoaded = false
-    @State private var configureCompleted: [EyeStretchingPhase: Bool] = [
-        .waiting: false,
-        .ready: false,
-        .started: false,
-        .finished: false
-    ]
     @GestureState private var isLongPressing = false
     
     var body: some View {
@@ -32,12 +26,12 @@ struct EyeStretchingView: View {
                 dump("RealityView make failed: \(error)")
             }
         } update: { content, attachments in
-                if allEntitiesLoaded {
-                    configure(
-                        content: content,
-                        phase: viewModel.stretchingPhase
-                    )
-                }
+            if allEntitiesLoaded {
+                configure(
+                    content: content,
+                    phase: viewModel.stretchingPhase
+                )
+            }
         } attachments: {
             Attachment(id: viewModel.attachmentViewID) {
                 StretchingAttachmentView(
@@ -82,7 +76,7 @@ struct EyeStretchingView: View {
         .onChange(of: isLongPressing) { _, isLongPressing in
             viewModel.handleLongPressingUpdate(value: isLongPressing)
         }
-        .onChange(of: viewModel.currentDisturbEntity) { prevEntity, currentEntity in
+        .onChange(of: viewModel.currentDisturbEntity, initial: false) { prevEntity, currentEntity in
             do {
                 prevEntity?.disappear()
                 try currentEntity?.playOpacityAnimation(from: 0.0, to: 1.0)
@@ -102,20 +96,19 @@ private extension EyeStretchingView {
     ) {
         Task {
             do {
-                if configureCompleted[phase] == false {
-                    switch phase {
-                    case .waiting:
-                        try configureWaitingPhase(content: content)
-                        configureCompleted[phase] = true
-                    case .ready:
-                        try await configureReadyPhase(content: content)
-                        configureCompleted[phase] = true
-                    case .started:
-                        try configureStartedPhase(content: content)
-                    case .finished:
-                        break
-                    }
+                switch phase {
+                case .waiting:
+                    try configureWaitingPhase(content: content)
+                case .ready:
+                    try await configureReadyPhase(content: content)
+                case .start:
+                    configureStartPhase(content: content)
+                case .stretching:
+                    configureStretchingPhase(content: content)
+                case .finished:
+                    configureFinishedPhase(content: content)
                 }
+                
             } catch {
                 dump("configure failed: \(error)")
             }
@@ -143,18 +136,32 @@ private extension EyeStretchingView {
         try monitorEntity.playOpacityAnimation(from: 0.0, to: 1.0)
         
         viewModel.handleEyeRingCollisionState()
-        viewModel.setDisturbEntitiesPosition()
+        viewModel.disturbEntities.forEach { content.add($0) }
         
-        viewModel.stretchingPhase = .started
+        viewModel.stretchingPhase = .start
     }
     
-    func configureStartedPhase(content: RealityViewContent) throws {
-        guard let currentDisturbEntity = viewModel.currentDisturbEntity else {
+    func configureStartPhase(content: RealityViewContent) {
+        viewModel.setDisturbEntitiesPosition()
+        
+        viewModel.disturbEntities.forEach { disturbEntity in
+            disturbEntity.components.set(OpacityComponent(opacity: 0.0))
+        }
+        
+        viewModel.stretchingPhase = .stretching
+    }
+    
+    func configureStretchingPhase(content: RealityViewContent) {
+        guard viewModel.currentDisturbEntity != nil else {
             viewModel.stretchingPhase = .finished
             return
         }
-        
-        content.add(currentDisturbEntity)
+    }
+    
+    func configureFinishedPhase(content: RealityViewContent) {
+        viewModel.disturbEntities.forEach {
+            $0.restoreScale()
+        }
     }
     
 }
