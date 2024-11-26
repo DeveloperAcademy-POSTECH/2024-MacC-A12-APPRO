@@ -18,7 +18,6 @@ struct HandRollingTutorialView : View {
     
     var body : some View {
         RealityView { content, attachments in
-            viewModel.subscribeSceneEvent(content)
             let textEntity = createTextEntity("Stay aware of your surroundings")
             content.add(textEntity)
             setTutorialToStart(content: content)
@@ -215,6 +214,7 @@ struct HandRollingTutorialView : View {
                     textEntity.removeFromParent()
                     if viewModel.isStartingObjectVisible {
                         await viewModel.generateStartingObject(content)
+                        viewModel.setClosureComponent(entity: viewModel.startObject)
                     }
                     
                     await viewModel.makeFirstEntitySetting()
