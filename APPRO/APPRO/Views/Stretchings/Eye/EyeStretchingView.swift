@@ -32,16 +32,12 @@ struct EyeStretchingView: View {
                 dump("RealityView make failed: \(error)")
             }
         } update: { content, attachments in
-            if allEntitiesLoaded {
-                configure(
-                    content: content,
-                    phase: viewModel.stretchingPhase
-                )
-            }
-            showCurrentDisturbEntity(
-                content: content,
-                entity: viewModel.currentDisturbEntity
-            )
+                if allEntitiesLoaded {
+                    configure(
+                        content: content,
+                        phase: viewModel.stretchingPhase
+                    )
+                }
         } attachments: {
             Attachment(id: viewModel.attachmentViewID) {
                 StretchingAttachmentView(
@@ -86,24 +82,13 @@ struct EyeStretchingView: View {
         .onChange(of: isLongPressing) { _, isLongPressing in
             viewModel.handleLongPressingUpdate(value: isLongPressing)
         }
-        .onChange(of: viewModel.currentDisturbEntity) { prevEntity, _ in
-            prevEntity?.disappear()
-        }
-    }
-    
-    private func showCurrentDisturbEntity(
-        content: RealityViewContent,
-        entity: EyeStretchingDisturbEntity?
-    ) {
-        guard let entity else {
-            dump("showCurrentDisturbEntity failed: CurrentDisturbEntity is nil")
-            return
-        }
-        do {
-            content.add(entity)
-            try entity.playOpacityAnimation(from: 0.0, to: 1.0)
-        } catch {
-            dump("showCurrentDisturbEntity failed: \(error)")
+        .onChange(of: viewModel.currentDisturbEntity) { prevEntity, currentEntity in
+            do {
+                prevEntity?.disappear()
+                try currentEntity?.playOpacityAnimation(from: 0.0, to: 1.0)
+            } catch {
+                dump("onChange(of: viewModel.currentDisturbEntity failed: \(error)")
+            }
         }
     }
     
@@ -111,10 +96,13 @@ struct EyeStretchingView: View {
 
 private extension EyeStretchingView {
     
-    func configure(content: RealityViewContent, phase: EyeStretchingPhase) {
+    func configure(
+        content: RealityViewContent,
+        phase: EyeStretchingPhase
+    ) {
         Task {
-            if configureCompleted[phase] == false {
-                do {
+            do {
+                if configureCompleted[phase] == false {
                     switch phase {
                     case .waiting:
                         try configureWaitingPhase(content: content)
@@ -123,16 +111,13 @@ private extension EyeStretchingView {
                         try await configureReadyPhase(content: content)
                         configureCompleted[phase] = true
                     case .started:
-                        configureStartedPhase(content: content)
-                        configureCompleted[phase] = true
-                        break
+                        try configureStartedPhase(content: content)
                     case .finished:
-                        configureCompleted[phase] = true
                         break
                     }
-                } catch {
-                    dump("EyeStretchingView configure failed: \(error)")
                 }
+            } catch {
+                dump("configure failed: \(error)")
             }
         }
     }
@@ -157,13 +142,19 @@ private extension EyeStretchingView {
         try ringEntity.playOpacityAnimation(from: 0.0, to: 1.0)
         try monitorEntity.playOpacityAnimation(from: 0.0, to: 1.0)
         
+        viewModel.handleEyeRingCollisionState()
+        viewModel.setDisturbEntitiesPosition()
+        
         viewModel.stretchingPhase = .started
     }
     
-    func configureStartedPhase(content: RealityViewContent) {
-        viewModel.setDisturbEntitiesPosition()
-        viewModel.handleEyeRingCollisionState()
-        viewModel.resetTimer()
+    func configureStartedPhase(content: RealityViewContent) throws {
+        guard let currentDisturbEntity = viewModel.currentDisturbEntity else {
+            viewModel.stretchingPhase = .finished
+            return
+        }
+        
+        content.add(currentDisturbEntity)
     }
     
 }
