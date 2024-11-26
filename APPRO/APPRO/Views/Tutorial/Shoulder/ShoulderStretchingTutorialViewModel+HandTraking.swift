@@ -129,4 +129,12 @@ extension ShoulderStretchingTutorialViewModel {
             handEntities.append(entity)
         }
     }
+    
+    func setClosureComponent(entity: Entity) {
+        let component = ClosureComponent { [weak self] deltaTime in
+            guard let deviceAnchor = self?.worldTrackingProvider.queryDeviceAnchor(atTimestamp: CACurrentMediaTime()) else { return }
+            self?.startingZ = deviceAnchor.originFromAnchorTransform.columns.3.z
+        }
+        entity.components.set(component)
+    }
 }

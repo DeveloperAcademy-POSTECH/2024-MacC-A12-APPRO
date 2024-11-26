@@ -95,4 +95,12 @@ extension HandRollingStretchingViewModel {
             }
         }
     }
+    
+    func setClosureComponent(entity: Entity) {
+        let component = ClosureComponent { [weak self] deltaTime in
+            guard self?.startingHeight == 0, let deviceAnchor = self?.worldTracking.queryDeviceAnchor(atTimestamp: CACurrentMediaTime()) else { return }
+            self?.startingHeight = deviceAnchor.originFromAnchorTransform.columns.3.y
+        }
+        entity.components.set(component)
+    }
 }
