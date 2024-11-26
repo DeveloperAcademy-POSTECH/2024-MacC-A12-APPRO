@@ -17,8 +17,8 @@ struct ShoulderStretchingView: View {
             content.add(viewModel.contentEntity)
             await viewModel.setEntryRocket()
             viewModel.setHandRocketEntity()
+            viewModel.setClosureComponent(entity: viewModel.handRocketEntity)
             subscribeToCollisionEvents(content: content)
-            viewModel.subscribeSceneEvent(content)
             viewModel.addAttachmentView(content, attachments)
             viewModel.addShoulderTimerEntity()
         } update: { content, attachments in

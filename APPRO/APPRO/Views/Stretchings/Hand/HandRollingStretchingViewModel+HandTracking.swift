@@ -95,6 +95,7 @@ extension HandRollingStretchingViewModel {
             }
         }
     }
+    
     func setClosureComponent(entity: Entity) {
         let component = ClosureComponent { [weak self] deltaTime in
             guard self?.startingHeight == 0, let deviceAnchor = self?.worldTracking.queryDeviceAnchor(atTimestamp: CACurrentMediaTime()) else { return }
