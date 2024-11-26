@@ -19,7 +19,7 @@ extension HandRollingTutorialViewModel {
         }
         
         let spiralEntity = spiralOriginal.clone(recursive: true)
-        let rotationNumber = rightRotationForLaunchNumber
+        let rotationNumber = chirality == .right ? rightRotationForLaunchNumber : leftRotationForLaunchNumber
         spiralEntity.name = "Spiral_\(chirality)_\(rotationNumber)"
         
         spiralEntity.components.set(GroundingShadowComponent(castsShadow: true))
