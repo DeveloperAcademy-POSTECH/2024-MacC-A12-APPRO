@@ -69,7 +69,7 @@ extension NeckTutorialViewModel {
             
             if entityA.name == "______" && entityB.name == "TimerRing" {
                 let parentEntity = entityB.parent?.parent
-
+                self.playPredefinedAnimation(animationEntity: parentEntity!)
             }
         }
         
@@ -81,12 +81,15 @@ extension NeckTutorialViewModel {
                 self.timerController?.stop()
             }
         }
-        //AnimationEvents.PlaybackCompleted.self
+        
         _ = content.subscribe(to: AnimationEvents.PlaybackCompleted.self, on: nil) { event in
+            guard let entity = event.playbackController.entity else { return }
             
+            if entity.name.contains(/timer_\d+/) {
+                entity.removeFromParent()
+            }
         }
     }
-
 }
 
 private extension Float {

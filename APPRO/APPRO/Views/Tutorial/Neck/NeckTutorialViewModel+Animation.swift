@@ -27,7 +27,7 @@ extension NeckTutorialViewModel {
         )
     }
     
-    private func playAnimation(
+    func playAnimation(
         entity: Entity,
         definition: AnimationDefinition,
         duration: TimeInterval = 0
