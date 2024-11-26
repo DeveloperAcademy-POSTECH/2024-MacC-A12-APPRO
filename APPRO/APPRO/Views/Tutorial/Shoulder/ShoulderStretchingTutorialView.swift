@@ -18,7 +18,6 @@ struct ShoulderStretchingTutorialView: View {
     var body: some View {
         RealityView { content, attachments in
             content.add(viewModel.contentEntity)
-            viewModel.subscribeSceneEvent(content)
             let textEntity = createTextEntity("Stay aware of your surroundings")
             viewModel.contentEntity.addChild(textEntity)
             setTutorialToStart(content: content)
@@ -187,6 +186,7 @@ struct ShoulderStretchingTutorialView: View {
                 Task {
                     textEntity.removeFromParent()
                     await viewModel.setEntryRocket()
+                    viewModel.setHandRocketEntity()
                     viewModel.setClosureComponent(entity: viewModel.handRocketEntity)
                     subscribeToCollisionEvents(content: content)
                     isStartWarningDone = true
