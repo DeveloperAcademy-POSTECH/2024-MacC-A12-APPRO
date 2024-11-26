@@ -12,12 +12,6 @@ struct EyeStretchingView: View {
     
     @State private var viewModel = EyeStretchingViewModel()
     @State private var allEntitiesLoaded = false
-    @State private var configureCompleted: [EyeStretchingPhase: Bool] = [
-        .waiting: false,
-        .ready: false,
-        .started: false,
-        .finished: false
-    ]
     @GestureState private var isLongPressing = false
     
     var body: some View {
@@ -38,10 +32,6 @@ struct EyeStretchingView: View {
                     phase: viewModel.stretchingPhase
                 )
             }
-            showCurrentDisturbEntity(
-                content: content,
-                entity: viewModel.currentDisturbEntity
-            )
         } attachments: {
             Attachment(id: viewModel.attachmentViewID) {
                 StretchingAttachmentView(
@@ -70,7 +60,7 @@ struct EyeStretchingView: View {
                 }
         )
         .gesture(
-            LongPressGesture(minimumDuration: 2.0)
+            LongPressGesture(minimumDuration: 1.0)
                 .targetedToEntity(where: .has(LongPressGestureComponent.self))
                 .updating($isLongPressing) { currentValue, gestureState, _ in
                     gestureState = currentValue.gestureValue
@@ -86,24 +76,13 @@ struct EyeStretchingView: View {
         .onChange(of: isLongPressing) { _, isLongPressing in
             viewModel.handleLongPressingUpdate(value: isLongPressing)
         }
-        .onChange(of: viewModel.currentDisturbEntity) { prevEntity, _ in
-            prevEntity?.disappear()
-        }
-    }
-    
-    private func showCurrentDisturbEntity(
-        content: RealityViewContent,
-        entity: EyeStretchingDisturbEntity?
-    ) {
-        guard let entity else {
-            dump("showCurrentDisturbEntity failed: CurrentDisturbEntity is nil")
-            return
-        }
-        do {
-            content.add(entity)
-            try entity.playOpacityAnimation(from: 0.0, to: 1.0)
-        } catch {
-            dump("showCurrentDisturbEntity failed: \(error)")
+        .onChange(of: viewModel.currentDisturbEntity, initial: false) { prevEntity, currentEntity in
+            do {
+                prevEntity?.disappear()
+                try currentEntity?.playOpacityAnimation(from: 0.0, to: 1.0)
+            } catch {
+                dump("onChange(of: viewModel.currentDisturbEntity failed: \(error)")
+            }
         }
     }
     
@@ -111,28 +90,27 @@ struct EyeStretchingView: View {
 
 private extension EyeStretchingView {
     
-    func configure(content: RealityViewContent, phase: EyeStretchingPhase) {
+    func configure(
+        content: RealityViewContent,
+        phase: EyeStretchingPhase
+    ) {
         Task {
-            if configureCompleted[phase] == false {
-                do {
-                    switch phase {
-                    case .waiting:
-                        try configureWaitingPhase(content: content)
-                        configureCompleted[phase] = true
-                    case .ready:
-                        try await configureReadyPhase(content: content)
-                        configureCompleted[phase] = true
-                    case .started:
-                        configureStartedPhase(content: content)
-                        configureCompleted[phase] = true
-                        break
-                    case .finished:
-                        configureCompleted[phase] = true
-                        break
-                    }
-                } catch {
-                    dump("EyeStretchingView configure failed: \(error)")
+            do {
+                switch phase {
+                case .waiting:
+                    try configureWaitingPhase(content: content)
+                case .ready:
+                    try await configureReadyPhase(content: content)
+                case .start:
+                    configureStartPhase(content: content)
+                case .stretching:
+                    configureStretchingPhase(content: content)
+                case .finished:
+                    configureFinishedPhase(content: content)
                 }
+                
+            } catch {
+                dump("configure failed: \(error)")
             }
         }
     }
@@ -157,13 +135,33 @@ private extension EyeStretchingView {
         try ringEntity.playOpacityAnimation(from: 0.0, to: 1.0)
         try monitorEntity.playOpacityAnimation(from: 0.0, to: 1.0)
         
-        viewModel.stretchingPhase = .started
+        viewModel.handleEyeRingCollisionState()
+        viewModel.disturbEntities.forEach { content.add($0) }
+        
+        viewModel.stretchingPhase = .start
     }
     
-    func configureStartedPhase(content: RealityViewContent) {
+    func configureStartPhase(content: RealityViewContent) {
         viewModel.setDisturbEntitiesPosition()
-        viewModel.handleEyeRingCollisionState()
-        viewModel.resetTimer()
+        
+        viewModel.disturbEntities.forEach { disturbEntity in
+            disturbEntity.components.set(OpacityComponent(opacity: 0.0))
+        }
+        
+        viewModel.stretchingPhase = .stretching
+    }
+    
+    func configureStretchingPhase(content: RealityViewContent) {
+        guard viewModel.currentDisturbEntity != nil else {
+            viewModel.stretchingPhase = .finished
+            return
+        }
+    }
+    
+    func configureFinishedPhase(content: RealityViewContent) {
+        viewModel.disturbEntities.forEach {
+            $0.restoreScale()
+        }
     }
     
 }

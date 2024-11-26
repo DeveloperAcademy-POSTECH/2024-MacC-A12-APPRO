@@ -30,13 +30,11 @@ final class EyeStretchingViewModel: StretchingCounter {
     private(set) var attachmentView = Entity()
     
     private var currentDisturbEntityIndex: Int = 0
-    private var timerTask: Task<Void, Never>?
     
     private var cancellableBag: Set<AnyCancellable> = []
     
     var currentDisturbEntity: EyeStretchingDisturbEntity? {
         guard disturbEntities.indices.contains(currentDisturbEntityIndex) else {
-            timerTask?.cancel()
             return nil
         }
         
@@ -45,6 +43,9 @@ final class EyeStretchingViewModel: StretchingCounter {
     
     func makeDoneCountZero() {
         doneCount = 0
+        
+        currentDisturbEntityIndex = 0
+        stretchingPhase = .start
     }
     
     func loadEntities() async throws {
@@ -75,23 +76,6 @@ final class EyeStretchingViewModel: StretchingCounter {
         
         self.attachmentView = attachmentView
         content.add(attachmentView)
-    }
-    
-    func resetTimer() {
-        timerTask?.cancel()
-        timerTask = Task {
-            do {
-                repeat {
-                    try await Task.sleep(nanoseconds: 5 * 1000000000)
-                    try currentDisturbEntity?.playOpacityAnimation(from: 1.0, to: 0.0)
-                    await MainActor.run {
-                        currentDisturbEntityIndex += 1
-                    }
-                } while(!Task.isCancelled)
-            } catch {
-                dump("timerTask failed: \(error)")
-            }
-        }
     }
     
     func handleLongPressingUpdate(value isLongPressing: Bool) {
@@ -132,13 +116,11 @@ final class EyeStretchingViewModel: StretchingCounter {
         entity: EyeStretchingDisturbEntity
     ) throws {
         entity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
-        entity.components.set(OpacityComponent(opacity: 0.0))
         entity.components.set(HoverEffectComponent(.spotlight(.default)))
         
         try entity.setGestureComponent(
             type: type,
             component: LongPressGestureComponent { [weak self] in
-                self?.resetTimer()
                 self?.doneCount += 1
                 self?.currentDisturbEntityIndex += 1
             }
