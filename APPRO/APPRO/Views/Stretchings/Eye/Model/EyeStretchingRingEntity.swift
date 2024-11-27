@@ -90,8 +90,29 @@ final class EyeStretchingRingEntity: Entity {
             throw EntityError.shaderGraphMaterialNotFound
         }
         
+        if !eyesAreInside {
+            playAudio(.collided)
+        }
+        
         try shaderGraphMaterial.setParameter(name: "EyesAreInside", value: .bool(eyesAreInside))
         torusModelEntity.components[ModelComponent.self]?.materials = [shaderGraphMaterial]
+    }
+    
+    private func playAudio(
+        _ type: RingEntityAudio,
+        configuration: AudioFileResource.Configuration = .init()
+    ) {
+        Task {
+            do {
+                audioPlaybackController?.stop()
+                audioPlaybackController = try await playAudio(
+                    filename: type.filename,
+                    configuration: configuration
+                )
+            } catch {
+                dump("EyeStretchingRingEntity playAudio failed: \(error)")
+            }
+        }
     }
 
 }
@@ -148,6 +169,22 @@ extension EyeStretchingRingEntity: HasChildren {
     enum ChildrenEntity: String {
         case innerPlane = "inner_plane"
         case restrictLine = "restrict_line"
+    }
+    
+}
+
+private enum RingEntityAudio {
+    
+    case appear
+    case collided
+    
+    var filename: String {
+        switch self {
+        case .appear: 
+            "ring_\(self)"
+        case .collided:
+            "ring_\(self)"
+        }
     }
     
 }
