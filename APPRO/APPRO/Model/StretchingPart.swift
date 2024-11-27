@@ -7,7 +7,7 @@
 
 enum StretchingPart: String, Identifiable, CaseIterable {
     
-    case eyes, wrist, shoulder
+    case eyes, wrist, shoulder, neck
     
     var id: Self { self }
     
@@ -23,6 +23,8 @@ enum StretchingPart: String, Identifiable, CaseIterable {
             "Restore wrist fatigue through stretching that fixes arms and turns wrists"
         case .shoulder:
             "Restore shoulder fatigue by stretching your shoulders left and right, up and down"
+        case .neck:
+            "Restore neck fatigue by stretching your head up and down and left and right"
         }
     }
     
@@ -33,6 +35,8 @@ enum StretchingPart: String, Identifiable, CaseIterable {
         case .wrist:
             6
         case .shoulder:
+            3
+        case .neck:
             3
         }
     }
@@ -62,6 +66,13 @@ enum StretchingPart: String, Identifiable, CaseIterable {
                 "Try to carry the rocket to the stars without moving your legs. Use only your arm's movement.",
                 "Good! This time, when you reach the space station, keep your arm in the same position for 5 seconds to refuel the rocket.",
                 "Great! Stretching your shoulder is the main focus in this content. Try not to move your body around too much."
+            ]
+        case .neck:
+            [
+                "When you're ready, pinch the piggy in front of you",
+                "You've waken the piggy up! Your mission is to lead the piggy to coins and hold for 5 seconds until the pig finishes shopping at the end of the coins. To get started, look straight ahead and pinch again.",
+                "Try to move the pig without moving your body. Use only your neck movement.",
+                "Great! Stretching your neck is the main focus in this content. Try not to move your body around too much."
             ]
         }
     }

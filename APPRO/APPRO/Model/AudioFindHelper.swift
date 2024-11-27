@@ -23,6 +23,9 @@ enum AudioFindHelper {
     case handTargetAppear(chirality: Chirality)
     case handTargetHitRight(chirality: Chirality)
     case handTargetHitWrong(chirality: Chirality)
+    
+    case coinCollisionInRightOrder
+    case coinCollisionInWrongOrder
 }
 
 extension AudioFindHelper {
@@ -38,6 +41,9 @@ extension AudioFindHelper {
         case .handTargetAppear(let chirality): return AudioInfo(spatialAudioName: "AppearSpatialAudio", resourceLocation: "/root/target_appear_mp3", resourceFrom: "Hand/target_new_\(getBlueOrGreen(chirality)).usd")
         case .handTargetHitRight(let chirality): return AudioInfo(spatialAudioName: "AppearSpatialAudio", resourceLocation: "/root/target_right_hit_wav", resourceFrom: "Hand/target_new_\(getBlueOrGreen(chirality)).usd")
         case .handTargetHitWrong(let chirality): return AudioInfo(spatialAudioName: "AppearSpatialAudio", resourceLocation: "/root/target_error_wav", resourceFrom: "Hand/target_new_\(getBlueOrGreen(chirality)).usd")
+            
+        case .coinCollisionInRightOrder: return AudioInfo(spatialAudioName: "CollisionSpatialAudio", resourceLocation: "/root/neck_sound_coin1_wav", resourceFrom: "Neck/coin.usda")
+        case .coinCollisionInWrongOrder: return AudioInfo(spatialAudioName: "CollisionSpatialAudio", resourceLocation: "/root/neck_sound_error1_wav", resourceFrom: "Neck/coin.usda")
         }
     }
     

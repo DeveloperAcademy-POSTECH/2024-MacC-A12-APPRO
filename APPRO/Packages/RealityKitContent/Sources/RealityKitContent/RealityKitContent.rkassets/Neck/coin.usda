@@ -1,0 +1,231 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "Reality Composer Pro Version 2.0 (448.0.16.0.3)"
+    }
+    defaultPrim = "Root"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Root"
+{
+    reorder nameChildren = ["coin", "Spin", "RCP_BehaviorsContainer", "OnAddedToScene", "AnimationLibrary", "CollisionSpatialAudio"]
+    float3 xformOp:scale = (0.15, 0.15, 0.15)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+    def "coin" (
+        active = true
+        references = @neck_coin_animation.usdz@
+    )
+    {
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (0.01, 0.01, 0.01)
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        over "Materials"
+        {
+            over "Gold_Clean_001_Yellow_50cm" (
+                references = @neck_coin_animation.usdz@</Root/Materials/Gold_Clean_001_Yellow_50cm>
+            )
+            {
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+                token outputs:surface.connect = </Root/coin/Materials/Gold_Clean_001_Yellow_50cm/PreviewSurface.outputs:surface>
+                float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (-204.20312, -140.23047)
+                int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 4
+
+                over "PreviewSurface" (
+                    active = true
+                )
+                {
+                    color3f inputs:diffuseColor = (0.972549, 0.8666667, 0.6117647) (
+                        colorSpace = "srgb_displayp3"
+                    )
+                    float inputs:opacityThreshold = 0
+                }
+            }
+        }
+
+        over "Null" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </Root/coin/Materials/Gold_Clean_001_Yellow_50cm/PreviewSurface_1/Materials/Gold_Clean_001_Yellow_50cm> (
+                bindMaterialAs = "weakerThanDescendants"
+            )
+
+            over "Boole" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+                customData = {
+                    dictionary RE = {
+                        dictionary mesh = {
+                            dictionary v1 = {
+                                bool reorderVertexCaching = 0
+                            }
+                        }
+                    }
+                }
+            )
+            {
+                rel material:binding = </Root/coin/Materials/Gold_Clean_001_Yellow_50cm> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+
+                def RealityKitComponent "Collider"
+                {
+                    uint group = 1
+                    uniform token info:id = "RealityKit.Collider"
+                    uint mask = 4294967295
+                    token type = "Default"
+
+                    def RealityKitStruct "Shape"
+                    {
+                        float3 extent = (74.84062, 74.84062, 14.968125)
+                        token shapeType = "Box"
+
+                        def RealityKitStruct "pose"
+                        {
+                        }
+                    }
+                }
+
+                over "C1" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                )
+                {
+                    rel material:binding = </Root/coin/Materials/Gold_Clean_001_Yellow_50cm/PreviewSurface_1/Materials/Gold_Clean_001_Yellow_50cm> (
+                        bindMaterialAs = "weakerThanDescendants"
+                    )
+                }
+
+                over "C2" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                )
+                {
+                    rel material:binding = </Root/coin/Materials/Gold_Clean_001_Yellow_50cm/PreviewSurface_1/Materials/Gold_Clean_001_Yellow_50cm> (
+                        bindMaterialAs = "weakerThanDescendants"
+                    )
+                }
+
+                over "R1" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                )
+                {
+                    rel material:binding = </Root/coin/Materials/Gold_Clean_001_Yellow_50cm/PreviewSurface_1/Materials/Gold_Clean_001_Yellow_50cm> (
+                        bindMaterialAs = "weakerThanDescendants"
+                    )
+                }
+
+                over "R2" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                )
+                {
+                    rel material:binding = </Root/coin/Materials/Gold_Clean_001_Yellow_50cm/PreviewSurface_1/Materials/Gold_Clean_001_Yellow_50cm> (
+                        bindMaterialAs = "weakerThanDescendants"
+                    )
+                }
+
+                over "S" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                )
+                {
+                    rel material:binding = </Root/coin/Materials/Gold_Clean_001_Yellow_50cm> (
+                        bindMaterialAs = "weakerThanDescendants"
+                    )
+                }
+            }
+        }
+
+        def RealityKitComponent "AnimationLibrary"
+        {
+            uniform token info:id = "RealityKit.AnimationLibrary"
+        }
+    }
+
+    def RealityKitTimeline "Spin"
+    {
+        def RealityKitTrack "Track"
+        {
+            def RealityKitAction "Spin"
+            {
+                string actionKind = "spin"
+                int blendLayer = 400
+                double duration = 100
+                uniform token info:id = "8DEB8521-FA1B-406C-9CFC-F0B4224F8702"
+                float revolutions = 50
+                double startTime = 0
+                rel target = </Root/coin>
+
+                def RealityKitStruct "timingFunction"
+                {
+                    token type = "linear"
+                }
+            }
+        }
+    }
+
+    def RealityKitComponent "RCP_BehaviorsContainer"
+    {
+        rel behaviors = </Root/OnAddedToScene>
+        uniform token info:id = "RCP.BehaviorsContainer"
+    }
+
+    def Preliminary_Behavior "OnAddedToScene"
+    {
+        rel actions = </Root/OnAddedToScene/Action>
+        uniform bool exclusive
+        rel triggers = </Root/OnAddedToScene/Trigger>
+
+        def Preliminary_Trigger "Trigger"
+        {
+            rel affectedObjects = </Root>
+            token info:id = "SceneTransition"
+        }
+
+        def Preliminary_Action "Action"
+        {
+            rel affectedObjects = </Root>
+            rel animationLibraryKey = </Root/Spin>
+            rel animationLibraryKeyOverrideKey = </Root/OnAddedToScene/Trigger>
+            token info:id = "PlayTimeline"
+            int loops = 0
+            int performCount = 1
+            token type = "serial"
+        }
+    }
+
+    def RealityKitComponent "AnimationLibrary"
+    {
+        uniform token info:id = "RealityKit.AnimationLibrary"
+
+        def RealityKitClipDefinition "Clip_default_subtree_animation"
+        {
+            uniform string[] clipNames = ["Clip", "Clip 1", "Clip 2"]
+            uniform string sourceAnimationName = "default subtree animation"
+            uniform double[] startTimes = [0, 0.6463333333333333, 1.341388888888889]
+        }
+    }
+
+    def Xform "CollisionSpatialAudio"
+    {
+        def RealityKitComponent "SpatialAudio"
+        {
+            uniform token info:id = "RealityKit.SpatialAudio"
+        }
+    }
+
+    def RealityKitAudioFile "neck_sound_coin1_wav"
+    {
+        uniform asset file = @neck_sound_coin1.wav@
+        uniform bool shouldLoop = 0
+    }
+
+    def RealityKitAudioFile "neck_sound_error1_wav"
+    {
+        uniform asset file = @neck_sound_error1.wav@
+        uniform bool shouldLoop = 0
+    }
+}
+
