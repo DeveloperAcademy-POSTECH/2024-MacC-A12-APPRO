@@ -82,17 +82,12 @@ final class EyeStretchingDisturbEntity: Entity {
     }
     
     private func playAudio(_ type: DisturbEntityAudio) {
-        guard let path = Bundle.main.path(forResource: type.filename, ofType: "mp3") else {
-            dump("playAudio failed: \(type)")
-            return
-        }
-        audioPlaybackController?.stop()
         Task {
             do {
-                let audioResource = try await AudioFileResource(contentsOf: URL(filePath: path))
-                audioPlaybackController = playAudio(audioResource)
+                audioPlaybackController?.stop()
+                audioPlaybackController = try await playAudio(filename: type.filename)
             } catch {
-                dump("playAudio failed \(type): \(error)")
+                dump("EyeStretchingDisturbEntity playAudio failed: \(error)")
             }
         }
     }
