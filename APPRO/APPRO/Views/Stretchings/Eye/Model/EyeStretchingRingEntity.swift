@@ -50,6 +50,12 @@ final class EyeStretchingRingEntity: Entity {
         addChild(entity)
     }
     
+    func appear() throws {
+        try playOpacityAnimation(from: 0.0, to: 1.0)
+        
+        playAudio(.appear)
+    }
+    
     func setCollisionComponent() async throws {
         let innerPlane = try getChild(.innerPlane)
         let restrictLine = try getChild(.restrictLine)

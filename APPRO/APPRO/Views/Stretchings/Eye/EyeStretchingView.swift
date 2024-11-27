@@ -127,8 +127,9 @@ private extension EyeStretchingView {
         try await viewModel.configureRingEntity()
         viewModel.configureMonitorEntity()
         
-        try ringEntity.playOpacityAnimation(from: 0.0, to: 1.0)
+        try ringEntity.appear()
         try monitorEntity.playOpacityAnimation(from: 0.0, to: 1.0)
+        try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
         
         viewModel.handleEyeRingCollisionState()
         viewModel.disturbEntities.forEach { content.add($0) }
