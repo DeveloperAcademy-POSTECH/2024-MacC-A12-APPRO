@@ -19,6 +19,20 @@ final class EyeStretchingRingEntity: Entity {
         )
     )
     
+    private var eyesAreInside = false {
+        willSet {
+            if eyesAreInside != newValue {
+                do {
+                    try updateShaderGraphParameter(newValue)
+                } catch {
+                    dump("updateShaderGraphParameter failed: \(error)")
+                }
+            }
+        }
+    }
+    
+    private var audioPlaybackController: AudioPlaybackController?
+    
     private var cancellableBag = Set<AnyCancellable>()
     
     required init() {
@@ -62,11 +76,7 @@ final class EyeStretchingRingEntity: Entity {
         collisionState
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
-                do {
-                    try self?.updateShaderGraphParameter(state.eyesAreInside)
-                } catch {
-                    dump("updateShaderGraphParameter failed: \(error)")
-                }
+                self?.eyesAreInside = state.eyesAreInside
             }
             .store(in: &cancellableBag)
     }
