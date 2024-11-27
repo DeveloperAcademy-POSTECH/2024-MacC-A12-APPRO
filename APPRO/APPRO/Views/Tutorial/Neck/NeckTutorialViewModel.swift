@@ -20,7 +20,7 @@ final class NeckTutorialViewModel {
     private(set) var coinEntity = Entity()
     private(set) var timerEntity = Entity()
     
-    private(set) var coinEntities: [Entity] = []
+    var coinEntities: [Entity] = []
     
     private(set) var attachmentView = Entity()
     
@@ -30,10 +30,12 @@ final class NeckTutorialViewModel {
     
     var startingHeight: Float = 0.0
 
-    var guidingEntitiesCount : Int = 12
+    var guidingEntitiesCount : Int = 15
     
     var firstCollisionEventHappend = false
     var collisionBound = AvailableCollisionBound()
+    
+    var completionStatusArray = [false, false]
     
     func loadEntities() async -> Bool {
         do {
@@ -118,12 +120,16 @@ final class NeckTutorialViewModel {
         guard let transform = self.headTracker.originFromDeviceTransform() else { return }
         let translations: [Float3] = drawSemiCirclePoints(transform: transform, isVertical: true, steps: guidingEntitiesCount)
         
-        for (index, translation) in translations.enumerated() { // 각도조절을 위해서, 180도의 양 끝단에 있는 포인트(0도, 180도)는 사용하지 않는다. 
-            if index == 0 || index == translations.count - 1 {
+        let startingTimerIndex = 2
+        let endingTimerIndex = translations.count - 3
+        
+        for (index, translation) in translations.enumerated() { // 각도조절을 위해서, 180도의 양 끝단에 있는 포인트(0도, 180도)는 사용하지 않는다.
+            
+            if index < startingTimerIndex ||  endingTimerIndex < index {
                 continue
             }
             
-            if index == 1 || index == translations.count - 2 {
+            if index == startingTimerIndex || index == endingTimerIndex {
                 let timer = timerEntity.clone(recursive: true)
                 timer.look(at: transform.translation(), from: translation, relativeTo: nil, forward: .positiveZ)
                 timer.name = "timer_\(index + 1)"

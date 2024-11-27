@@ -57,6 +57,11 @@ struct NeckTutorialView: View {
                 }
         )
         .onChange(of: viewModel.coinEntities, initial: false) {}
+        .onChange(of: viewModel.completionStatusArray) { _, completionStatusArray in
+            if completionStatusArray.allSatisfy({ $0 == true}) {
+                tutorialManager.advanceToNextStep()
+            }
+        }
     }
     
     private func handleCurrentTutorialStep(_ content: RealityViewContent, currentStepIndex: Int) {

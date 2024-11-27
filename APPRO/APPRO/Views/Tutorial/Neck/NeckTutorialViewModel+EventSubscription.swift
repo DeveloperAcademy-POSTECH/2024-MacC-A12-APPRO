@@ -58,12 +58,23 @@ extension NeckTutorialViewModel {
             let entityA = event.entityA
             let entityB = event.entityB
             
-            if entityA.name == "______" && entityB.name == "Boole" { // ModelEntity Name : ______ for pig, Boole for coin
-                guard let coinEntity = entityB.parent?.parent?.parent?.parent else { return }
-                guard let index: Int = self.getCoinIndex(coinEntity.name) else { return }
-                
-                if self.manageCollisionBound(collidedIndex: index) {
-                    self.setOpacityZero(entity: entityB)
+            Task {
+                if entityA.name == "______" && entityB.name == "Boole" { // ModelEntity Name : ______ for pig, Boole for coin
+                    guard let coinEntity = entityB.parent?.parent?.parent?.parent else { return }
+                    guard let index: Int = self.getCoinIndex(coinEntity.name) else { return }
+                    
+                    
+                    if self.manageCollisionBound(collidedIndex: index) {
+                        await self.playSpatialAudio(coinEntity, audioInfo: .coinCollisionInRightOrder)
+                        self.setOpacityZero(entity: entityB)
+                        
+                        DispatchQueue.main.async {
+                            entityB.isEnabled = false
+                        }
+                    } else {
+                        self.animateCoinColorWhenWrongHit(targetEntity: entityB)
+                        await self.playSpatialAudio(coinEntity, audioInfo: .coinCollisionInWrongOrder)
+                    }
                 }
             }
             
@@ -84,9 +95,17 @@ extension NeckTutorialViewModel {
         
         _ = content.subscribe(to: AnimationEvents.PlaybackCompleted.self, on: nil) { event in
             guard let entity = event.playbackController.entity else { return }
-            
+    
             if entity.name.contains(/timer_\d+/) {
-                entity.removeFromParent()
+                if self.completionStatusArray[0] {
+                    self.completionStatusArray[1] = true
+                } else {
+                    self.completionStatusArray[0] = true
+                }
+            }
+            
+            DispatchQueue.main.async {
+                entity.isEnabled = false
             }
         }
     }

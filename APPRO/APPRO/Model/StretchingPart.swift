@@ -70,9 +70,8 @@ enum StretchingPart: String, Identifiable, CaseIterable {
         case .neck:
             [
                 "When you're ready, pinch the piggy in front of you",
-                "You've waken the piggy up! Your mission is to lead the piggy to its favorite coins and hold for 5 seconds (at the end of the coins.) To get started look straight ahead and pinch again",
-                "Try to move the pig upward to give coins. Use only your neck movement, without moving your body.",
-                "Good. Now the piggy needs to digest the coins for a bit. Hold still for five seconds.",
+                "You've waken the piggy up! Your mission is to lead the piggy to coins and hold for 5 seconds until the pig finishes shopping at the end of the coins. To get started, look straight ahead and pinch again.",
+                "Try to move the pig without moving your body. Use only your neck movement.",
                 "Great! Stretching your neck is the main focus in this content. Try not to move your body around too much."
             ]
         }

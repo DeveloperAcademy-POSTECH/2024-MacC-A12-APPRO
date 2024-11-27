@@ -10,6 +10,7 @@
 
 def Xform "Root"
 {
+    reorder nameChildren = ["coin", "Spin", "RCP_BehaviorsContainer", "OnAddedToScene", "AnimationLibrary", "CollisionSpatialAudio"]
     float3 xformOp:scale = (0.15, 0.15, 0.15)
     uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
@@ -205,6 +206,26 @@ def Xform "Root"
             uniform string sourceAnimationName = "default subtree animation"
             uniform double[] startTimes = [0, 0.6463333333333333, 1.341388888888889]
         }
+    }
+
+    def Xform "CollisionSpatialAudio"
+    {
+        def RealityKitComponent "SpatialAudio"
+        {
+            uniform token info:id = "RealityKit.SpatialAudio"
+        }
+    }
+
+    def RealityKitAudioFile "neck_sound_coin1_wav"
+    {
+        uniform asset file = @neck_sound_coin1.wav@
+        uniform bool shouldLoop = 0
+    }
+
+    def RealityKitAudioFile "neck_sound_error1_wav"
+    {
+        uniform asset file = @neck_sound_error1.wav@
+        uniform bool shouldLoop = 0
     }
 }
 
