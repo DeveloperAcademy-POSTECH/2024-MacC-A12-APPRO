@@ -39,12 +39,18 @@ extension Entity {
     }
     
     @discardableResult
-    func playAudio(filename: String) async throws -> AudioPlaybackController {
+    func playAudio(
+        filename: String,
+        configuration: AudioFileResource.Configuration = .init()
+    ) async throws -> AudioPlaybackController {
         guard let path = Bundle.main.path(forResource: filename, ofType: "mp3") else {
             throw EntityError.audioFileNotFoundInBundle(filename: filename)
         }
         
-        let audioResource = try await AudioFileResource(contentsOf: URL(filePath: path))
+        let audioResource = try await AudioFileResource(
+            contentsOf: URL(filePath: path),
+            configuration: configuration
+        )
         return playAudio(audioResource)
     }
     
