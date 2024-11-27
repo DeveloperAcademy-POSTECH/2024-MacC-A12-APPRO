@@ -261,6 +261,23 @@ final class ShoulderStretchingTutorialViewModel {
         do {
             let animation = try AnimationResource.generate(with: goInDirection)
             entryRocketEntity.playAnimation(animation, transitionDuration: 2)
+            
+            Task {
+                guard let audioEntity = entryRocketEntity.findEntity(named: "SpatialAudio") else {
+                    debugPrint("AudioEntity not found")
+                    return
+                }
+                guard let audioEntity = audioEntity.findEntity(named: "SpatialAudio") else { return }
+                guard let resource = try? await AudioFileResource(named: "/Root/ShoulderEntrySound_wav",
+                                                                  from: "Shoulder/RocketScene_New_Less.usda",
+                                                                  in: realityKitContentBundle) else {
+                    debugPrint("audio not found")
+                    return
+                }
+                let audioPlayer = audioEntity.prepareAudio(resource)
+                
+                audioPlayer.play()
+            }
         } catch {
             debugPrint("Error generating animation: \(error)")
         }
