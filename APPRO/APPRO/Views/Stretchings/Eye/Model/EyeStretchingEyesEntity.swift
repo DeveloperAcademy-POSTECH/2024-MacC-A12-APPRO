@@ -14,10 +14,13 @@ final class EyeStretchingEyesEntity: Entity {
     
     private var cancellabeBag = Set<AnyCancellable>()
     
+    private var audioPlaybackController: AudioPlaybackController?
+    
     required init() {
         super.init()
         
         self.transform.scale = [0.7, 0.7, 0.7]
+        components.set(SpatialAudioComponent())
     }
     
     func loadCoreEntity() async throws {
@@ -27,6 +30,13 @@ final class EyeStretchingEyesEntity: Entity {
         )
         
         addChild(entity)
+        
+        playAudio(
+            .snoring,
+            configuration: .init(
+                shouldLoop: true
+            )
+        )
     }
     
     func setPatchComponents(_ components: [Component]) throws {
@@ -40,6 +50,7 @@ final class EyeStretchingEyesEntity: Entity {
         let patch = try getChild(.patch)
         
         try patch.playOpacityAnimation(from: 1.0, to: 0.0, duration: 1.0)
+        playAudio(.patchDisappear)
         
         scene.subscribe(to: AnimationEvents.PlaybackCompleted.self, on: patch) { event in
             patch.removeFromParent()
@@ -73,6 +84,23 @@ final class EyeStretchingEyesEntity: Entity {
         rightEye.components.set(CollisionComponent(shapes: [rightEyeShapeResource]))
     }
     
+    private func playAudio(
+        _ type: EyesEntityAudio,
+        configuration: AudioFileResource.Configuration = .init()
+    ) {
+        Task {
+            do {
+                audioPlaybackController?.stop()
+                audioPlaybackController = try await playAudio(
+                    filename: type.filename,
+                    configuration: configuration
+                )
+            } catch {
+                dump("EyeStretchingEyeEntity playAudio failed: \(error)")
+            }
+        }
+    }
+    
 }
 
 extension EyeStretchingEyesEntity: HasChildren {
@@ -81,6 +109,22 @@ extension EyeStretchingEyesEntity: HasChildren {
         case leftEye = "eye_left"
         case rightEye = "eye_right"
         case patch = "patch"
+    }
+    
+}
+
+private enum EyesEntityAudio {
+    
+    case snoring
+    case patchDisappear
+    
+    var filename: String {
+        switch self {
+        case .snoring:
+            "eyes_snoring"
+        case .patchDisappear:
+            "patch_disappear"
+        }
     }
     
 }

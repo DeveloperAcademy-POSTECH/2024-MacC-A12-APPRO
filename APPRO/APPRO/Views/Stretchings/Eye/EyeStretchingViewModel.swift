@@ -61,13 +61,17 @@ final class EyeStretchingViewModel: StretchingCounter {
     }
     
     func patchTapped() {
-        do {
-            try eyesEntity.removePatch()
-            try eyesEntity.playLoopAnimation()
-            attachmentView.components.remove(ClosureComponent.self)
-            stretchingPhase = .ready
-        } catch {
-            dump("patchTapped failed: \(error)")
+        Task {
+            do {
+                try eyesEntity.removePatch()
+                try eyesEntity.playLoopAnimation()
+                attachmentView.components.remove(ClosureComponent.self)
+                
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+                stretchingPhase = .ready
+            } catch {
+                dump("patchTapped failed: \(error)")
+            }
         }
     }
     
