@@ -31,30 +31,30 @@ final class ShoulderStretchingTutorialViewModel {
     var isFirstPositioning: Bool = true
     var isRightDone: Bool = false
     var isEntryEnd = false
-
+    
     var startingZ: Float = 0.0
     var rightHandTransform = Transform()
     var entryRocketTransForm = Transform()
     private var shoulderTimerPoint = SIMD3<Float>()
-
+    
     // 별 모델 + 타이머
     private(set) var numberOfObjects: Int = 8
-    private(set) var expectedNextNumber = 0
+    private(set) var expectedNextNumber = 1
     private(set) var timerController: AnimationPlaybackController?
     
     let tutorialAttachmentViewID = "TutorialAttachmentView"
-
+    
     var isTimerVisible = false
     var timerFiveProgressChecker : [Bool] = [true, true, true, true, true]
     var soundHelper = SoundEffectHelper<ShoulderSoundEffects>()
-
+    
     deinit {
         dump("\(self) deinited")
         session.stop()
     }
     
     func resetExpectedNextNumber() {
-        expectedNextNumber = 0
+        expectedNextNumber = 1
     }
     
     func addExpectedNextNumber() {
@@ -107,7 +107,7 @@ final class ShoulderStretchingTutorialViewModel {
         let b: Float = abs(centerPosition.z - startPoint.z) // 타원의 단축 반지름
         let a: Float = b * 1.0  // 타원의 장축 반지름
         let y: Float = centerPosition.y  // Y 좌표는 어깨의 Y 좌표로 설정
-
+        
         // startPoint와 centerPosition 사이의 벡터를 이용하여 startAngle 계산
         let deltaX = startPoint.x - centerPosition.x
         let deltaZ = startPoint.z - centerPosition.z
@@ -115,41 +115,40 @@ final class ShoulderStretchingTutorialViewModel {
         let startAngle = atan2(deltaZ, deltaX)  // 각도는 Z축을 기준으로 계산됨
         // 전체 호 길이를 라디안으로 변환
         let totalArcRadian: Float = arcSpan * (.pi / 180)
-
+        
         // 포인트 사이의 각도 계산 (각도를 균등하게 나누기)
         let angleStep = totalArcRadian / Float(numPoints)
-
+        
         for i in 0..<numPoints {
             // 각도를 계산 (시계 또는 반시계 방향으로 회전)
             let angle = i == numPoints - 1 ? startAngle + totalArcRadian : startAngle + (Float(i) * angleStep * (isRightSide ? 1 : -1))
-
+            
             // 각도에 따라 x, z 좌표 계산
             let x = a * cos(angle)  // X축 대칭 (오른쪽은 양수, 왼쪽은 음수)
             let z = b * sin(angle)  // Z축 방향 (양수는 +Z, 음수는 -Z로 이동)
-
+            
             // 최종 좌표 계산: 중심(centerPosition)을 기준으로 회전 적용
             let point = SIMD3<Float>(x + centerPosition.x, i == numPoints - 1 ? y - 0.1 : y, z + centerPosition.z)
             points.append(point)
         }
-
+        
         return points
     }
     
     func addModelsToPoints(isRightSide: Bool, points: [SIMD3<Float>]) {
-        let entityName = "rightModelEntity"
-        
         for (idx, point) in points.enumerated() {
-                // 마지막 인덱스 일때
+            // 마지막 인덱스 일때
             if idx == numberOfObjects - 1  {
-                    shoulderTimerPoint = point
-                    return
-                }
+                shoulderTimerPoint = point
+                return
+            }
             guard let starModelEntity = self.starModelEntity?.clone(recursive: true) else { return }
-                starModelEntity.name = "\(entityName)-\(idx)"
-                starModelEntity.position = point
-                starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
-                modelEntities.append(starModelEntity)
-                contentEntity.addChild(starModelEntity)
+            /// star1, star2...
+            starModelEntity.name = "star\(idx+1)"
+            starModelEntity.position = point
+            starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
+            modelEntities.append(starModelEntity)
+            contentEntity.addChild(starModelEntity)
         }
     }
     
@@ -191,19 +190,6 @@ final class ShoulderStretchingTutorialViewModel {
         eventEntity.components.set([particleEmitterComponent])
     }
     
-    func playSpatialAudio(_ entity: Entity) async {
-        guard let audioEntity = entity.findEntity(named: "SpatialAudio"), let indexString = entity.name.split(separator: "-").last, let idx = Int(indexString) else { return }
-        guard let resource = try? await AudioFileResource(named: "/Root/StarAudio_\((idx % 5) + 1)_wav",
-                                                          from: "Shoulder/StarScene.usda",
-                                                          in: realityKitContentBundle) else {
-            debugPrint("audio not found")
-            return
-        }
-        
-        let audioPlayer = audioEntity.prepareAudio(resource)
-        audioPlayer.play()
-    }
-    
     func changeMatreialColor(entity: Entity) {
         guard let modelEntity = entity as? ModelEntity else {
             debugPrint("not a model entity")
@@ -216,7 +202,7 @@ final class ShoulderStretchingTutorialViewModel {
             debugPrint("no mesh found")
             return
         }
-         
+        
         let modelComponent = ModelComponent(mesh: mesh, materials: [newMeterial])
         modelEntity.components.set(modelComponent)
     }
@@ -262,23 +248,8 @@ final class ShoulderStretchingTutorialViewModel {
         do {
             let animation = try AnimationResource.generate(with: goInDirection)
             entryRocketEntity.playAnimation(animation, transitionDuration: 2)
+            soundHelper.playSound(.entryRocket, on: entryRocketEntity)
             
-            Task {
-                guard let audioEntity = entryRocketEntity.findEntity(named: "SpatialAudio") else {
-                    debugPrint("AudioEntity not found")
-                    return
-                }
-                guard let audioEntity = audioEntity.findEntity(named: "SpatialAudio") else { return }
-                guard let resource = try? await AudioFileResource(named: "/Root/ShoulderEntrySound_wav",
-                                                                  from: "Shoulder/RocketScene_New_Less.usda",
-                                                                  in: realityKitContentBundle) else {
-                    debugPrint("audio not found")
-                    return
-                }
-                let audioPlayer = audioEntity.prepareAudio(resource)
-                
-                audioPlayer.play()
-            }
         } catch {
             debugPrint("Error generating animation: \(error)")
         }
@@ -330,17 +301,11 @@ final class ShoulderStretchingTutorialViewModel {
                     modelComponent.materials = materialArray
                     modelEntity.components.set(modelComponent)
                     
-                    //TODO: PlaySpaitialAudio 메서드를 재사용 할 수 있게 변경
-                    guard let audioEntity = timerEntity.findEntity(named: "SpatialAudio") else { return }
-                    guard let resource = try? await AudioFileResource(named: "/Root/ShoulderTimerSound_wav",
-                                                                      from: "Shoulder/ShoulderTimerScene_11.usda",
-                                                                      in: realityKitContentBundle) else {
-                        debugPrint("audio not found")
-                        return
-                    }
+                    soundHelper.playSound(.shoulderTimer, on: modelEntity)
                     
-                    let audioPlayer = audioEntity.prepareAudio(resource)
-                    audioPlayer.play()
+                    if index == 4 {
+                        tasks.forEach { $0.cancel() }
+                    }
                 } else {
                     playBackProgressAnimation(index: index)
                     tasks.suffix(from: index).forEach { $0.cancel() }
@@ -350,7 +315,7 @@ final class ShoulderStretchingTutorialViewModel {
             tasks.append(task)
         }
     }
-
+    
     
     func playBackProgressAnimation ( index : Int) {
         let targetModelEntities = ["b1", "b2", "b3", "b4", "b5"]
@@ -390,5 +355,5 @@ final class ShoulderStretchingTutorialViewModel {
     func initiateAllTimerProgress() {
         timerFiveProgressChecker = timerFiveProgressChecker.map({ _ in true})
     }
-
+    
 }

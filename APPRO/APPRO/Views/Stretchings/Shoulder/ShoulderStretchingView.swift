@@ -102,21 +102,26 @@ struct ShoulderStretchingView: View {
             isColliding = true
             return
         }
-        
-        let entityName = viewModel.isRightDone ? "leftModelEntity" : "rightModelEntity"
-        
+                
         // 충돌시 particle, audio 실행
         viewModel.playEmitter(eventEntity: collidedModelEntity)
-        Task {
-            await viewModel.playSpatialAudio(collidedModelEntity)
+        
+        if let effect = ShoulderSoundEffects.allCases.first(where: { effect in
+            guard let entityNumber = Int(collidedModelEntity.name.dropFirst(4)) else { return false }
+            guard let effectNumber = Int(effect.rawValue.dropFirst(4)) else { return false }
+            // 나머지를 이용해 숫자를 대응
+            return (entityNumber - 1) % ShoulderSoundEffects.stars.count + 1 == effectNumber
+        }) {
+            viewModel.soundHelper.playSound(effect, on: collidedModelEntity)
         }
+
         // 다음 엔터티 일때만 Material 변경
-        if collidedModelEntity.name == "\(entityName)-\(viewModel.expectedNextNumber)" {
+        if collidedModelEntity.name == "star\(viewModel.expectedNextNumber)" {
             viewModel.changeMatreialColor(entity: collidedModelEntity)
             viewModel.addExpectedNextNumber()
             
             // 마지막 엔터티 감지
-            if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 2)") {
+            if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 1)") {
                 viewModel.addShoulderTimerEntity()
             }
         }

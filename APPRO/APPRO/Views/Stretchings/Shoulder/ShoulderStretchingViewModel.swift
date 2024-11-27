@@ -43,7 +43,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
     
     // 별 모델 + 타이머
     private(set) var numberOfObjects: Int = 8
-    private(set) var expectedNextNumber = 0
+    private(set) var expectedNextNumber = 1
     private(set) var timerController: AnimationPlaybackController?
     
     let stretchingAttachmentViewID  = "StretchingAttachmentView"
@@ -52,10 +52,11 @@ final class ShoulderStretchingViewModel: StretchingCounter {
     //StretchingCounter
     var doneCount = 0
     var maxCount = StretchingPart.shoulder.maxCount
-    
     var halfSetCount = 0
     
     var timerFiveProgressChecker : [Bool] = [true, true, true, true, true]
+    
+    var soundHelper = SoundEffectHelper<ShoulderSoundEffects>()
     
     deinit {
         dump("\(self) deinited")
@@ -63,7 +64,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
     }
     
     func resetExpectedNextNumber() {
-        expectedNextNumber = 0
+        expectedNextNumber = 1
     }
     
     func addExpectedNextNumber() {
@@ -146,8 +147,6 @@ final class ShoulderStretchingViewModel: StretchingCounter {
     }
     
     func addModelsToPoints(isRightSide: Bool, points: [SIMD3<Float>]) {
-        let entityName = isRightSide ? "rightModelEntity" : "leftModelEntity"
-        
         for (idx, point) in points.enumerated() {
             // 마지막 인덱스 일때
             if idx == numberOfObjects - 1 {
@@ -155,7 +154,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                 return
             }
             guard let starModelEntity = self.starModelEntity?.clone(recursive: true) else { return }
-            starModelEntity.name = "\(entityName)-\(idx)"
+            starModelEntity.name = "star\(idx+1)"
             starModelEntity.position = point
             starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
             modelEntities.append(starModelEntity)
@@ -221,20 +220,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
         
         eventEntity.components.set([particleEmitterComponent])
     }
-    
-    func playSpatialAudio(_ entity: Entity) async {
-        guard let audioEntity = entity.findEntity(named: "SpatialAudio"), let indexString = entity.name.split(separator: "-").last, let idx = Int(indexString) else { return }
-        guard let resource = try? await AudioFileResource(named: "/Root/StarAudio_\((idx % 5) + 1)_wav",
-                                                          from: "Shoulder/StarScene.usda",
-                                                          in: realityKitContentBundle) else {
-            debugPrint("audio not found")
-            return
-        }
-        
-        let audioPlayer = audioEntity.prepareAudio(resource)
-        audioPlayer.play()
-    }
-    
+
     func changeMatreialColor(entity: Entity) {
         guard let modelEntity = entity as? ModelEntity else {
             debugPrint("not a model entity")
@@ -293,6 +279,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
         do {
             let animation = try AnimationResource.generate(with: goInDirection)
             entryRocketEntity.playAnimation(animation, transitionDuration: 2)
+            soundHelper.playSound(.entryRocket, on: entryRocketEntity)
         } catch {
             debugPrint("Error generating animation: \(error)")
         }
@@ -368,18 +355,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                     }
                     modelComponent.materials = materialArray
                     modelEntity.components.set(modelComponent)
-
-                    //TODO: PlaySpaitialAudio 메서드를 재사용 할 수 있게 변경
-                    guard let audioEntity = timerEntity.findEntity(named: "SpatialAudio") else { return }
-                    guard let resource = try? await AudioFileResource(named: "/Root/ShoulderTimerSound_wav",
-                                                                      from: "Shoulder/ShoulderTimerScene_11.usda",
-                                                                      in: realityKitContentBundle) else {
-                        debugPrint("audio not found")
-                        return
-                    }
-                    
-                    let audioPlayer = audioEntity.prepareAudio(resource)
-                    audioPlayer.play()
+                    soundHelper.playSound(.shoulderTimer, on: modelEntity)
                     if index == 4 {
                         tasks.forEach { $0.cancel() }
                     }
