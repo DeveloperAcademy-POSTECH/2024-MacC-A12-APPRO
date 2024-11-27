@@ -29,9 +29,7 @@ final class EyeStretchingViewModel: StretchingCounter {
     private(set) var disturbEntities: [EyeStretchingDisturbEntity] = []
     private(set) var attachmentView = Entity()
     
-    private var currentDisturbEntityIndex: Int = 0
-    
-    private var cancellableBag: Set<AnyCancellable> = []
+    private var currentDisturbEntityIndex = 0
     
     var currentDisturbEntity: EyeStretchingDisturbEntity? {
         guard disturbEntities.indices.contains(currentDisturbEntityIndex) else {
@@ -40,6 +38,10 @@ final class EyeStretchingViewModel: StretchingCounter {
         
         return disturbEntities[currentDisturbEntityIndex]
     }
+    
+    private var currentDisturbEntityOnEnded = false
+    
+    private var cancellableBag: Set<AnyCancellable> = []
     
     func makeDoneCountZero() {
         doneCount = 0
@@ -59,13 +61,17 @@ final class EyeStretchingViewModel: StretchingCounter {
     }
     
     func patchTapped() {
-        do {
-            try eyesEntity.removePatch()
-            try eyesEntity.playLoopAnimation()
-            attachmentView.components.remove(ClosureComponent.self)
-            stretchingPhase = .ready
-        } catch {
-            dump("patchTapped failed: \(error)")
+        Task {
+            do {
+                try eyesEntity.removePatch()
+                try eyesEntity.playLoopAnimation()
+                attachmentView.components.remove(ClosureComponent.self)
+                
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+                stretchingPhase = .ready
+            } catch {
+                dump("patchTapped failed: \(error)")
+            }
         }
     }
     
@@ -79,12 +85,29 @@ final class EyeStretchingViewModel: StretchingCounter {
     }
     
     func handleLongPressingUpdate(value isLongPressing: Bool) {
-        guard let currentDisturbEntity else { return }
+        guard let currentDisturbEntity,
+              currentDisturbEntityOnEnded == false else { return }
         
         if isLongPressing {
             currentDisturbEntity.enlarge()
         } else {
             currentDisturbEntity.reduce()
+        }
+    }
+    
+    func handleCurrentDisturbEntityIndexChanged() {
+        let prevEntity = disturbEntities[safe: currentDisturbEntityIndex-1]
+        let currentEntity = currentDisturbEntity
+        
+        Task { @MainActor in
+            do {
+                prevEntity?.disappear()
+                try await Task.sleep(nanoseconds: 7 * 100_000_000)
+                currentEntity?.appear()
+                currentDisturbEntityOnEnded = false
+            } catch {
+                dump("handleCurrentDisturbEntityIndexChanged failed: \(error)")
+            }
         }
     }
     
@@ -123,6 +146,7 @@ final class EyeStretchingViewModel: StretchingCounter {
             component: LongPressGestureComponent { [weak self] in
                 self?.doneCount += 1
                 self?.currentDisturbEntityIndex += 1
+                self?.currentDisturbEntityOnEnded = true
             }
         )
     }
@@ -141,6 +165,16 @@ final class EyeStretchingViewModel: StretchingCounter {
                 }
             }
             .store(in: &cancellableBag)
+    }
+    
+}
+
+private extension Array where Element: EyeStretchingDisturbEntity {
+    
+    subscript(safe index: Int) -> Element? {
+        guard self.indices.contains(index) else { return nil }
+        
+        return self[index]
     }
     
 }

@@ -19,6 +19,20 @@ final class EyeStretchingRingEntity: Entity {
         )
     )
     
+    private var eyesAreInside = false {
+        willSet {
+            if eyesAreInside != newValue {
+                do {
+                    try updateShaderGraphParameter(newValue)
+                } catch {
+                    dump("updateShaderGraphParameter failed: \(error)")
+                }
+            }
+        }
+    }
+    
+    private var audioPlaybackController: AudioPlaybackController?
+    
     private var cancellableBag = Set<AnyCancellable>()
     
     required init() {
@@ -34,6 +48,12 @@ final class EyeStretchingRingEntity: Entity {
         )
         
         addChild(entity)
+    }
+    
+    func appear() throws {
+        try playOpacityAnimation(from: 0.0, to: 1.0)
+        
+        playAudio(.appear)
     }
     
     func setCollisionComponent() async throws {
@@ -62,11 +82,7 @@ final class EyeStretchingRingEntity: Entity {
         collisionState
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
-                do {
-                    try self?.updateShaderGraphParameter(state.eyesAreInside)
-                } catch {
-                    dump("updateShaderGraphParameter failed: \(error)")
-                }
+                self?.eyesAreInside = state.eyesAreInside
             }
             .store(in: &cancellableBag)
     }
@@ -80,8 +96,29 @@ final class EyeStretchingRingEntity: Entity {
             throw EntityError.shaderGraphMaterialNotFound
         }
         
+        if !eyesAreInside {
+            playAudio(.collided)
+        }
+        
         try shaderGraphMaterial.setParameter(name: "EyesAreInside", value: .bool(eyesAreInside))
         torusModelEntity.components[ModelComponent.self]?.materials = [shaderGraphMaterial]
+    }
+    
+    private func playAudio(
+        _ type: RingEntityAudio,
+        configuration: AudioFileResource.Configuration = .init()
+    ) {
+        Task {
+            do {
+                audioPlaybackController?.stop()
+                audioPlaybackController = try await playAudio(
+                    filename: type.filename,
+                    configuration: configuration
+                )
+            } catch {
+                dump("EyeStretchingRingEntity playAudio failed: \(error)")
+            }
+        }
     }
 
 }
@@ -142,27 +179,18 @@ extension EyeStretchingRingEntity: HasChildren {
     
 }
 
-struct EyeRingCollisionState {
+private enum RingEntityAudio {
     
-    let restrictLineCollided: Bool
-    let innerPlaneCollided: Bool
+    case appear
+    case collided
     
-    var eyesAreInside: Bool {
-        innerPlaneCollided && !restrictLineCollided
-    }
-    
-    func replacing(restrictLine: Bool) -> Self {
-        .init(
-            restrictLineCollided: restrictLine,
-            innerPlaneCollided: innerPlaneCollided
-        )
-    }
-    
-    func replacing(innerPlane: Bool) -> Self {
-        .init(
-            restrictLineCollided: restrictLineCollided,
-            innerPlaneCollided: innerPlane
-        )
+    var filename: String {
+        switch self {
+        case .appear: 
+            "ring_\(self)"
+        case .collided:
+            "ring_\(self)"
+        }
     }
     
 }

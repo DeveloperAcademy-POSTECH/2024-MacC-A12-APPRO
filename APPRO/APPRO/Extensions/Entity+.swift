@@ -38,6 +38,22 @@ extension Entity {
         return self.playAnimation(animationResource, transitionDuration: duration)
     }
     
+    @discardableResult
+    func playAudio(
+        filename: String,
+        configuration: AudioFileResource.Configuration = .init()
+    ) async throws -> AudioPlaybackController {
+        guard let path = Bundle.main.path(forResource: filename, ofType: "mp3") else {
+            throw EntityError.audioFileNotFoundInBundle(filename: filename)
+        }
+        
+        let audioResource = try await AudioFileResource(
+            contentsOf: URL(filePath: path),
+            configuration: configuration
+        )
+        return playAudio(audioResource)
+    }
+    
 }
 
 enum EntityError: LocalizedError {
@@ -47,6 +63,7 @@ enum EntityError: LocalizedError {
     case shaderGraphMaterialNotFound
     case modelComponentNotFound
     case availabeAnimationNotFound
+    case audioFileNotFoundInBundle(filename: String)
     
     var errorDescription: String {
         switch self {
@@ -60,6 +77,8 @@ enum EntityError: LocalizedError {
             "Model Component is not found"
         case .availabeAnimationNotFound:
             "No available animation found"
+        case .audioFileNotFoundInBundle(let filename):
+            "Audio file named \(filename) is not found"
         }
     }
     
