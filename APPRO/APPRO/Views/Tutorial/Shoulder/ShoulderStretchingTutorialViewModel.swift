@@ -46,7 +46,8 @@ final class ShoulderStretchingTutorialViewModel {
 
     var isTimerVisible = false
     var timerFiveProgressChecker : [Bool] = [true, true, true, true, true]
-    
+    var soundHelper = SoundEffectHelper<ShoulderSoundEffects>()
+
     deinit {
         dump("\(self) deinited")
         session.stop()

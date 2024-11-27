@@ -14,14 +14,13 @@ struct ShoulderStretchingTutorialView: View {
     @State private var viewModel = ShoulderStretchingTutorialViewModel()
     @State private var isColliding: Bool = false
     @State var isStartWarningDone = false
-    
+
     var body: some View {
         RealityView { content, attachments in
             content.add(viewModel.contentEntity)
             let textEntity = createTextEntity("Stay aware of your surroundings")
             viewModel.contentEntity.addChild(textEntity)
             setTutorialToStart(content: content)
-            
         } update: { content, attachments in
             if tutorialManager.currentStepIndex == 0 {
                 if isStartWarningDone {
