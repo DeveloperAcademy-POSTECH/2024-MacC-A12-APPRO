@@ -65,6 +65,10 @@ enum ShoulderSoundEffects: String, SoundEffectProtocol, CaseIterable {
     case star1, star2, star3, star4, star5, star6
     case entryRocket
     case shoulderTimer
+    
+    static var stars: [ShoulderSoundEffects] {
+        allCases.filter { $0.rawValue.starts(with: "star") }
+    }
 }
 //TODO: 손목, 눈 예시
 enum WristSoundEffects: String, SoundEffectProtocol, CaseIterable {
