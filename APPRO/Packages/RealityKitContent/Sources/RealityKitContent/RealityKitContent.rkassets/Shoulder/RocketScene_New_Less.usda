@@ -183,19 +183,5 @@ def Xform "Root"
             }
         }
     }
-
-    def Xform "SpatialAudio"
-    {
-        def RealityKitComponent "SpatialAudio"
-        {
-            uniform token info:id = "RealityKit.SpatialAudio"
-        }
-    }
-
-    def RealityKitAudioFile "ShoulderEntrySound_wav"
-    {
-        uniform asset file = @ShoulderEntrySound.wav@
-        uniform bool shouldLoop = 0
-    }
 }
 

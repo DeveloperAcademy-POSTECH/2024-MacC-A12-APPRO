@@ -208,28 +208,5 @@ def Xform "Root" (
             }
         }
     }
-
-    def RealityKitAudioFile "ShoulderTimerSound_wav"
-    {
-        uniform asset file = @ShoulderTimerSound.wav@
-        uniform bool shouldLoop = 0
-    }
-
-    def Xform "SpatialAudio" (
-        customData = {
-            float3 rotationEulerHint = (3.0514224, 6.514077e-8, -5.0624916e-8)
-        }
-    )
-    {
-        quatf xformOp:orient = (0.045069903, 0.99898374, -2.381879e-8, -3.3678113e-8)
-        float3 xformOp:translate = (-1.6407322, 16.899181, -22.655203)
-        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
-
-        def RealityKitComponent "SpatialAudio"
-        {
-            float directivityFocus = 0.4472277
-            uniform token info:id = "RealityKit.SpatialAudio"
-        }
-    }
 }
 
