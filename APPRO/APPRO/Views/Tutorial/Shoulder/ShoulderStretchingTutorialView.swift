@@ -113,9 +113,6 @@ struct ShoulderStretchingTutorialView: View {
         // 충돌시 particle, audio 실행
         viewModel.playEmitter(eventEntity: collidedModelEntity)
         
-        debugPrint("디버그1", collidedModelEntity.name)
-        debugPrint("디버그2", "star\(viewModel.expectedNextNumber)")
-        
         if let effect = ShoulderSoundEffects.allCases.first(where: { effect in
             guard let entityNumber = Int(collidedModelEntity.name.dropFirst(4)) else { return false }
             guard let effectNumber = Int(effect.rawValue.dropFirst(4)) else { return false }
