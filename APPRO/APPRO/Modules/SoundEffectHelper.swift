@@ -8,25 +8,17 @@
 import Foundation
 import RealityKit
 
-protocol SoundEffectProtocol: Hashable {
+protocol AudioEffect: Hashable {
     static var allCases: [Self] { get }
     var fileName: String { get }
-    func playSound(on entity: Entity, resource: AudioFileResource)
 }
 
-extension SoundEffectProtocol where Self: RawRepresentable, Self.RawValue == String {
+extension AudioEffect where Self: RawRepresentable, Self.RawValue == String {
     var fileName: String { rawValue }
-    
-    func playSound(on entity: Entity, resource: AudioFileResource) {
-        /// SpatailAudioComponent 적용
-        entity.components.set(SpatialAudioComponent())
-        let audioController = entity.prepareAudio(resource)
-        audioController.play()
-    }
 }
 
 // SoundHelper 클래스 정의
-final class SoundEffectHelper<T: SoundEffectProtocol> {
+final class SoundEffectHelper<T: AudioEffect> {
     private var loadedSounds: [T: AudioFileResource] = [:]
     private let queue = DispatchQueue(label: "SoundEffectHelper")
 
@@ -48,20 +40,22 @@ final class SoundEffectHelper<T: SoundEffectProtocol> {
             }
         }
     }
-    
-    func playSound(_ effect: T, on entity: Entity, offset: Duration? = nil) {
+    /// Play sound effect on the specified entity.
+    func playSound(_ effect: T, on entity: Entity) {
         queue.sync { [weak self] in
             guard let resource = self?.loadedSounds[effect] else {
                 debugPrint("Sound not loaded: \(effect.fileName)")
                 return
             }
-            effect.playSound(on: entity, resource: resource)
+            entity.components.set(SpatialAudioComponent())
+            let audioController = entity.prepareAudio(resource)
+            audioController.play()
         }
     }
 }
 
 // 부위별 SoundEffect Enum 정의
-enum ShoulderSoundEffects: String, SoundEffectProtocol, CaseIterable {
+enum ShoulderSoundEffects: String, AudioEffect, CaseIterable {
     case star1, star2, star3, star4, star5, star6
     case entryRocket
     case shoulderTimer
@@ -71,11 +65,11 @@ enum ShoulderSoundEffects: String, SoundEffectProtocol, CaseIterable {
     }
 }
 //TODO: 손목, 눈 예시
-enum WristSoundEffects: String, SoundEffectProtocol, CaseIterable {
+enum WristSoundEffects: String, AudioEffect, CaseIterable {
     case ringCharge, spiralHit, wristStretch
 }
 
-enum EyeSoundEffects: String, SoundEffectProtocol, CaseIterable {
+enum EyeSoundEffects: String, AudioEffect, CaseIterable {
     case focusGain, distractionCut, eyeStretch
 }
 
