@@ -51,7 +51,7 @@ extension HandRollingTutorialViewModel {
             modelEntity.components[PhysicsBodyComponent.self] = physicsBody
         }
         
-        try? animating(entity: spiralEntity, chirality: chirality)
+        animating(entity: spiralEntity, chirality: chirality)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if chirality == .right {
@@ -67,7 +67,7 @@ extension HandRollingTutorialViewModel {
         return spiralEntity
     }
     
-    func animating(entity : Entity, chirality : Chirality) throws {
+    func animating(entity : Entity, chirality : Chirality) {
         let multiplication = entity.transform.matrix
         let forwardDirection = multiplication.columns.0 // x axis
         let direction = simd_float3(forwardDirection.x, forwardDirection.y, forwardDirection.z)
