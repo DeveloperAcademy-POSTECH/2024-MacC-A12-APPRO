@@ -20,19 +20,9 @@ struct ShoulderStretchingTutorialView: View {
             content.add(viewModel.contentEntity)
             let textEntity = createTextEntity("Stay aware of your surroundings")
             viewModel.contentEntity.addChild(textEntity)
-            setTutorialToStart(content: content)
+            setTutorialToStart(content, attachments)
         } update: { content, attachments in
-            if tutorialManager.currentStepIndex == 0 {
-                if isStartWarningDone {
-                    viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
-                    viewModel.addAttachmentView(content,attachments)
-                } else {
-                    viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
-                }
-            } else {
-                viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
-            }
-            
+            viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
         } attachments: {
             Attachment(id: viewModel.tutorialAttachmentViewID) {
                 TutorialAttachmentView(tutorialManager: tutorialManager)
@@ -178,7 +168,7 @@ struct ShoulderStretchingTutorialView: View {
         return textEntity
     }
     
-    func setTutorialToStart(content: RealityViewContent) {
+    func setTutorialToStart(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
         if tutorialManager.currentStepIndex == 0 {
             guard let textEntity = viewModel.contentEntity.findEntity(named: "warning") else { return }
             withAnimation {
@@ -190,9 +180,10 @@ struct ShoulderStretchingTutorialView: View {
                     textEntity.removeFromParent()
                     await viewModel.setEntryRocket()
                     viewModel.setHandRocketEntity()
-                    viewModel.setClosureComponent(entity: viewModel.handRocketEntity)
+                    viewModel.setClosureComponent(entity: viewModel.entryRocketEntity)
                     subscribeToCollisionEvents(content: content)
                     isStartWarningDone = true
+                    viewModel.addAttachmentView(content, attachments)
                 }
             }
         }
