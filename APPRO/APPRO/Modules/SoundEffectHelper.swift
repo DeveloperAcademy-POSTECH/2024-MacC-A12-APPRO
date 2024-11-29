@@ -21,12 +21,14 @@ extension AudioEffect where Self: RawRepresentable, Self.RawValue == String {
 final class SoundEffectHelper<T: AudioEffect> {
     private var loadedSounds: [T: AudioFileResource] = [:]
     private let queue = DispatchQueue(label: "SoundEffectHelper")
-    private let loadCompleteSemaphore = DispatchSemaphore(value: 0) // 세마포어 생성
+    private var isLoaded = false
 
     init() {
         Task {
             await loadSounds()
-            loadCompleteSemaphore.signal() // 로드 완료 시 신호 전달
+            queue.sync {
+                isLoaded = true
+            }
         }
     }
     
@@ -35,6 +37,7 @@ final class SoundEffectHelper<T: AudioEffect> {
             try await withThrowingTaskGroup(of: (T, AudioFileResource).self) { group in
                 for effect in T.allCases {
                     group.addTask {
+                        //TODO: wav 확장자만 가능한것 추후 수정
                         let resource = try await AudioFileResource(named: "\(effect.fileName).wav")
                         return (effect, resource)
                     }
@@ -51,9 +54,12 @@ final class SoundEffectHelper<T: AudioEffect> {
     }
     
     func playSound(_ effect: T, on entity: Entity, isSpatial: Bool = true) {
-        // loadSounds 완료를 기다림
-        loadCompleteSemaphore.wait()
-
+        queue.sync {
+            if !isLoaded {
+                debugPrint("Sounds are still loading. Please wait...")
+                return
+            }
+        }
         // 이후 동기적으로 실행
         queue.sync { [weak self] in
             guard let resource = self?.loadedSounds[effect] else {
@@ -81,13 +87,16 @@ enum ShoulderSoundEffects: String, AudioEffect, CaseIterable {
         allCases.filter { $0.rawValue.starts(with: "star") }
     }
 }
-//TODO: 손목, 눈 예시
+
 enum WristSoundEffects: String, AudioEffect, CaseIterable {
-    case ringCharge, spiralHit, wristStretch
+    case handStartAppear
+    case handSprialAppear
+    case handGuideRingAppear
+    case handRotationOnce, handRotationTwice, handRotationThreeTimes
+    case handTargetHitRight, handTargetHitWrong
 }
 
+// TODO: 눈 예시
 enum EyeSoundEffects: String, AudioEffect, CaseIterable {
     case focusGain, distractionCut, eyeStretch
 }
-
-
