@@ -21,33 +21,50 @@ extension AudioEffect where Self: RawRepresentable, Self.RawValue == String {
 final class SoundEffectHelper<T: AudioEffect> {
     private var loadedSounds: [T: AudioFileResource] = [:]
     private let queue = DispatchQueue(label: "SoundEffectHelper")
+    private let loadCompleteSemaphore = DispatchSemaphore(value: 0) // 세마포어 생성
 
     init() {
         Task {
             await loadSounds()
+            loadCompleteSemaphore.signal() // 로드 완료 시 신호 전달
         }
     }
     
     private func loadSounds() async {
-        for effect in T.allCases {
-            do {
-                let resource = try await AudioFileResource(named: "\(effect.fileName).wav")
-                queue.sync { [weak self] in
-                    self?.loadedSounds[effect] = resource
+        do {
+            try await withThrowingTaskGroup(of: (T, AudioFileResource).self) { group in
+                for effect in T.allCases {
+                    group.addTask {
+                        let resource = try await AudioFileResource(named: "\(effect.fileName).wav")
+                        return (effect, resource)
+                    }
                 }
-            } catch {
-                debugPrint("Failed to load sound: \(effect.fileName), \(error)")
+                for try await (effect, resource) in group {
+                    queue.sync {
+                        self.loadedSounds[effect] = resource
+                    }
+                }
             }
+        } catch {
+            debugPrint("Failed to load one or more sounds: \(error)")
         }
     }
-    /// Play sound effect on the specified entity.
-    func playSound(_ effect: T, on entity: Entity) {
+    
+    func playSound(_ effect: T, on entity: Entity, isSpatial: Bool = true) {
+        // loadSounds 완료를 기다림
+        loadCompleteSemaphore.wait()
+
+        // 이후 동기적으로 실행
         queue.sync { [weak self] in
             guard let resource = self?.loadedSounds[effect] else {
                 debugPrint("Sound not loaded: \(effect.fileName)")
                 return
             }
-            entity.components.set(SpatialAudioComponent())
+            
+            if isSpatial {
+                entity.components.set(SpatialAudioComponent())
+            }
+            
             let audioController = entity.prepareAudio(resource)
             audioController.play()
         }
