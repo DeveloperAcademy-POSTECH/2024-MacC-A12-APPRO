@@ -14,15 +14,13 @@ struct ShoulderStretchingTutorialView: View {
     @State private var viewModel = ShoulderStretchingTutorialViewModel()
     @State private var isColliding: Bool = false
     @State var isStartWarningDone = false
-    
+
     var body: some View {
         RealityView { content, attachments in
             content.add(viewModel.contentEntity)
-            viewModel.subscribeSceneEvent(content)
             let textEntity = createTextEntity("Stay aware of your surroundings")
             viewModel.contentEntity.addChild(textEntity)
             setTutorialToStart(content: content)
-            
         } update: { content, attachments in
             if tutorialManager.currentStepIndex == 0 {
                 if isStartWarningDone {
@@ -63,7 +61,7 @@ struct ShoulderStretchingTutorialView: View {
             }
         }
         .onChange(of: viewModel.modelEntities) { _, newValue in
-            if let _ = newValue.first(where: {$0.name.contains("rightModelEntity")}) {
+            if let _ = newValue.first(where: {$0.name.contains("star")}) {
                 if tutorialManager.currentStepIndex == 2 {
                     tutorialManager.advanceToNextStep()
                 }
@@ -111,22 +109,26 @@ struct ShoulderStretchingTutorialView: View {
             isColliding = true
             return
         }
-        
-        let entityName = viewModel.isRightDone ? "leftModelEntity" : "rightModelEntity"
-                
+                        
         // 충돌시 particle, audio 실행
         viewModel.playEmitter(eventEntity: collidedModelEntity)
-        Task {
-            await viewModel.playSpatialAudio(collidedModelEntity)
+        
+        if let effect = ShoulderSoundEffects.allCases.first(where: { effect in
+            guard let entityNumber = Int(collidedModelEntity.name.dropFirst(4)) else { return false }
+            guard let effectNumber = Int(effect.rawValue.dropFirst(4)) else { return false }
+            // 나머지를 이용해 숫자를 대응
+            return (entityNumber - 1) % ShoulderSoundEffects.stars.count + 1 == effectNumber
+        }) {
+            viewModel.soundHelper.playSound(effect, on: collidedModelEntity)
         }
         
         // 다음 엔터티 일때만 Material 변경
-        if collidedModelEntity.name == "\(entityName)-\(viewModel.expectedNextNumber)" {
+        if collidedModelEntity.name == "star\(viewModel.expectedNextNumber)" {
             viewModel.changeMatreialColor(entity: collidedModelEntity)
             viewModel.addExpectedNextNumber()
 
             // 마지막 엔터티 감지
-            if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 2)") {
+            if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 1)") {
                 if tutorialManager.currentStepIndex == 3 {
                     tutorialManager.advanceToNextStep()
                 }
@@ -187,6 +189,7 @@ struct ShoulderStretchingTutorialView: View {
                 Task {
                     textEntity.removeFromParent()
                     await viewModel.setEntryRocket()
+                    viewModel.setHandRocketEntity()
                     viewModel.setClosureComponent(entity: viewModel.handRocketEntity)
                     subscribeToCollisionEvents(content: content)
                     isStartWarningDone = true

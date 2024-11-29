@@ -264,57 +264,6 @@ def Xform "Root"
                 }
             }
         }
-
-        def Xform "SpatialAudio" (
-            prepend apiSchemas = ["MaterialBindingAPI"]
-        )
-        {
-            rel material:binding = </Root/Materials/Plaster_Fine_001_White_440cm> (
-                bindMaterialAs = "weakerThanDescendants"
-            )
-            quatf xformOp:orient = (1, 0, 0, 0)
-            float3 xformOp:scale = (50, 50, 50)
-            float3 xformOp:translate = (0, 0, 0)
-            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
-
-            def RealityKitComponent "SpatialAudio"
-            {
-                float directivityFocus = 0.57503414
-                float gain = 0
-                uniform token info:id = "RealityKit.SpatialAudio"
-                float reverbLevel = 0
-            }
-        }
-    }
-
-    def RealityKitAudioFile "StarAudio_1_wav"
-    {
-        uniform asset file = @StarAudio_1.wav@
-        uniform bool shouldLoop = 0
-    }
-
-    def RealityKitAudioFile "StarAudio_2_wav"
-    {
-        uniform asset file = @StarAudio_2.wav@
-        uniform bool shouldLoop = 0
-    }
-
-    def RealityKitAudioFile "StarAudio_3_wav"
-    {
-        uniform asset file = @StarAudio_3.wav@
-        uniform bool shouldLoop = 0
-    }
-
-    def RealityKitAudioFile "StarAudio_4_wav"
-    {
-        uniform asset file = @StarAudio_4.wav@
-        uniform bool shouldLoop = 0
-    }
-
-    def RealityKitAudioFile "StarAudio_5_wav"
-    {
-        uniform asset file = @StarAudio_5.wav@
-        uniform bool shouldLoop = 0
     }
 }
 
