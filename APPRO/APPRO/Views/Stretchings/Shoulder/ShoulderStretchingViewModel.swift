@@ -292,11 +292,21 @@ final class ShoulderStretchingViewModel: StretchingCounter {
     
     func addAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
         guard let stretchingAttachmentView = attachments.entity(for: stretchingAttachmentViewID) else {
-            dump("StretchingAttachmentView not found in attachments!")
+            dump("TutorialAttachmentView not found in attachments!")
             return
         }
-        stretchingAttachmentView.position = .init(x: -0.5, y: 1.6 , z: -1.3)
+
+        guard let deviceAnchor = worldTrackingProvider.queryDeviceAnchor(atTimestamp: CACurrentMediaTime())
+        else {
+            debugPrint("deviceAnchor not found")
+            return
+        }
+        
+        let currentTranslation = deviceAnchor.originFromAnchorTransform.translation()
+        stretchingAttachmentView.position = .init(x: currentTranslation.x - 0.2, y: currentTranslation.y + 0.2, z: currentTranslation.z - 1.0)
+        
         content.add(stretchingAttachmentView)
+        
     }
     
     func showEndAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {

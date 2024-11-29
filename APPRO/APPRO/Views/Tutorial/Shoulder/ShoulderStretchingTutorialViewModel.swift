@@ -265,8 +265,18 @@ final class ShoulderStretchingTutorialViewModel {
             dump("TutorialAttachmentView not found in attachments!")
             return
         }
-        tutorialAttachmentView.position = .init(x: -0.5, y: 1.6 , z: -1.3)
+
+        guard let deviceAnchor = worldTrackingProvider.queryDeviceAnchor(atTimestamp: CACurrentMediaTime())
+        else {
+            debugPrint("deviceAnchor not found")
+            return
+        }
+        
+        let currentTranslation = deviceAnchor.originFromAnchorTransform.translation()
+        tutorialAttachmentView.position = .init(x: currentTranslation.x - 0.2, y: currentTranslation.y + 0.2, z: currentTranslation.z - 1.0)
+        
         content.add(tutorialAttachmentView)
+        
     }
     
     func playCustomAnimation(timerEntity: Entity) {
