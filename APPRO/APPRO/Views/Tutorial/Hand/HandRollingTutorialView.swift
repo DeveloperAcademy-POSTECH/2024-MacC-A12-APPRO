@@ -67,10 +67,7 @@ struct HandRollingTutorialView : View {
                 if viewModel.isStartingObjectVisible { viewModel.isStartingObjectVisible = false}
                 
                 viewModel.rightEntities.append(viewModel.rightGuideRing)
-                
-                Task {
-                    await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
-                }
+                viewModel.soundHelper.playSound(.handGuideRingAppear, on: viewModel.rightGuideRing)
             } else {
                 viewModel.rightGuideRing.removeFromParent()
                 viewModel.rightGuideSphere.removeFromParent()
@@ -81,10 +78,7 @@ struct HandRollingTutorialView : View {
             if isHandFistShape && tutorialManager.isLastStep {
                 viewModel.leftEntities.append(viewModel.leftGuideRing)
                 viewModel.leftEntities.append(viewModel.leftGuideSphere)
-                
-                Task {
-                    await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
-                }
+                viewModel.soundHelper.playSound(.handGuideRingAppear, on: viewModel.leftGuideRing)
             } else {
                 viewModel.leftGuideRing.removeFromParent()
                 viewModel.leftGuideSphere.removeFromParent()
@@ -117,7 +111,7 @@ struct HandRollingTutorialView : View {
                 if tutorialManager.currentStepIndex >= 3  {
                     Task {
                         viewModel.rightRotationForLaunchNumber = viewModel.rightRotationCount
-                        try? await viewModel.rightEntities.append(viewModel.generateLaunchObj(chirality: .right))
+                        await viewModel.rightEntities.append(viewModel.generateLaunchObj(chirality: .right))
                     }
                 }
                 
@@ -133,7 +127,7 @@ struct HandRollingTutorialView : View {
                 
                 Task {
                     viewModel.leftRotationForLaunchNumber = viewModel.leftRotationCount
-                    try? await viewModel.leftEntities.append(viewModel.generateLaunchObj(chirality: .left))
+                    await viewModel.leftEntities.append(viewModel.generateLaunchObj(chirality: .left))
                 }
                 
                 
@@ -147,9 +141,7 @@ struct HandRollingTutorialView : View {
             let colorValueChangedTo = min (newValue * 2, 6)
             viewModel.getDifferentRingColor(viewModel.rightGuideRing, intChangeTo: Int32(colorValueChangedTo))
             
-            Task {
-                await viewModel.playRotationChangeRingSound(newValue, chirality: .right)
-            }
+            viewModel.playRotationChangeRingSound(newValue, chirality: .right)
             
             goToNextTutorialStep(2)
         }
@@ -157,9 +149,7 @@ struct HandRollingTutorialView : View {
             let colorValueChangedTo = min (newValue * 2 + 1, 7)
             viewModel.getDifferentRingColor(viewModel.leftGuideRing, intChangeTo: Int32(colorValueChangedTo))
             
-            Task {
-                await viewModel.playRotationChangeRingSound(newValue, chirality: .left)
-            }
+            viewModel.playRotationChangeRingSound(newValue, chirality: .left)
             
             goToNextTutorialStep(2)
         }

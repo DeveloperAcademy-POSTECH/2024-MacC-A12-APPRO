@@ -55,13 +55,13 @@ extension HandRollingStretchingViewModel {
             
             Task {
                 if entityA.name == "Spiral" && entityB.name == "Cylinder_002" {
-                    await self.spiralCollisionHandler(spiral: entityA, target: entityB)
+                    self.spiralCollisionHandler(spiral: entityA, target: entityB)
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 ) {
                         entityA.removeFromParent()
                     }
                 } else if entityB.name == "Spiral" && entityA.name == "Cylinder_002" {
-                    await self.spiralCollisionHandler(spiral: entityB, target: entityA)
+                    self.spiralCollisionHandler(spiral: entityB, target: entityA)
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 ) {
                         entityB.removeFromParent()
@@ -72,7 +72,7 @@ extension HandRollingStretchingViewModel {
         }
     }
     
-    private func spiralCollisionHandler(spiral: Entity, target: Entity) async {
+    private func spiralCollisionHandler(spiral: Entity, target: Entity) {
         guard let spiralEntity = spiral.parent?.parent?.parent?.parent else { return }
         guard let targetEntity = target.parent?.parent?.parent else { return }
         
@@ -88,7 +88,7 @@ extension HandRollingStretchingViewModel {
         // 조건 : 발사체와 과녁의 chirality 가 동일하고, 발사체의 회전수가 3 이상일 것.
         if  Int(spiralChiralityAndScore.suffix(1)) ?? 0 >= 3 && spiralChiralityAndScore.contains(targetChiralityName){
             try? animateForHittingTarget(targetEntity, spiralEntity: spiralEntity)
-            await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitRight(chirality: targetChiralityValue))
+            soundHelper.playSound(.handTargetHitRight, on: targetEntity)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.removeTargetFromArrayAndContext(targetEntity: targetEntity, chirality: targetChiralityValue, canBeCountedAsScore: true)
@@ -96,7 +96,7 @@ extension HandRollingStretchingViewModel {
         } else {
             getWrongTargetColorChange(target as! ModelEntity, chirality: targetChiralityValue, intChangeTo: 1)
             try? animateForHittingTarget(targetEntity, spiralEntity: spiralEntity)
-            await playSpatialAudio(targetEntity, audioInfo: AudioFindHelper.handTargetHitWrong(chirality: targetChiralityValue))
+            soundHelper.playSound(.handTargetHitWrong, on: targetEntity)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4 ) {
                 if let modelEntity = target as? ModelEntity {

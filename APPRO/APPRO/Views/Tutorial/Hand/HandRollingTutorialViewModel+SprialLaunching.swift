@@ -12,7 +12,7 @@ import RealityKitContent
 
 extension HandRollingTutorialViewModel {
     
-    func generateLaunchObj(chirality: Chirality) async throws -> Entity {
+    func generateLaunchObj(chirality: Chirality) async -> Entity {
         if spiralOriginal.name == "" {
             guard let spiralLoadedFromRCP = try? await Entity(named: "Hand/spiral_new", in: realityKitContentBundle) else { return Entity() }
             spiralOriginal = spiralLoadedFromRCP
@@ -51,7 +51,7 @@ extension HandRollingTutorialViewModel {
             modelEntity.components[PhysicsBodyComponent.self] = physicsBody
         }
         
-        try await animating(entity: spiralEntity, chirality: chirality)
+        try? animating(entity: spiralEntity, chirality: chirality)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if chirality == .right {
@@ -67,24 +67,7 @@ extension HandRollingTutorialViewModel {
         return spiralEntity
     }
     
-    func findResourceAndPlay(_ entity: Entity, spatialAudioName: String, resourceLocation: String, resourceFrom: String) async {
-        guard let audioEntity = entity.findEntity(named: spatialAudioName),
-              let resource = try? await AudioFileResource(named: resourceLocation,
-                                                          from: resourceFrom,
-                                                          in: realityKitContentBundle) else {
-            print("No Audio Resource Found:  \(resourceLocation) / \(resourceFrom) \(spatialAudioName)")
-            return }
-        
-        let audioPlayer = audioEntity.prepareAudio(resource)
-        audioPlayer.play()
-    }
-    
-    func playSpatialAudio(_ entity: Entity, audioInfo: AudioFindHelper) async {
-        let audioInfoDetail = audioInfo.detail
-        await findResourceAndPlay(entity, spatialAudioName: audioInfoDetail.spatialAudioName, resourceLocation: audioInfoDetail.resourceLocation, resourceFrom: audioInfoDetail.resourceFrom)
-    }
-    
-    func animating(entity : Entity, chirality : Chirality) async throws {
+    func animating(entity : Entity, chirality : Chirality) throws {
         let multiplication = entity.transform.matrix
         let forwardDirection = multiplication.columns.0 // x axis
         let direction = simd_float3(forwardDirection.x, forwardDirection.y, forwardDirection.z)
@@ -106,10 +89,13 @@ extension HandRollingTutorialViewModel {
             bindTarget: .transform
         )
         
-        let animation = try AnimationResource.generate(with: goInDirection)
+        guard let animation = try? AnimationResource.generate(with: goInDirection) else {
+            debugPrint("Failed to generate animation")
+            return
+        }
         
         entity.playAnimation(animation, transitionDuration: 0.5)
         
-        await playSpatialAudio(entity, audioInfo: AudioFindHelper.handSprialAppear)
+        soundHelper.playSound(.handSprialAppear, on: entity)
     }
 }
