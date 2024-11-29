@@ -270,8 +270,8 @@ final class ShoulderStretchingTutorialViewModel {
     }
     
     func playCustomAnimation(timerEntity: Entity) {
+        let taskManager = TaskManager() // Actor로 tasks 관리
         let targetModelEntities = ["b1", "b2", "b3", "b4", "b5"]
-        var tasks: [Task<Void, Never>] = []
         
         for (index, target) in targetModelEntities.enumerated() {
             guard let modelEntity = timerEntity.findEntity(named: target) as? ModelEntity,
@@ -288,6 +288,7 @@ final class ShoulderStretchingTutorialViewModel {
                 if index == 1 {
                     playAnimation(animationEntity: timerEntity)
                 }
+                
                 if timerFiveProgressChecker[index] {
                     for material in shaderGraphMaterial {
                         do {
@@ -300,19 +301,18 @@ final class ShoulderStretchingTutorialViewModel {
                     }
                     modelComponent.materials = materialArray
                     modelEntity.components.set(modelComponent)
-                    
                     soundHelper.playSound(.shoulderTimer, on: modelEntity)
                     
                     if index == 4 {
-                        tasks.forEach { $0.cancel() }
+                        await taskManager.cancelAllTasks()
                     }
                 } else {
                     playBackProgressAnimation(index: index)
-                    tasks.suffix(from: index).forEach { $0.cancel() }
+                    await taskManager.cancelAllTasks()
                     return
                 }
             }
-            tasks.append(task)
+            Task { await taskManager.addTask(task) }
         }
     }
     
