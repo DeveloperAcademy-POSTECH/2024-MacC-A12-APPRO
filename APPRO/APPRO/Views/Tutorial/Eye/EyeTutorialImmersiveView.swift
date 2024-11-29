@@ -52,7 +52,7 @@ struct EyeTutorialImmersiveView: View {
                 }
         )
         .gesture(
-            LongPressGesture(minimumDuration: 2.0)
+            LongPressGesture(minimumDuration: 1.0)
                 .targetedToEntity(where: .has(LongPressGestureComponent.self))
                 .updating($isLongPressing) { currentValue, gestureState, _ in
                     gestureState = currentValue.gestureValue
@@ -109,10 +109,10 @@ struct EyeTutorialImmersiveView: View {
     
     private func configureStep3(content: RealityViewContent) {
         do {
-            let chickenEntity = tutorialManager.chickenEntity
-            content.add(chickenEntity)
+            let chickenObject = tutorialManager.chickenObject
+            content.add(chickenObject.entity)
             try tutorialManager.configureChickenEntity()
-            try chickenEntity.playOpacityAnimation(from: 0.0, to: 1.0)
+            chickenObject.appear()
         } catch {
             dump("configureStep3 failed: \(error)")
         }
@@ -124,7 +124,7 @@ struct EyeTutorialImmersiveView: View {
             let ringEntity = tutorialManager.ringEntity
             let monitorEntity = tutorialManager.monitorEntity
             
-            tutorialManager.chickenEntity.removeFromParent()
+            tutorialManager.chickenObject.entity.removeFromParent()
             content.add(ringEntity)
             content.add(monitorEntity)
             

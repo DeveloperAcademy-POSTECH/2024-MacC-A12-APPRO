@@ -30,18 +30,12 @@ extension EyeTutorialManager {
     }
     
     func configureChickenEntity() throws {
-        chickenEntity.setPosition(.init(x: -1, y: 0, z: 0), relativeTo: eyesEntity)
-        chickenEntity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
-        chickenEntity.components.set(OpacityComponent(opacity: 0.0))
-        chickenEntity.components.set(HoverEffectComponent(.spotlight(.default)))
+        chickenObject.entity.setPosition(.init(x: -1, y: 0, z: 0), relativeTo: eyesEntity)
         
         let longPressGesture = LongPressGestureComponent { [weak self] in
             self?.longPressOnEnded()
         }
-        try chickenEntity.setGestureComponent(
-            type: .chicken,
-            component: longPressGesture
-        )
+        try chickenObject.setGestureComponent(longPressGesture)
     }
     
     func configureRingEntity() async throws {

@@ -18,7 +18,7 @@ final class EyeTutorialManager: TutorialManager {
     private var cancellableBag: Set<AnyCancellable> = []
     
     private(set) var eyesEntity = EyeStretchingEyesEntity()
-    private(set) var chickenEntity = EyeStretchingDisturbEntity()
+    private(set) var chickenObject = EyeStretchingDisturbObject(type: .chicken)
     private(set) var ringEntity = EyeStretchingRingEntity()
     private(set) var monitorEntity = Entity()
     
@@ -47,9 +47,13 @@ final class EyeTutorialManager: TutorialManager {
 
     func loadEntities() async -> Bool {
         do {
-            try await eyesEntity.loadCoreEntity()
-            try await ringEntity.loadCoreEntity()
-            try await chickenEntity.loadCoreEntity(type: .chicken)
+            await withThrowingTaskGroup(of: Void.self) { [weak self] taskGroup in
+                taskGroup.addTask {
+                    try await self?.eyesEntity.loadCoreEntity()
+                    try await self?.ringEntity.loadCoreEntity()
+                    try await self?.chickenObject.loadEntity()
+                }
+            }
             monitorEntity = try await loadEntity(entityType: .monitor)
             
             return true
@@ -73,15 +77,15 @@ final class EyeTutorialManager: TutorialManager {
         guard longPressGestureOnEnded == false else { return }
         
         if isLongPressing {
-            chickenEntity.enlarge()
+            chickenObject.enlarge()
         } else {
-            chickenEntity.reduce()
+            chickenObject.reduce()
         }
     }
     
     func longPressOnEnded() {
         longPressGestureOnEnded = true
-        chickenEntity.disappear()
+        chickenObject.disappear()
         advanceToNextStep()
     }
     

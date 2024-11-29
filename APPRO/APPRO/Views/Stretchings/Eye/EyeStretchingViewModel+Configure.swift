@@ -44,24 +44,16 @@ extension EyeStretchingViewModel {
         monitorEntity.setPosition(.init(x: -0.15, y: -0.17, z: 0.35), relativeTo: ringEntity)
     }
     
-    func setDisturbEntitiesPosition() {
+    func setDisturbObjectsPosition() {
         let positions = generateDisturbEntityPositions()
         
-        guard disturbEntities.count == positions.count else {
+        guard disturbObjects.count == positions.count else {
             dump("Disturb Entities and positions count mismatch")
             return
         }
         
-        for (index, entity) in disturbEntities.enumerated() {
-            entity.setPosition(
-                positions[index] * 1 / ringEntity.scale,
-                relativeTo: ringEntity
-            )
-            entity.transform.rotation = .init(
-                angle: Float.random(in: -0.4...0.4),
-                axis: [0, 0, 1]
-            )
-            entity.components.set(OpacityComponent(opacity: 0.0))
+        for (index, object) in disturbObjects.enumerated() {
+            object.setPosition(positions[index], relativeTo: ringEntity)
         }
     }
     

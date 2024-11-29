@@ -26,17 +26,17 @@ final class EyeStretchingViewModel: StretchingCounter {
     private(set) var eyesEntity = EyeStretchingEyesEntity()
     private(set) var ringEntity = EyeStretchingRingEntity()
     private(set) var monitorEntity = Entity()
-    private(set) var disturbEntities: [EyeStretchingDisturbEntity] = []
+    private(set) var disturbObjects: [EyeStretchingDisturbObject] = []
     private(set) var attachmentView = Entity()
     
-    private var currentDisturbEntityIndex = 0
+    private var currentDisturbObjectIndex = 0
     
-    var currentDisturbEntity: EyeStretchingDisturbEntity? {
-        guard disturbEntities.indices.contains(currentDisturbEntityIndex) else {
+    var currentDisturbObject: EyeStretchingDisturbObject? {
+        guard disturbObjects.indices.contains(currentDisturbObjectIndex) else {
             return nil
         }
         
-        return disturbEntities[currentDisturbEntityIndex]
+        return disturbObjects[currentDisturbObjectIndex]
     }
     
     private var currentDisturbEntityOnEnded = false
@@ -46,7 +46,7 @@ final class EyeStretchingViewModel: StretchingCounter {
     func makeDoneCountZero() {
         doneCount = 0
         
-        currentDisturbEntityIndex = 0
+        currentDisturbObjectIndex = 0
         stretchingPhase = .start
     }
     
@@ -85,19 +85,19 @@ final class EyeStretchingViewModel: StretchingCounter {
     }
     
     func handleLongPressingUpdate(value isLongPressing: Bool) {
-        guard let currentDisturbEntity,
+        guard let currentDisturbObject,
               currentDisturbEntityOnEnded == false else { return }
         
         if isLongPressing {
-            currentDisturbEntity.enlarge()
+            currentDisturbObject.enlarge()
         } else {
-            currentDisturbEntity.reduce()
+            currentDisturbObject.reduce()
         }
     }
     
     func handleCurrentDisturbEntityIndexChanged() {
-        let prevEntity = disturbEntities[safe: currentDisturbEntityIndex-1]
-        let currentEntity = currentDisturbEntity
+        let prevEntity = disturbObjects[safe: currentDisturbObjectIndex-1]
+        let currentEntity = currentDisturbObject
         
         Task { @MainActor in
             do {
@@ -112,43 +112,31 @@ final class EyeStretchingViewModel: StretchingCounter {
     }
     
     private func initializeDisturbEntities() async throws {
-        let disturbEntities: [EyeStretchingDisturbEntity] = try await withThrowingTaskGroup(
-            of: EyeStretchingDisturbEntity.self
+        let disturbObjects: [EyeStretchingDisturbObject] = try await withThrowingTaskGroup(
+            of: EyeStretchingDisturbObject.self
         ) { [weak self] taskGroup in
             DisturbEntityType.allCases.forEach { type in
                 taskGroup.addTask { @MainActor in
-                    let disturbEntity = EyeStretchingDisturbEntity()
-                    try await disturbEntity.loadCoreEntity(type: type)
-                    try self?.configureDisturbEntity(type: type, entity: disturbEntity)
-                    return disturbEntity
+                    let disturbObject = EyeStretchingDisturbObject(type: type)
+                    try await disturbObject.loadEntity()
+                    try disturbObject.setGestureComponent(
+                        LongPressGestureComponent { [weak self] in
+                            self?.doneCount += 1
+                            self?.currentDisturbObjectIndex += 1
+                            self?.currentDisturbEntityOnEnded = true
+                    })
+                    return disturbObject
                 }
             }
-            var entities: [EyeStretchingDisturbEntity] = []
+            var objects: [EyeStretchingDisturbObject] = []
             
-            for try await entity in taskGroup {
-                entities.append(entity)
-                entities.append(entity.clone(recursive: true))
+            for try await object in taskGroup {
+                objects.append(object)
+                objects.append(object.clone)
             }
-            return entities.shuffled()
+            return objects.shuffled()
         }
-        self.disturbEntities = disturbEntities
-    }
-    
-    private func configureDisturbEntity(
-        type: DisturbEntityType,
-        entity: EyeStretchingDisturbEntity
-    ) throws {
-        entity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
-        entity.components.set(HoverEffectComponent(.spotlight(.default)))
-        
-        try entity.setGestureComponent(
-            type: type,
-            component: LongPressGestureComponent { [weak self] in
-                self?.doneCount += 1
-                self?.currentDisturbEntityIndex += 1
-                self?.currentDisturbEntityOnEnded = true
-            }
-        )
+        self.disturbObjects = disturbObjects
     }
     
     func handleEyeRingCollisionState() {
@@ -156,7 +144,7 @@ final class EyeStretchingViewModel: StretchingCounter {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 guard let self,
-                      let currentDisturbEntity else { return }
+                      let currentDisturbObject else { return }
                 
                 if state.eyesAreInside {
                     currentDisturbEntity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
@@ -169,7 +157,7 @@ final class EyeStretchingViewModel: StretchingCounter {
     
 }
 
-private extension Array where Element: EyeStretchingDisturbEntity {
+private extension Array where Element: EyeStretchingDisturbObject {
     
     subscript(safe index: Int) -> Element? {
         guard self.indices.contains(index) else { return nil }
