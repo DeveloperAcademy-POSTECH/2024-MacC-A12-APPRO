@@ -16,7 +16,6 @@ struct HandRollingStretchingView: View {
         RealityView { content, attachments in
             if viewModel.isStartingObjectVisible {
                 await viewModel.generateStartingObject(content)
-                viewModel.setClosureComponent(entity: viewModel.startObject)
             }
             await viewModel.makeFirstEntitySetting()
             viewModel.addEntity(content)
