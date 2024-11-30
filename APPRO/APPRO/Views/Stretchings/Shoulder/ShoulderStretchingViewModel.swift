@@ -14,13 +14,14 @@ import ARKit
 @MainActor
 final class ShoulderStretchingViewModel: StretchingCounter {
     
+    private let headTracker = HeadTracker()
+
     var contentEntity = Entity()
     var modelEntities: [Entity] = []
     var handEntities: [Entity] = []
     
     let session = ARKitSession()
     var handTrackingProvider = HandTrackingProvider()
-    var worldTrackingProvider = WorldTrackingProvider()
     var latestHandTracking: HandsUpdates = .init(left: nil, right: nil)
     let handModelEntity = HandModelEntity()
     var entryRocketEntity = Entity()
@@ -35,7 +36,14 @@ final class ShoulderStretchingViewModel: StretchingCounter {
     var isRetry = false
     
     var fixedOneAfterPositioning: Float = 0.0
-    var startingZ: Float = 0.0
+    private var startingTranslation: SIMD3<Float> {
+        guard let deviceAnchor = headTracker.worldTracking.queryDeviceAnchor(atTimestamp: CACurrentMediaTime()) else {
+            debugPrint("device anchor is nil")
+            return .init()
+        }
+        
+        return deviceAnchor.originFromAnchorTransform.translation()
+    }
     var deviceTranslation = SIMD3<Float>(x: 0.0, y: 0.0, z: 0.0)
     var rightHandTransform = Transform()
     var entryRocketTransForm = Transform()
@@ -172,7 +180,7 @@ final class ShoulderStretchingViewModel: StretchingCounter {
         let leftHandTranslation = simd_float3(-rightHandTranslation.x, rightHandTranslation.y, rightHandTranslation.z - 0.1)
         
         if isFirstPositioning {
-            fixedOneAfterPositioning = startingZ
+            fixedOneAfterPositioning = startingTranslation.z
         }
         
         // 어깨 중심 위치 (어깨는 손의 위치에 맞추어 설정)
@@ -261,7 +269,8 @@ final class ShoulderStretchingViewModel: StretchingCounter {
         if let rootEntity = try? await Entity(named: "Shoulder/RocketScene_New_Less.usda", in: realityKitContentBundle) {
             entryRocketEntity = rootEntity
             entryRocketEntity.name = "EntryRocket"
-            entryRocketEntity.position = .init(x: 0, y: 1, z: -1)
+            debugPrint("엔트리")
+            entryRocketEntity.position = .init(x: startingTranslation.x + 0.2, y: startingTranslation.y + 0.3, z: -1)
             entryRocketEntity.transform.scale = .init(x: 0.1, y: 0.1, z: 0.1)
             entryRocketEntity.transform.rotation = .init(angle: .pi/2, axis: .init(x: 0, y: 1, z: 0))
             entryRocketTransForm = entryRocketEntity.transform
@@ -297,15 +306,8 @@ final class ShoulderStretchingViewModel: StretchingCounter {
             dump("TutorialAttachmentView not found in attachments!")
             return
         }
-
-        guard let deviceAnchor = worldTrackingProvider.queryDeviceAnchor(atTimestamp: CACurrentMediaTime())
-        else {
-            debugPrint("deviceAnchor not found")
-            return
-        }
-        
-        let currentTranslation = deviceAnchor.originFromAnchorTransform.translation()
-        stretchingAttachmentView.position = .init(x: currentTranslation.x - 0.2, y: currentTranslation.y + 0.2, z: currentTranslation.z - 1.0)
+        debugPrint("어태치먼트")
+        stretchingAttachmentView.position = .init(x: startingTranslation.x - 0.2, y: startingTranslation.y + 0.2, z: startingTranslation.z - 1.0)
         
         content.add(stretchingAttachmentView)
         

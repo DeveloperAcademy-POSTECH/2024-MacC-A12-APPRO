@@ -180,7 +180,6 @@ struct ShoulderStretchingTutorialView: View {
                     textEntity.removeFromParent()
                     await viewModel.setEntryRocket()
                     viewModel.setHandRocketEntity()
-                    viewModel.setClosureComponent(entity: viewModel.entryRocketEntity)
                     subscribeToCollisionEvents(content: content)
                     isStartWarningDone = true
                     viewModel.addAttachmentView(content, attachments)
