@@ -89,7 +89,7 @@ extension ShoulderStretchingTutorialViewModel {
                     isEntryEnd = true
                     return
                 }
-                if currentStep >= 2{
+                if currentStep >= 2 {
                     resetModelEntities()
                     createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
                 }

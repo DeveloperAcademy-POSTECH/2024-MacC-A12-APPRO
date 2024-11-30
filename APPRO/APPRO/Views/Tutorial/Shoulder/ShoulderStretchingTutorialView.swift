@@ -22,7 +22,9 @@ struct ShoulderStretchingTutorialView: View {
             viewModel.contentEntity.addChild(textEntity)
             setTutorialToStart(content, attachments)
         } update: { content, attachments in
-            viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
+            if !tutorialManager.isLastStep {
+                viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
+            }
         } attachments: {
             Attachment(id: viewModel.tutorialAttachmentViewID) {
                 TutorialAttachmentView(tutorialManager: tutorialManager)
@@ -79,6 +81,7 @@ struct ShoulderStretchingTutorialView: View {
                 viewModel.addRightHandAnchor()
                 tutorialManager.advanceToNextStep()
             } else {
+                // 타이머 애니메이션 종료시
                 animationEvent.playbackController.entity?.removeFromParent()
                 tutorialManager.advanceToNextStep()
                 executeCollisionAction()
