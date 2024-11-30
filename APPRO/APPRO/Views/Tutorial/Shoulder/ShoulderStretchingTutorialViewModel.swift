@@ -146,6 +146,8 @@ final class ShoulderStretchingTutorialViewModel {
             /// star1, star2...
             starModelEntity.name = "star\(idx+1)"
             starModelEntity.position = point
+            let rotationValue: Float = isRightSide ? -0.3 : 0.3
+            starModelEntity.transform.rotation = simd_quatf(angle: .pi/2 * rotationValue * Float(idx), axis: SIMD3<Float>(x: 0, y: 1, z: 0))
             starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
             modelEntities.append(starModelEntity)
             contentEntity.addChild(starModelEntity)
