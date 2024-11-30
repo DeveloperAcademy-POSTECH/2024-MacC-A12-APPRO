@@ -269,7 +269,6 @@ final class ShoulderStretchingViewModel: StretchingCounter {
         if let rootEntity = try? await Entity(named: "Shoulder/RocketScene_New_Less.usda", in: realityKitContentBundle) {
             entryRocketEntity = rootEntity
             entryRocketEntity.name = "EntryRocket"
-            debugPrint("엔트리")
             entryRocketEntity.position = .init(x: startingTranslation.x + 0.2, y: startingTranslation.y + 0.3, z: -1)
             entryRocketEntity.transform.scale = .init(x: 0.1, y: 0.1, z: 0.1)
             entryRocketEntity.transform.rotation = .init(angle: .pi/2, axis: .init(x: 0, y: 1, z: 0))
@@ -306,7 +305,6 @@ final class ShoulderStretchingViewModel: StretchingCounter {
             dump("TutorialAttachmentView not found in attachments!")
             return
         }
-        debugPrint("어태치먼트")
         stretchingAttachmentView.position = .init(x: startingTranslation.x - 0.2, y: startingTranslation.y + 0.2, z: startingTranslation.z - 1.0)
         
         content.add(stretchingAttachmentView)
