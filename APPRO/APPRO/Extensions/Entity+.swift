@@ -86,18 +86,3 @@ enum EntityError: LocalizedError {
     }
     
 }
-
-protocol HasChildren {
-    associatedtype ChildrenEntity: RawRepresentable<String>
-}
-
-extension HasChildren where Self: Entity {
-    
-    func getChild(_ child: ChildrenEntity) throws -> Entity {
-        guard let childEntity = findEntity(named: child.rawValue) else {
-            throw EntityError.entityNotFound(name: child.rawValue)
-        }
-        return childEntity
-    }
-    
-}
