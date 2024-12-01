@@ -64,6 +64,7 @@ enum EntityError: LocalizedError {
     case modelComponentNotFound
     case availabeAnimationNotFound
     case audioFileNotFoundInBundle(filename: String)
+    case componentNotFound(any Component.Type)
     
     var errorDescription: String {
         switch self {
@@ -79,22 +80,9 @@ enum EntityError: LocalizedError {
             "No available animation found"
         case .audioFileNotFoundInBundle(let filename):
             "Audio file named \(filename) is not found"
+        case .componentNotFound(let componentType):
+            "Entity component not found: \(componentType)"
         }
-    }
-    
-}
-
-protocol HasChildren {
-    associatedtype ChildrenEntity: RawRepresentable<String>
-}
-
-extension HasChildren where Self: Entity {
-    
-    func getChild(_ child: ChildrenEntity) throws -> Entity {
-        guard let childEntity = findEntity(named: child.rawValue) else {
-            throw EntityError.entityNotFound(name: child.rawValue)
-        }
-        return childEntity
     }
     
 }

@@ -52,7 +52,7 @@ struct EyeTutorialImmersiveView: View {
                 }
         )
         .gesture(
-            LongPressGesture(minimumDuration: 2.0)
+            LongPressGesture(minimumDuration: 1.0)
                 .targetedToEntity(where: .has(LongPressGestureComponent.self))
                 .updating($isLongPressing) { currentValue, gestureState, _ in
                     gestureState = currentValue.gestureValue
@@ -96,7 +96,7 @@ struct EyeTutorialImmersiveView: View {
     private func configureStep1(content: RealityViewContent) {
         do {
             try tutorialManager.configureEyesEntity()
-            content.add(tutorialManager.eyesEntity)
+            content.add(tutorialManager.eyesObject.entity)
         } catch {
             dump("configureStep1 failed: \(error)")
         }
@@ -109,10 +109,10 @@ struct EyeTutorialImmersiveView: View {
     
     private func configureStep3(content: RealityViewContent) {
         do {
-            let chickenEntity = tutorialManager.chickenEntity
-            content.add(chickenEntity)
+            let chickenObject = tutorialManager.chickenObject
+            content.add(chickenObject.entity)
             try tutorialManager.configureChickenEntity()
-            try chickenEntity.playOpacityAnimation(from: 0.0, to: 1.0)
+            chickenObject.appear()
         } catch {
             dump("configureStep3 failed: \(error)")
         }
@@ -120,22 +120,22 @@ struct EyeTutorialImmersiveView: View {
     
     private func configureStep4(content: RealityViewContent) async {
         do {
-            let eyesEntity = tutorialManager.eyesEntity
-            let ringEntity = tutorialManager.ringEntity
+            let eyesObject = tutorialManager.eyesObject
+            let ringObject = tutorialManager.ringObject
             let monitorEntity = tutorialManager.monitorEntity
             
-            tutorialManager.chickenEntity.removeFromParent()
-            content.add(ringEntity)
+            tutorialManager.chickenObject.entity.removeFromParent()
+            content.add(ringObject.entity)
             content.add(monitorEntity)
             
-            try ringEntity.playOpacityAnimation(from: 0.0, to: 1.0)
+            try ringObject.appear()
             try monitorEntity.playOpacityAnimation(from: 0.0, to: 1.0)
             
             try await tutorialManager.configureRingEntity()
-            try await eyesEntity.setCollisionComponent()
+            try await eyesObject.setCollisionComponent()
             
             tutorialManager.configureMonitorEntity()
-            try ringEntity.subscribeCollisionEvent()
+            try ringObject.subscribeCollisionEvent()
             
             tutorialManager.advanceToNextStep()
         } catch {

@@ -1,5 +1,5 @@
 //
-//  EyeStretchingEyesEntity.swift
+//  EyeStretchingEyesObject.swift
 //  APPRO
 //
 //  Created by 정상윤 on 11/21/24.
@@ -10,26 +10,32 @@ import Combine
 import RealityKit
 import RealityKitContent
 
-final class EyeStretchingEyesEntity: Entity {
+@MainActor
+final class EyeStretchingEyesObject {
     
+    private(set) var entity = Entity()
+    private let scale = Float3(0.7, 0.7, 0.7)
     private var cancellabeBag = Set<AnyCancellable>()
     
     private var audioPlaybackController: AudioPlaybackController?
     
-    required init() {
-        super.init()
-        
-        self.transform.scale = [0.7, 0.7, 0.7]
-        components.set(SpatialAudioComponent())
+    private var patchEntity: Entity? {
+        entity.findEntity(named: "patch")
+    }
+    private var leftEyeEntity: Entity? {
+        entity.findEntity(named: "eye_left")
+    }
+    private var rightEyeEntity: Entity? {
+        entity.findEntity(named: "eye_right")
     }
     
-    func loadCoreEntity() async throws {
-        let entity = try await Entity(
+    func loadEntity() async throws {
+        self.entity = try await Entity(
             named: EyeStretchingEntityType.eyes.loadURL,
             in: realityKitContentBundle
         )
         
-        addChild(entity)
+        self.entity.transform.scale = scale
         
         playAudio(
             .snoring,
@@ -40,38 +46,38 @@ final class EyeStretchingEyesEntity: Entity {
     }
     
     func setPatchComponents(_ components: [Component]) throws {
-        let patch = try getChild(.patch)
+        guard let patchEntity else { throw EntityError.entityNotFound(name: "patch") }
         
-        patch.components.set(components)
+        patchEntity.components.set(components)
     }
     
     func removePatch() throws {
-        guard let scene else { throw EntityError.sceneNotFound }
-        let patch = try getChild(.patch)
+        guard let scene = entity.scene else { throw EntityError.sceneNotFound }
+        guard let patchEntity else { throw EntityError.entityNotFound(name: "patch") }
         
-        try patch.playOpacityAnimation(from: 1.0, to: 0.0, duration: 1.0)
+        try patchEntity.playOpacityAnimation(from: 1.0, to: 0.0, duration: 1.0)
         playAudio(.patchDisappear)
         
-        scene.subscribe(to: AnimationEvents.PlaybackCompleted.self, on: patch) { event in
-            patch.removeFromParent()
+        scene.subscribe(to: AnimationEvents.PlaybackCompleted.self, on: patchEntity) { event in
+            patchEntity.removeFromParent()
         }
         .store(in: &cancellabeBag)
     }
     
     func playLoopAnimation() throws {
-        guard let animationResource = availableAnimations.first?.repeat() else {
+        guard let animationResource = entity.availableAnimations.first?.repeat() else {
             throw EntityError.availabeAnimationNotFound
         }
         
-        playAnimation(animationResource)
+        entity.playAnimation(animationResource)
     }
     
     func setCollisionComponent() async throws {
-        let leftEye = try getChild(.leftEye)
-        let rightEye = try getChild(.rightEye)
+        guard let leftEyeEntity else { throw EntityError.entityNotFound(name: "eye_left") }
+        guard let rightEyeEntity else { throw EntityError.entityNotFound(name: "eye_right") }
         
-        let leftEyeMesh = try generateMeshResource(modelEntityName: "Cylinder_left")
-        let rightEyeMesh = try generateMeshResource(modelEntityName: "Cylinder_right")
+        let leftEyeMesh = try entity.generateMeshResource(modelEntityName: "Cylinder_left")
+        let rightEyeMesh = try entity.generateMeshResource(modelEntityName: "Cylinder_right")
         
         let leftEyeShapeResource = try await ShapeResource.generateShapeResource(
             mesh: leftEyeMesh, isConvex: true
@@ -80,8 +86,8 @@ final class EyeStretchingEyesEntity: Entity {
             mesh: rightEyeMesh, isConvex: true
         )
         
-        leftEye.components.set(CollisionComponent(shapes: [leftEyeShapeResource]))
-        rightEye.components.set(CollisionComponent(shapes: [rightEyeShapeResource]))
+        leftEyeEntity.components.set(CollisionComponent(shapes: [leftEyeShapeResource]))
+        rightEyeEntity.components.set(CollisionComponent(shapes: [rightEyeShapeResource]))
     }
     
     private func playAudio(
@@ -91,7 +97,7 @@ final class EyeStretchingEyesEntity: Entity {
         Task {
             do {
                 audioPlaybackController?.stop()
-                audioPlaybackController = try await playAudio(
+                audioPlaybackController = try await entity.playAudio(
                     filename: type.filename,
                     configuration: configuration
                 )
@@ -99,16 +105,6 @@ final class EyeStretchingEyesEntity: Entity {
                 dump("EyeStretchingEyeEntity playAudio failed: \(error)")
             }
         }
-    }
-    
-}
-
-extension EyeStretchingEyesEntity: HasChildren {
-    
-    enum ChildrenEntity: String {
-        case leftEye = "eye_left"
-        case rightEye = "eye_right"
-        case patch = "patch"
     }
     
 }

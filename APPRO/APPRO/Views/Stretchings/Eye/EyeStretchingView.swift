@@ -45,6 +45,7 @@ struct EyeStretchingView: View {
                 try await viewModel.loadEntities()
                 allEntitiesLoaded = true
             } catch {
+                dump("viewModel.loadEntities failed: \(error)")
                 allEntitiesLoaded = false
             }
         }
@@ -76,7 +77,7 @@ struct EyeStretchingView: View {
         .onChange(of: isLongPressing) { _, isLongPressing in
             viewModel.handleLongPressingUpdate(value: isLongPressing)
         }
-        .onChange( of: viewModel.currentDisturbEntity, initial: false) {
+        .onChange( of: viewModel.currentDisturbObject, initial: false) {
             viewModel.handleCurrentDisturbEntityIndexChanged()
         }
     }
@@ -112,43 +113,43 @@ private extension EyeStretchingView {
     
     func configureWaitingPhase(content: RealityViewContent) throws {
         try viewModel.configureEyesEntity()
-        content.add(viewModel.eyesEntity)
+        content.add(viewModel.eyesObject.entity)
     }
     
     func configureReadyPhase(content: RealityViewContent) async throws {
-        let ringEntity = viewModel.ringEntity
-        let eyesEntity = viewModel.eyesEntity
+        let ringObject = viewModel.ringObject
+        let eyesObject = viewModel.eyesObject
         let monitorEntity = viewModel.monitorEntity
         
-        content.add(ringEntity)
+        content.add(ringObject.entity)
         content.add(monitorEntity)
         
-        try await eyesEntity.setCollisionComponent()
+        try await eyesObject.setCollisionComponent()
         try await viewModel.configureRingEntity()
         viewModel.configureMonitorEntity()
         
-        try ringEntity.appear()
+        try ringObject.appear()
         try monitorEntity.playOpacityAnimation(from: 0.0, to: 1.0)
         try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
         
         viewModel.handleEyeRingCollisionState()
-        viewModel.disturbEntities.forEach { content.add($0) }
+        viewModel.disturbObjects.forEach { content.add($0.entity) }
         
         viewModel.stretchingPhase = .start
     }
     
     func configureStartPhase(content: RealityViewContent) {
-        viewModel.setDisturbEntitiesPosition()
+        viewModel.setDisturbObjectsPosition()
         
-        viewModel.disturbEntities.forEach { disturbEntity in
-            disturbEntity.components.set(OpacityComponent(opacity: 0.0))
+        viewModel.disturbObjects.forEach { disturbObject in
+            disturbObject.entity.components.set(OpacityComponent(opacity: 0.0))
         }
         
         viewModel.stretchingPhase = .stretching
     }
     
     func configureStretchingPhase(content: RealityViewContent) {
-        guard viewModel.currentDisturbEntity != nil else {
+        guard viewModel.currentDisturbObject != nil else {
             viewModel.stretchingPhase = .finished
             return
         }
@@ -160,7 +161,7 @@ private extension EyeStretchingView {
                 try await Task.sleep(nanoseconds: 1 * 1000_000_000)
                 
                 await MainActor.run {
-                    viewModel.disturbEntities.forEach {
+                    viewModel.disturbObjects.forEach {
                         $0.restoreScale()
                     }
                 }

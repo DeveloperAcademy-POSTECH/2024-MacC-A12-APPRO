@@ -17,9 +17,9 @@ final class EyeTutorialManager: TutorialManager {
     
     private var cancellableBag: Set<AnyCancellable> = []
     
-    private(set) var eyesEntity = EyeStretchingEyesEntity()
-    private(set) var chickenEntity = EyeStretchingDisturbEntity()
-    private(set) var ringEntity = EyeStretchingRingEntity()
+    private(set) var eyesObject = EyeStretchingEyesObject()
+    private(set) var chickenObject = EyeStretchingDisturbObject(type: .chicken)
+    private(set) var ringObject = EyeStretchingRingObject()
     private(set) var monitorEntity = Entity()
     
     private(set) var attachmentView = Entity()
@@ -47,9 +47,13 @@ final class EyeTutorialManager: TutorialManager {
 
     func loadEntities() async -> Bool {
         do {
-            try await eyesEntity.loadCoreEntity()
-            try await ringEntity.loadCoreEntity()
-            try await chickenEntity.loadCoreEntity(type: .chicken)
+            await withThrowingTaskGroup(of: Void.self) { [weak self] taskGroup in
+                taskGroup.addTask {
+                    try await self?.eyesObject.loadEntity()
+                    try await self?.ringObject.loadEntity()
+                    try await self?.chickenObject.loadEntity()
+                }
+            }
             monitorEntity = try await loadEntity(entityType: .monitor)
             
             return true
@@ -61,8 +65,8 @@ final class EyeTutorialManager: TutorialManager {
     
     func step1Done() {
         do {
-            try eyesEntity.removePatch()
-            try eyesEntity.playLoopAnimation()
+            try eyesObject.removePatch()
+            try eyesObject.playLoopAnimation()
         } catch {
             dump("step1Done error occured: \(error)")
         }
@@ -73,15 +77,15 @@ final class EyeTutorialManager: TutorialManager {
         guard longPressGestureOnEnded == false else { return }
         
         if isLongPressing {
-            chickenEntity.enlarge()
+            chickenObject.enlarge()
         } else {
-            chickenEntity.reduce()
+            chickenObject.reduce()
         }
     }
     
     func longPressOnEnded() {
         longPressGestureOnEnded = true
-        chickenEntity.disappear()
+        chickenObject.disappear()
         advanceToNextStep()
     }
     
@@ -103,20 +107,6 @@ extension EyeTutorialManager {
     
     private func loadEntity(entityType: EyeStretchingEntityType) async throws -> Entity {
         return try await Entity(named: entityType.loadURL, in: realityKitContentBundle)
-    }
-    
-}
-
-// MARK: - Animation Methods
-
-extension EyeTutorialManager {
-    
-    private func playEyeLoopAnimation(entity: Entity) {
-        guard let animationResource = eyesEntity.availableAnimations.first?.repeat() else {
-            dump("playEyeLoopAnimation failed: No availbale animations")
-            return
-        }
-        eyesEntity.playAnimation(animationResource)
     }
     
 }

@@ -1,5 +1,5 @@
 //
-//  EyeStretchingRingEntity.swift
+//  EyeStretchingRingObject.swift
 //  APPRO
 //
 //  Created by 정상윤 on 11/20/24.
@@ -10,15 +10,11 @@ import Foundation
 import RealityKit
 import RealityKitContent
 
-final class EyeStretchingRingEntity: Entity {
+@MainActor
+final class EyeStretchingRingObject {
     
-    let collisionState = CurrentValueSubject<EyeRingCollisionState, Never>(
-        .init(
-            restrictLineCollided: false,
-            innerPlaneCollided: false
-        )
-    )
-    
+    private(set) var entity = Entity()
+    private let scale = Float3(0.37, 0.37, 0.37)
     private var eyesAreInside = false {
         willSet {
             if eyesAreInside != newValue {
@@ -30,38 +26,42 @@ final class EyeStretchingRingEntity: Entity {
             }
         }
     }
-    
+    private var innerPlaneEntity: Entity? {
+        entity.findEntity(named: "inner_plane")
+    }
+    private var restrictLineEntity: Entity? {
+        entity.findEntity(named: "restrict_line")
+    }
     private var audioPlaybackController: AudioPlaybackController?
-    
     private var cancellableBag = Set<AnyCancellable>()
     
-    required init() {
-        super.init()
-        
-        self.transform.scale = [0.37, 0.37, 0.37]
-    }
+    let collisionState = CurrentValueSubject<EyeRingCollisionState, Never>(
+        .init(
+            restrictLineCollided: false,
+            innerPlaneCollided: false
+        )
+    )
     
-    func loadCoreEntity() async throws {
-        let entity = try await Entity(
+    func loadEntity() async throws {
+        self.entity = try await Entity(
             named: EyeStretchingEntityType.ring.loadURL,
             in: realityKitContentBundle
         )
-        
-        addChild(entity)
+        self.entity.transform.scale = scale
     }
     
     func appear() throws {
-        try playOpacityAnimation(from: 0.0, to: 1.0)
+        try entity.playOpacityAnimation(from: 0.0, to: 1.0)
         
         playAudio(.appear)
     }
     
     func setCollisionComponent() async throws {
-        let innerPlane = try getChild(.innerPlane)
-        let restrictLine = try getChild(.restrictLine)
+        guard let innerPlaneEntity else { throw EntityError.entityNotFound(name: "inner_plane") }
+        guard let restrictLineEntity else { throw EntityError.entityNotFound(name: "restrict_line") }
         
-        let innerPlaneMeshResource = try generateMeshResource(modelEntityName: "Cylinder")
-        let restrictLineMeshResource = try generateMeshResource(modelEntityName: "Torus")
+        let innerPlaneMeshResource = try entity.generateMeshResource(modelEntityName: "Cylinder")
+        let restrictLineMeshResource = try entity.generateMeshResource(modelEntityName: "Torus")
         
         let innerPlaneShapeResource = try await ShapeResource.generateShapeResource(
             mesh: innerPlaneMeshResource,
@@ -72,8 +72,12 @@ final class EyeStretchingRingEntity: Entity {
             isConvex: false
         )
         
-        innerPlane.components.set(CollisionComponent(shapes: [innerPlaneShapeResource], isStatic: true))
-        restrictLine.components.set(CollisionComponent(shapes: [restrictLineShapeResource], isStatic: true))
+        innerPlaneEntity.components.set(CollisionComponent(
+            shapes: [innerPlaneShapeResource], isStatic: true)
+        )
+        restrictLineEntity.components.set(CollisionComponent(
+            shapes: [restrictLineShapeResource], isStatic: true)
+        )
         
         handleCollisionState()
     }
@@ -88,7 +92,7 @@ final class EyeStretchingRingEntity: Entity {
     }
     
     private func updateShaderGraphParameter(_ eyesAreInside: Bool) throws {
-        guard let torusModelEntity = findEntity(named: "Torus") as? ModelEntity else {
+        guard let torusModelEntity = entity.findEntity(named: "Torus") as? ModelEntity else {
             throw EntityError.entityNotFound(name: "Torus")
         }
         
@@ -111,12 +115,12 @@ final class EyeStretchingRingEntity: Entity {
         Task {
             do {
                 audioPlaybackController?.stop()
-                audioPlaybackController = try await playAudio(
+                audioPlaybackController = try await entity.playAudio(
                     filename: type.filename,
                     configuration: configuration
                 )
             } catch {
-                dump("EyeStretchingRingEntity playAudio failed: \(error)")
+                dump("EyeStretchingRingObject playAudio failed: \(error)")
             }
         }
     }
@@ -125,15 +129,15 @@ final class EyeStretchingRingEntity: Entity {
 
 
 // MARK: - Collision Subscription
-extension EyeStretchingRingEntity {
+extension EyeStretchingRingObject {
     
     func subscribeCollisionEvent() throws {
-        guard let scene else { throw EntityError.sceneNotFound }
-        let innerPlane = try getChild(.innerPlane)
-        let restrictLine = try getChild(.restrictLine)
+        guard let scene = entity.scene else { throw EntityError.sceneNotFound }
+        guard let innerPlaneEntity else { throw EntityError.entityNotFound(name: "inner_plane") }
+        guard let restrictLineEntity else { throw EntityError.entityNotFound(name: "restrict_line") }
         
-        subscribeEyesInnerPlaneEvent(scene: scene, entity: innerPlane)
-        subscribeEyesRestrictLineEvent(scene: scene, entity: restrictLine)
+        subscribeEyesInnerPlaneEvent(scene: scene, entity: innerPlaneEntity)
+        subscribeEyesRestrictLineEvent(scene: scene, entity: restrictLineEntity)
     }
     
     private func subscribeEyesInnerPlaneEvent(scene: RealityKit.Scene, entity: Entity) {
@@ -166,15 +170,6 @@ extension EyeStretchingRingEntity {
             collisionState.send(collisionState.value.replacing(restrictLine: false))
         }
         .store(in: &cancellableBag)
-    }
-    
-}
-
-extension EyeStretchingRingEntity: HasChildren {
-    
-    enum ChildrenEntity: String {
-        case innerPlane = "inner_plane"
-        case restrictLine = "restrict_line"
     }
     
 }
