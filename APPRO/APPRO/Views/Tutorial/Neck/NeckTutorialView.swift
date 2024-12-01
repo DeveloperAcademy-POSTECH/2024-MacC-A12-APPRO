@@ -46,8 +46,7 @@ struct NeckTutorialView: View {
                 .targetedToAnyEntity()
                 .onEnded { tapEvent in
                     
-                    // Pig's the most exterior-close model entity name : ______
-                    if tapEvent.entity.name == "______" {
+                    if tapEvent.entity.name == "pig" {
                         if tutorialManager.currentStepIndex == 0 {
                             makeDoneFirstStep()
                             tutorialPreparations[0] = true

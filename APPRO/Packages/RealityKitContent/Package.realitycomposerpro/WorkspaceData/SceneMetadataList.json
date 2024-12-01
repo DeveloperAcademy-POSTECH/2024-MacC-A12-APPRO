@@ -104,8 +104,71 @@
       }
     ]
   },
+  "314DCA18-08B2-4928-BB87-4CE833706732" : {
+    "objectMetadataList" : [
+      [
+        "314DCA18-08B2-4928-BB87-4CE833706732",
+        "Root",
+        "neck_pig_animation"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "314DCA18-08B2-4928-BB87-4CE833706732",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "314DCA18-08B2-4928-BB87-4CE833706732",
+        "Root",
+        "neck_pig_animation",
+        "pig",
+        "______"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "314DCA18-08B2-4928-BB87-4CE833706732",
+        "Root",
+        "neck_pig_animation",
+        "pig",
+        "wing2_1"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "314DCA18-08B2-4928-BB87-4CE833706732",
+        "Root",
+        "neck_pig_animation",
+        "pig"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      }
+    ]
+  },
   "3419DEFD-0AD7-4EE4-87F3-5218846DE923" : {
     "objectMetadataList" : [
+      [
+        "3419DEFD-0AD7-4EE4-87F3-5218846DE923",
+        "Root",
+        "neck_coin_animation",
+        "Null"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
       [
         "3419DEFD-0AD7-4EE4-87F3-5218846DE923",
         "Root",
@@ -120,8 +183,8 @@
       [
         "3419DEFD-0AD7-4EE4-87F3-5218846DE923",
         "Root",
-        "neck_coin_animation",
-        "Null"
+        "coin",
+        "Materials"
       ],
       {
         "isExpanded" : true,
@@ -130,9 +193,7 @@
       [
         "3419DEFD-0AD7-4EE4-87F3-5218846DE923",
         "Root",
-        "neck_coin_animation",
-        "Null",
-        "Boole"
+        "coin"
       ],
       {
         "isExpanded" : true,
@@ -149,7 +210,9 @@
       [
         "3419DEFD-0AD7-4EE4-87F3-5218846DE923",
         "Root",
-        "coin"
+        "neck_coin_animation",
+        "Null",
+        "Boole"
       ],
       {
         "isExpanded" : true,
@@ -202,6 +265,15 @@
   },
   "3797A59E-C7D0-4B14-B4BB-D37EBFF832F3" : {
     "objectMetadataList" : [
+      [
+        "3797A59E-C7D0-4B14-B4BB-D37EBFF832F3",
+        "Root",
+        "neck_timer"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
       [
         "3797A59E-C7D0-4B14-B4BB-D37EBFF832F3",
         "Root"
