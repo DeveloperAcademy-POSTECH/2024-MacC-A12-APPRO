@@ -52,22 +52,19 @@ extension NeckStretchingViewModel {
             let entityA = event.entityA
             let entityB = event.entityB
             
-            Task {
-                if entityA.name == "______" && entityB.name == "Boole" { // ModelEntity Name : ______ for pig, Boole for coin
-                    guard let coinEntity = entityB.parent?.parent?.parent?.parent else { return }
-                    guard let index: Int = self.getCoinIndex(coinEntity.name) else { return }
+            if entityA.name == "______" && entityB.name == "Boole" { // ModelEntity Name : ______ for pig, Boole for coin
+                guard let coinEntity = entityB.parent?.parent?.parent?.parent else { return }
+                guard let index: Int = self.getCoinIndex(coinEntity.name) else { return }
+                
+                if self.manageCollisionBound(collidedIndex: index) {
+                    self.soundHelper.playSound(.rightCoinHit, on: coinEntity)
                     
-                    if self.manageCollisionBound(collidedIndex: index) {
-                        self.soundHelper.playSound(.rightCoinHit, on: coinEntity)
-//                        self.setOpacityZero(entity: entityB)
-                        
-//                        DispatchQueue.main.async {
-                            coinEntity.isEnabled = false
-//                        }
-                    } else {
-                        self.animateCoinColorWhenWrongHit(targetEntity: entityB)
-                        self.soundHelper.playSound(.wrongCoinHit, on: coinEntity)
+                    DispatchQueue.main.async {
+                        entityB.isEnabled = false
                     }
+                } else {
+                    self.animateCoinColorWhenWrongHit(targetEntity: entityB)
+                    self.soundHelper.playSound(.wrongCoinHit, on: coinEntity)
                 }
             }
             
