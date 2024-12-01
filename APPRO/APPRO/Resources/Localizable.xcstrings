@@ -257,6 +257,16 @@
         }
       }
     },
+    "Stay aware of your surroundings" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주변 상황을 항상 주의하세요"
+          }
+        }
+      }
+    },
     "Stretching Parts" : {
       "localizations" : {
         "ko" : {
