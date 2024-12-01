@@ -96,7 +96,7 @@ struct EyeTutorialImmersiveView: View {
     private func configureStep1(content: RealityViewContent) {
         do {
             try tutorialManager.configureEyesEntity()
-            content.add(tutorialManager.eyesEntity)
+            content.add(tutorialManager.eyesObject.entity)
         } catch {
             dump("configureStep1 failed: \(error)")
         }
@@ -120,22 +120,22 @@ struct EyeTutorialImmersiveView: View {
     
     private func configureStep4(content: RealityViewContent) async {
         do {
-            let eyesEntity = tutorialManager.eyesEntity
-            let ringEntity = tutorialManager.ringEntity
+            let eyesObject = tutorialManager.eyesObject
+            let ringObject = tutorialManager.ringObject
             let monitorEntity = tutorialManager.monitorEntity
             
             tutorialManager.chickenObject.entity.removeFromParent()
-            content.add(ringEntity)
+            content.add(ringObject.entity)
             content.add(monitorEntity)
             
-            try ringEntity.playOpacityAnimation(from: 0.0, to: 1.0)
+            try ringObject.appear()
             try monitorEntity.playOpacityAnimation(from: 0.0, to: 1.0)
             
             try await tutorialManager.configureRingEntity()
-            try await eyesEntity.setCollisionComponent()
+            try await eyesObject.setCollisionComponent()
             
             tutorialManager.configureMonitorEntity()
-            try ringEntity.subscribeCollisionEvent()
+            try ringObject.subscribeCollisionEvent()
             
             tutorialManager.advanceToNextStep()
         } catch {

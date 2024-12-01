@@ -17,9 +17,9 @@ final class EyeTutorialManager: TutorialManager {
     
     private var cancellableBag: Set<AnyCancellable> = []
     
-    private(set) var eyesEntity = EyeStretchingEyesEntity()
+    private(set) var eyesObject = EyeStretchingEyesObject()
     private(set) var chickenObject = EyeStretchingDisturbObject(type: .chicken)
-    private(set) var ringEntity = EyeStretchingRingEntity()
+    private(set) var ringObject = EyeStretchingRingObject()
     private(set) var monitorEntity = Entity()
     
     private(set) var attachmentView = Entity()
@@ -49,8 +49,8 @@ final class EyeTutorialManager: TutorialManager {
         do {
             await withThrowingTaskGroup(of: Void.self) { [weak self] taskGroup in
                 taskGroup.addTask {
-                    try await self?.eyesEntity.loadCoreEntity()
-                    try await self?.ringEntity.loadCoreEntity()
+                    try await self?.eyesObject.loadEntity()
+                    try await self?.ringObject.loadEntity()
                     try await self?.chickenObject.loadEntity()
                 }
             }
@@ -65,8 +65,8 @@ final class EyeTutorialManager: TutorialManager {
     
     func step1Done() {
         do {
-            try eyesEntity.removePatch()
-            try eyesEntity.playLoopAnimation()
+            try eyesObject.removePatch()
+            try eyesObject.playLoopAnimation()
         } catch {
             dump("step1Done error occured: \(error)")
         }
@@ -107,20 +107,6 @@ extension EyeTutorialManager {
     
     private func loadEntity(entityType: EyeStretchingEntityType) async throws -> Entity {
         return try await Entity(named: entityType.loadURL, in: realityKitContentBundle)
-    }
-    
-}
-
-// MARK: - Animation Methods
-
-extension EyeTutorialManager {
-    
-    private func playEyeLoopAnimation(entity: Entity) {
-        guard let animationResource = eyesEntity.availableAnimations.first?.repeat() else {
-            dump("playEyeLoopAnimation failed: No availbale animations")
-            return
-        }
-        eyesEntity.playAnimation(animationResource)
     }
     
 }

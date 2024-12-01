@@ -23,8 +23,8 @@ final class EyeStretchingViewModel: StretchingCounter {
     
     var stretchingPhase: EyeStretchingPhase = .waiting
     
-    private(set) var eyesEntity = EyeStretchingEyesEntity()
-    private(set) var ringEntity = EyeStretchingRingEntity()
+    private(set) var eyesObject = EyeStretchingEyesObject()
+    private(set) var ringObject = EyeStretchingRingObject()
     private(set) var monitorEntity = Entity()
     private(set) var disturbObjects: [EyeStretchingDisturbObject] = []
     private(set) var attachmentView = Entity()
@@ -51,8 +51,8 @@ final class EyeStretchingViewModel: StretchingCounter {
     }
     
     func loadEntities() async throws {
-        try await eyesEntity.loadCoreEntity()
-        try await ringEntity.loadCoreEntity()
+        try await eyesObject.loadEntity()
+        try await ringObject.loadEntity()
         monitorEntity = try await Entity(
             named: EyeStretchingEntityType.monitor.loadURL,
             in: realityKitContentBundle
@@ -63,8 +63,8 @@ final class EyeStretchingViewModel: StretchingCounter {
     func patchTapped() {
         Task {
             do {
-                try eyesEntity.removePatch()
-                try eyesEntity.playLoopAnimation()
+                try eyesObject.removePatch()
+                try eyesObject.playLoopAnimation()
                 attachmentView.components.remove(ClosureComponent.self)
                 
                 try await Task.sleep(nanoseconds: 1_000_000_000)
@@ -140,7 +140,7 @@ final class EyeStretchingViewModel: StretchingCounter {
     }
     
     func handleEyeRingCollisionState() {
-        ringEntity.collisionState
+        ringObject.collisionState
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 guard let self,

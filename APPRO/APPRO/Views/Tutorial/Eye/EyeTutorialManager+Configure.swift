@@ -23,14 +23,14 @@ extension EyeTutorialManager {
         let tapGestureComponent = TapGestureComponent { [weak self] in
             self?.step1Done()
         }
-        try eyesEntity.setPatchComponents([
+        try eyesObject.setPatchComponents([
             hoverEffectComponent, tapGestureComponent
         ])
-        setClosureComponent(entity: eyesEntity, distance: .eyes)
+        setClosureComponent(entity: eyesObject.entity, distance: .eyes)
     }
     
     func configureChickenEntity() throws {
-        chickenObject.entity.setPosition(.init(x: -1, y: 0, z: 0), relativeTo: eyesEntity)
+        chickenObject.entity.setPosition(.init(x: -1, y: 0, z: 0), relativeTo: eyesObject.entity)
         
         let longPressGesture = LongPressGestureComponent { [weak self] in
             self?.longPressOnEnded()
@@ -39,17 +39,17 @@ extension EyeTutorialManager {
     }
     
     func configureRingEntity() async throws {
-        ringEntity.components.set(OpacityComponent(opacity: 0))
-        ringEntity.setPosition(.init(x: 0, y: 0, z: 0), relativeTo: eyesEntity)
-        ringEntity.orientation = eyesEntity.orientation
-        try await ringEntity.setCollisionComponent()
+        ringObject.entity.components.set(OpacityComponent(opacity: 0))
+        ringObject.entity.setPosition(.init(x: 0, y: 0, z: 0), relativeTo: eyesObject.entity)
+        ringObject.entity.orientation = eyesObject.entity.orientation
+        try await ringObject.setCollisionComponent()
     }
     
     func configureMonitorEntity() {
         monitorEntity.transform.scale = [0.2, 0.2, 0.2]
         monitorEntity.transform.rotation = .init(angle: -0.5, axis: [0, 1, 0])
         monitorEntity.components.set(OpacityComponent(opacity: 0))
-        monitorEntity.setPosition(.init(x: -0.15, y: -0.17, z: 0.35), relativeTo: ringEntity)
+        monitorEntity.setPosition(.init(x: -0.15, y: -0.17, z: 0.35), relativeTo: ringObject.entity)
     }
     
     private func setClosureComponent(

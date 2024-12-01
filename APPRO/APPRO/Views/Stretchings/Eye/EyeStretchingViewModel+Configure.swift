@@ -22,26 +22,26 @@ extension EyeStretchingViewModel {
         let tapGestureComponent = TapGestureComponent { [weak self] in
             self?.patchTapped()
         }
-        try eyesEntity.setPatchComponents([
+        try eyesObject.setPatchComponents([
             hoverEffectComponent,
             tapGestureComponent
         ])
-        setClosureComponent(entity: eyesEntity, distance: .eyes)
+        setClosureComponent(entity: eyesObject.entity, distance: .eyes)
     }
     
     func configureRingEntity() async throws {
-        ringEntity.components.set(OpacityComponent(opacity: 0))
-        ringEntity.setPosition(.init(x: 0, y: 0, z: 0), relativeTo: eyesEntity)
-        ringEntity.orientation = eyesEntity.orientation
-        try await ringEntity.setCollisionComponent()
-        try ringEntity.subscribeCollisionEvent()
+        ringObject.entity.components.set(OpacityComponent(opacity: 0))
+        ringObject.entity.setPosition(.init(x: 0, y: 0, z: 0), relativeTo: eyesObject.entity)
+        ringObject.entity.orientation = eyesObject.entity.orientation
+        try await ringObject.setCollisionComponent()
+        try ringObject.subscribeCollisionEvent()
     }
     
     func configureMonitorEntity() {
         monitorEntity.transform.scale = [0.2, 0.2, 0.2]
         monitorEntity.transform.rotation = .init(angle: -0.5, axis: [0, 1, 0])
         monitorEntity.components.set(OpacityComponent(opacity: 0))
-        monitorEntity.setPosition(.init(x: -0.15, y: -0.17, z: 0.35), relativeTo: ringEntity)
+        monitorEntity.setPosition(.init(x: -0.15, y: -0.17, z: 0.35), relativeTo: ringObject.entity)
     }
     
     func setDisturbObjectsPosition() {
@@ -53,7 +53,7 @@ extension EyeStretchingViewModel {
         }
         
         for (index, object) in disturbObjects.enumerated() {
-            object.setPosition(positions[index], relativeTo: ringEntity)
+            object.setPosition(positions[index], relativeTo: ringObject.entity)
         }
     }
     

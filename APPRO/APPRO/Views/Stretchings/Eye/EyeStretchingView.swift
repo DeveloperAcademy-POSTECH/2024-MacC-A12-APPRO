@@ -113,22 +113,22 @@ private extension EyeStretchingView {
     
     func configureWaitingPhase(content: RealityViewContent) throws {
         try viewModel.configureEyesEntity()
-        content.add(viewModel.eyesEntity)
+        content.add(viewModel.eyesObject.entity)
     }
     
     func configureReadyPhase(content: RealityViewContent) async throws {
-        let ringEntity = viewModel.ringEntity
-        let eyesEntity = viewModel.eyesEntity
+        let ringObject = viewModel.ringObject
+        let eyesObject = viewModel.eyesObject
         let monitorEntity = viewModel.monitorEntity
         
-        content.add(ringEntity)
+        content.add(ringObject.entity)
         content.add(monitorEntity)
         
-        try await eyesEntity.setCollisionComponent()
+        try await eyesObject.setCollisionComponent()
         try await viewModel.configureRingEntity()
         viewModel.configureMonitorEntity()
         
-        try ringEntity.appear()
+        try ringObject.appear()
         try monitorEntity.playOpacityAnimation(from: 0.0, to: 1.0)
         try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
         
