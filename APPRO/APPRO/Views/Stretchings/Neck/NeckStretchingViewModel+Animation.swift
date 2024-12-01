@@ -9,23 +9,7 @@ import SwiftUI
 import RealityKit
 import RealityKitContent
 
-extension NeckTutorialViewModel {
-
-    func playAppearAnimation(entity: Entity) -> AnimationPlaybackController? {
-        playAnimation(
-            entity: entity,
-            definition: FromToByAnimation(from: Float(0.0), to: Float(1.0), bindTarget: .opacity),
-            duration: 1.0
-        )
-    }
-    
-    func playDisappearAnimation(entity: Entity) -> AnimationPlaybackController? {
-        playAnimation(
-            entity: entity,
-            definition: FromToByAnimation(from: Float(1.0), to: Float(0.0), bindTarget: .opacity),
-            duration: 0.2
-        )
-    }
+extension NeckStretchingViewModel {
     
     func playAnimation(
         entity: Entity,

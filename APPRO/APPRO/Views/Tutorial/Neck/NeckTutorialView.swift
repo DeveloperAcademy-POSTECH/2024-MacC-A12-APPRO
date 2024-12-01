@@ -10,17 +10,18 @@ import RealityKit
 
 struct NeckTutorialView: View {
     
-    @State private var viewModel = NeckTutorialViewModel()
+    @State private var viewModel = NeckStretchingViewModel()
     @State private var tutorialManager = TutorialManager(stretching: .neck)
     
     @State private var areEntitiesAllLoaded = false
-    @State private var isAttachmentViewadjusted = false
     @State private var tutorialPreparations = Array(repeating: false, count: 5)
-    
     
     var body : some View {
         RealityView { content, attachments in
-            viewModel.addAttachmentView(content, attachments)
+            let warningEntity = createTextEntity("Stay aware of your surroundings")
+            content.add(warningEntity)
+            
+            viewModel.addTutorialAttachmentView(attachments)
         } update: { content, _ in
             if areEntitiesAllLoaded {
                 handleCurrentTutorialStep(content, currentStepIndex: tutorialManager.currentStepIndex)
@@ -28,12 +29,17 @@ struct NeckTutorialView: View {
             }
         }
         attachments: {
-            Attachment(id: viewModel.attachmentViewID) {
+            Attachment(id: viewModel.tutorialAttachmentViewID) {
                 TutorialAttachmentView(tutorialManager: tutorialManager)
             }
         }
         .task {
-            areEntitiesAllLoaded = await viewModel.loadEntities()
+            do {
+                try await viewModel.loadEntities()
+                areEntitiesAllLoaded = true
+            } catch {
+                areEntitiesAllLoaded = false
+            }
         }
         .gesture(
             TapGesture()
@@ -84,11 +90,21 @@ struct NeckTutorialView: View {
     }
     
     private func prepareFirstStep(_ content: RealityViewContent) {
-        viewModel.configureInitialSettingToPig()
-        viewModel.locatedPigOnFixedLocation()
-        
-        viewModel.adjustAttachmentViewLocation()
-        content.add(viewModel.pigEntity)
+        guard let warningEntity = content.entities.first?.findEntity(named: "warning") else { return }
+        withAnimation {
+            warningEntity.isEnabled = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            Task {
+                warningEntity.removeFromParent()
+                viewModel.configureInitialSettingToPig()
+                viewModel.locatedPigOnFixedLocation()
+                
+                viewModel.adjustAttachmentViewLocation(content)
+                content.add(viewModel.pigEntity)
+            }
+        }
     }
     
     private func makeDoneFirstStep () {
@@ -106,5 +122,24 @@ struct NeckTutorialView: View {
     
     private func prepareThirdStep(_ content: RealityViewContent) {
         viewModel.subscribePigCollisionEvent(content)
+        tutorialPreparations[2] = true
+    }
+    
+    func createTextEntity(_ text: String) -> ModelEntity {
+        let mesh = MeshResource.generateText(
+            text,
+            extrusionDepth: 0.001,
+            font: .systemFont(ofSize: CGFloat(0.1)),
+            containerFrame: .zero,
+            alignment: .center,
+            lineBreakMode: .byWordWrapping
+        )
+        
+        let material = SimpleMaterial(color: .white, isMetallic: false)
+        let textEntity = ModelEntity(mesh: mesh, materials: [material])
+        let width = textEntity.model?.mesh.bounds.extents.x ?? 0
+        textEntity.name = "warning"
+        textEntity.position = .init(x: -width/2, y: 1, z: -3)
+        return textEntity
     }
 }

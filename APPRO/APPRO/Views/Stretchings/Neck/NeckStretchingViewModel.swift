@@ -11,9 +11,10 @@ import RealityKitContent
 
 @Observable
 @MainActor
-final class NeckTutorialViewModel {
+final class NeckStretchingViewModel: StretchingCounter {
     
-    let attachmentViewID = "TutorialAttachmentView"
+    let tutorialAttachmentViewID = "TutorialAttachmentView"
+    let stretchingAttachmentViewID = "StretchingAttachmentView"
     let headTracker = HeadTracker()
     
     private(set) var pigEntity = Entity()
@@ -36,39 +37,51 @@ final class NeckTutorialViewModel {
     var collisionBound = AvailableCollisionBound()
     
     var completionStatusArray = [false, false]
+    var doneTimerCheck: [String] = []
+    var twoWayStretchingCompletionStatus = [false, false]
     
-    func loadEntities() async -> Bool {
-        do {
-            pigEntity = try await loadEntity(entityType: .pig)
-            pigEntity.name = "pig"
-            
-            coinEntity = try await loadEntity(entityType: .coin)
-            coinEntity.name = "coin"
-            
-            timerEntity = try await loadEntity(entityType: .timer)
-            return true
-        } catch {
-            print("loadEntities failed: \(error)")
-            return false
-        }
+    var doneCount: Int = 0
+    var maxCount: Int = StretchingPart.neck.maxCount
+    
+    var direction : NeckStretchingDirection = .vertical
+    var criteriaTransform : simd_float4x4 = .init()
+    
+    
+    func loadEntities() async throws {
+        pigEntity = try await loadEntity(entityType: .pig)
+        pigEntity.name = "pig"
+        
+        coinEntity = try await loadEntity(entityType: .coin)
+        coinEntity.name = "coin"
+        
+        timerEntity = try await loadEntity(entityType: .timer)
     }
     
     private func loadEntity(entityType: NeckStretchingEntityType) async throws -> Entity {
         return try await Entity(named: entityType.url, in: realityKitContentBundle)
     }
     
-    func addAttachmentView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
-        guard let attachmentView = attachments.entity(for: attachmentViewID) else {
-            print("addAttachmentView failed: \(attachmentViewID) not found in attachments" )
+    func addTutorialAttachmentView( _ attachments: RealityViewAttachments) {
+        guard let attachmentView = attachments.entity(for: tutorialAttachmentViewID) else {
+            print("addTutorialAttachmentView failed: \(tutorialAttachmentViewID) not found in attachments" )
             return
         }
-        content.add(attachmentView)
+        
         self.attachmentView = attachmentView
     }
     
-    func adjustAttachmentViewLocation() {
+    func addStretchingAttachmentView(_ attachments: RealityViewAttachments) {
+        guard let attachmentView = attachments.entity(for: stretchingAttachmentViewID) else {
+            print("addStretchingAttachmentView failed: \(stretchingAttachmentViewID) not found in attachments")
+            return
+        }
+        self.attachmentView = attachmentView
+    }
+    
+    func adjustAttachmentViewLocation(_ content: RealityViewContent) {
         updateDeviceHeight()
         attachmentView.transform.translation = .init(x: -0.5, y: startingHeight + 0.4, z: -2.2)
+        content.add(attachmentView)
     }
     
     func configureInitialSettingToPig() {
@@ -116,9 +129,21 @@ final class NeckTutorialViewModel {
         }
     }
     
-    func makeSemiCircleWithCoins() {
-        guard let transform = self.headTracker.originFromDeviceTransform() else { return }
-        let translations: [Float3] = drawSemiCirclePoints(transform: transform, isVertical: true, steps: guidingEntitiesCount)
+    func makeSemiCircleWithCoins(requireRealTimeAnchorInfo:Bool = true) {
+
+        let isVertical = direction == .vertical
+        guard let realTimeTransform = self.headTracker.originFromDeviceTransform() else { return }
+        
+        var transform: simd_float4x4 = .init()
+        
+        if requireRealTimeAnchorInfo {
+            criteriaTransform = realTimeTransform
+            transform = realTimeTransform
+        } else {
+            transform = criteriaTransform
+        } 
+        
+        let translations: [Float3] = drawSemiCirclePoints(transform: transform, isVertical: isVertical, steps: guidingEntitiesCount)
         
         let startingTimerIndex = 2
         let endingTimerIndex = translations.count - 3
@@ -143,13 +168,29 @@ final class NeckTutorialViewModel {
         }
     }
     
-    func resetCoins() {
+    func resetCoins(currentLocationBased: Bool = true) {
         for coin in coinEntities {
             coin.removeFromParent()
         }
-        coinEntities.removeAll()
         
-        makeSemiCircleWithCoins()
+        coinEntities.removeAll()
+        makeSemiCircleWithCoins(requireRealTimeAnchorInfo: currentLocationBased)
+    }
+    
+    func disableAllCoins() {
+        for coin in coinEntities {
+            coin.isEnabled = false
+        }
+    }
+    
+    func enableAllCoins() {
+        for coin in coinEntities {
+            coin.isEnabled = true
+        }
+    }
+    
+    func makeDoneCountZero() {
+        doneCount = 0
     }
 }
 
@@ -164,4 +205,9 @@ enum localAxis {
 struct AvailableCollisionBound {
     var upperBoundIndex : Int = 0
     var lowerBoundIndex : Int = 0
+    
+    mutating func setZeroForBothBounds (){
+        self.upperBoundIndex = 0
+        self.lowerBoundIndex = 0
+    }
 }

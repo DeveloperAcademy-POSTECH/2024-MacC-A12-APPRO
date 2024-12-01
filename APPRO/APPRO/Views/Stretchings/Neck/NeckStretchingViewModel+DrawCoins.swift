@@ -9,12 +9,16 @@ import SwiftUI
 import RealityKit
 import RealityKitContent
 
-extension NeckTutorialViewModel {
+extension NeckStretchingViewModel {
     
     func getTwoAxisForChangeablePoints(transform: float4x4, isVertical: Bool) -> [Float3] {
-        let localXAxis = transform.columns.0.toFloat3().normalize()
-        let localYAxis = transform.columns.1.toFloat3().normalize()
-        let localZAxis = transform.columns.2.toFloat3().normalize()
+        var localXAxis = transform.columns.0.toFloat3().normalize()
+        var localYAxis = transform.columns.1.toFloat3().normalize()
+        var localZAxis = transform.columns.2.toFloat3().normalize()
+        
+        localYAxis =  Float3(0, 1, 0)
+        localZAxis = simd_cross(localXAxis, localYAxis).normalize()
+        localXAxis = simd_cross(localYAxis, localZAxis).normalize()
         
         if isVertical {
             return [
