@@ -102,6 +102,16 @@ final class EyeStretchingDisturbObject {
         
         playAudio(.disappear)
     }
+    
+    func setInputTargetValue(_ bool: Bool) throws {
+        guard var inputComponent = entity.components[InputTargetComponent.self] else {
+            throw EntityError.componentNotFound(InputTargetComponent.self)
+        }
+        inputComponent.isEnabled = bool
+        entity.components.set(inputComponent)
+    }
+    
+}
 
 private extension EyeStretchingDisturbObject {
     

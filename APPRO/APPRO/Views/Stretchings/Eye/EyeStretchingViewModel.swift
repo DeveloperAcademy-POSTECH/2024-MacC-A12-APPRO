@@ -146,10 +146,10 @@ final class EyeStretchingViewModel: StretchingCounter {
                 guard let self,
                       let currentDisturbObject else { return }
                 
-                if state.eyesAreInside {
-                    currentDisturbEntity.components.set(InputTargetComponent(allowedInputTypes: .indirect))
-                } else {
-                    currentDisturbEntity.components.remove(InputTargetComponent.self)
+                do {
+                    try currentDisturbObject.setInputTargetValue(state.eyesAreInside)
+                } catch {
+                    dump("handleEyeRingCollisionState sink failed: \(error)")
                 }
             }
             .store(in: &cancellableBag)
