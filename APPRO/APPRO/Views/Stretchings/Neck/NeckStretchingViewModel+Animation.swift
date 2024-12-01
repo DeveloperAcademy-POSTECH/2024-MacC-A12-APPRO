@@ -58,4 +58,36 @@ extension NeckStretchingViewModel {
         
         return modelForModification
     }
+    
+    func playCustomAudioWith5Sec(timerEntity : Entity) {
+        let taskManager = TaskManager()
+        
+        for index in 0..<5 {
+            let task = Task {
+                try? await Task.sleep(nanoseconds: UInt64(index) * 900_000_000)
+                if Task.isCancelled { return }
+                
+                if timerFiveProgressChecker[index] {
+                    soundHelper.playSound(.neckTimer, on: timerEntity)
+
+                    if index == 4 {
+                        await taskManager.cancelAllTasks()
+                    }
+                } else {
+                    await taskManager.cancelAllTasks()
+                    return
+                }
+            }
+            Task { await taskManager.addTask(task) }
+        }
+    }
+    
+    func stopAllTimerProgress() {
+        timerFiveProgressChecker = timerFiveProgressChecker.map({ _ in false})
+    }
+    
+    func initiateAllTimerProgress() {
+        timerFiveProgressChecker = timerFiveProgressChecker.map({ _ in true})
+    }
+    
 }

@@ -48,6 +48,8 @@ final class NeckStretchingViewModel: StretchingCounter {
     
     let soundHelper = SoundEffectHelper<NeckSoundEffects>()
     
+    var timerFiveProgressChecker = [true, true, true, true, true]
+    
     func loadEntities() async throws {
         pigEntity = try await loadEntity(entityType: .pig)
         pigEntity.name = "pig"
