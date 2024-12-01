@@ -9,17 +9,11 @@ import SwiftUI
 import RealityKit
 import RealityKitContent
 
-extension NeckTutorialViewModel {
+extension NeckStretchingViewModel {
     
     private func getCoinIndex (_ string: String) -> Int? {
-        let regex = try! NSRegularExpression(pattern: "(?<=coin_)\\d+", options: [])
-        if let match = regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: string.utf16.count)) {
-            if let range = Range(match.range, in: string) {
-                let result = Int(string[range])
-                return result
-            }
-        }
-        return nil
+        let coinStringCount = "coin_".count
+        return Int(string.dropFirst(coinStringCount))
     }
     
     func manageCollisionBound(collidedIndex: Int) -> Bool {
@@ -58,23 +52,19 @@ extension NeckTutorialViewModel {
             let entityA = event.entityA
             let entityB = event.entityB
             
-            Task {
-                if entityA.name == "______" && entityB.name == "Boole" { // ModelEntity Name : ______ for pig, Boole for coin
-                    guard let coinEntity = entityB.parent?.parent?.parent?.parent else { return }
-                    guard let index: Int = self.getCoinIndex(coinEntity.name) else { return }
+            if entityA.name == "______" && entityB.name == "Boole" { // ModelEntity Name : ______ for pig, Boole for coin
+                guard let coinEntity = entityB.parent?.parent?.parent?.parent else { return }
+                guard let index: Int = self.getCoinIndex(coinEntity.name) else { return }
+                
+                if self.manageCollisionBound(collidedIndex: index) {
+                    self.soundHelper.playSound(.rightCoinHit, on: coinEntity)
                     
-                    
-                    if self.manageCollisionBound(collidedIndex: index) {
-                        await self.playSpatialAudio(coinEntity, audioInfo: .coinCollisionInRightOrder)
-                        self.setOpacityZero(entity: entityB)
-                        
-                        DispatchQueue.main.async {
-                            entityB.isEnabled = false
-                        }
-                    } else {
-                        self.animateCoinColorWhenWrongHit(targetEntity: entityB)
-                        await self.playSpatialAudio(coinEntity, audioInfo: .coinCollisionInWrongOrder)
+                    DispatchQueue.main.async {
+                        entityB.isEnabled = false
                     }
+                } else {
+                    self.animateCoinColorWhenWrongHit(targetEntity: entityB)
+                    self.soundHelper.playSound(.wrongCoinHit, on: coinEntity)
                 }
             }
             
@@ -95,7 +85,7 @@ extension NeckTutorialViewModel {
         
         _ = content.subscribe(to: AnimationEvents.PlaybackCompleted.self, on: nil) { event in
             guard let entity = event.playbackController.entity else { return }
-    
+            
             if entity.name.contains(/timer_\d+/) {
                 if self.completionStatusArray[0] {
                     self.completionStatusArray[1] = true
