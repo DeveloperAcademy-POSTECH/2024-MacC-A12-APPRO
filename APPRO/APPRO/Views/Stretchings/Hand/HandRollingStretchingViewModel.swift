@@ -78,6 +78,8 @@ final class HandRollingStretchingViewModel: StretchingCounter {
     
     var isRetry = false
     
+    let soundHelper = SoundEffectHelper<WristSoundEffects>()
+    
     func makeFirstEntitySetting (isRetry: Bool = false) async {
         if !isRetry {
             rightGuideRing = await generateGuideRing(chirality: .right)

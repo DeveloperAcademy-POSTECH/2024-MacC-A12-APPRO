@@ -71,6 +71,8 @@ final class HandRollingTutorialViewModel {
     var isFistMakingTutorialDone = false
     var showTarget = false
     
+    let soundHelper = SoundEffectHelper<WristSoundEffects>()
+    
     func makeFirstEntitySetting() async {
         rightGuideRing = await generateGuideRing(chirality: .right)
         rightGuideSphere = generateGuideSphere(chirality: .right)

@@ -72,7 +72,7 @@ struct HandRollingStretchingView: View {
             if currentLaunchState {
                 Task {
                     viewModel.rightRotationForLaunchNumber = viewModel.rightRotationCount
-                    try? await viewModel.rightEntities.append(viewModel.generateLaunchObj(chirality: .right))
+                    await viewModel.rightEntities.append(viewModel.generateLaunchObj(chirality: .right))
                 }
                 
                 DispatchQueue.main.async {
@@ -85,7 +85,7 @@ struct HandRollingStretchingView: View {
             if currentLaunchState {
                 Task {
                     viewModel.leftRotationForLaunchNumber = viewModel.leftRotationCount
-                    try? await viewModel.leftEntities.append(viewModel.generateLaunchObj(chirality: .left))
+                    await viewModel.leftEntities.append(viewModel.generateLaunchObj(chirality: .left))
                 }
                 
                 DispatchQueue.main.async {
@@ -100,9 +100,7 @@ struct HandRollingStretchingView: View {
                 
                 viewModel.rightEntities.append(viewModel.rightGuideRing)
                 viewModel.rightEntities.append(viewModel.rightGuideSphere)
-                Task {
-                    await viewModel.playSpatialAudio(viewModel.rightGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
-                }
+                viewModel.soundHelper.playSound(.handGuideRingAppear, on: viewModel.rightGuideRing)
             } else {
                 viewModel.rightGuideRing.removeFromParent()
                 viewModel.rightGuideSphere.removeFromParent()
@@ -115,9 +113,7 @@ struct HandRollingStretchingView: View {
                 
                 viewModel.leftEntities.append(viewModel.leftGuideRing)
                 viewModel.leftEntities.append(viewModel.leftGuideSphere)
-                Task {
-                    await viewModel.playSpatialAudio(viewModel.leftGuideRing, audioInfo: AudioFindHelper.handGuideRingAppear)
-                }
+                viewModel.soundHelper.playSound(.handGuideRingAppear, on: viewModel.leftGuideRing)
             } else {
                 viewModel.leftGuideRing.removeFromParent()
                 viewModel.leftGuideSphere.removeFromParent()
@@ -127,16 +123,12 @@ struct HandRollingStretchingView: View {
         .onChange(of: viewModel.rightRotationCount, initial: false) { _, newValue in
             let colorValueChangedTo = min (newValue * 2, 6)
             viewModel.getDifferentRingColor(viewModel.rightGuideRing, intChangeTo: Int32(colorValueChangedTo))
-            Task {
-                await viewModel.playRotationChangeRingSound(newValue, chirality: .right)
-            }
+            viewModel.playRotationChangeRingSound(newValue, chirality: .right)
         }
         .onChange(of: viewModel.leftRotationCount, initial: false ) { _, newValue in
             let colorValueChangedTo = min (newValue * 2 + 1, 7)
             viewModel.getDifferentRingColor(viewModel.leftGuideRing, intChangeTo: Int32(colorValueChangedTo))
-            Task {
-                await viewModel.playRotationChangeRingSound(newValue, chirality: .left)
-            }
+            viewModel.playRotationChangeRingSound(newValue, chirality: .left)
         }
         .onChange(of: viewModel.rightHitCount, initial: false ) { oldNumber, newNumber in
             if oldNumber < newNumber {
@@ -157,9 +149,7 @@ struct HandRollingStretchingView: View {
         }
         .onChange(of: viewModel.startObject, initial: false) { _, newValue in
             if newValue.name == "StartingObject" {
-                Task {
-                    await viewModel.playSpatialAudio(newValue, audioInfo: .handStartAppear)
-                }
+                viewModel.soundHelper.playSound(.handStartAppear, on: newValue)
             }
         }
         .onChange(of: viewModel.doneCount, initial: false) { oldValue, newValue in

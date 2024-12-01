@@ -133,15 +133,15 @@ extension HandRollingTutorialViewModel {
         return previous + (current - previous) * factor
     }
     
-    func playRotationChangeRingSound(_ newValue: Int, chirality : Chirality) async {
+    func playRotationChangeRingSound(_ newValue: Int, chirality : Chirality) {
         let guideRing = chirality == .left ? leftGuideRing : rightGuideRing
         
         if newValue >= 3 {
-            await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationThreeTimes)
+            soundHelper.playSound(.handRotationThreeTimes, on: guideRing)
         } else if newValue == 2 {
-            await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationTwice)
+            soundHelper.playSound(.handRotationTwice, on: guideRing)
         } else if newValue == 1 {
-            await playSpatialAudio(guideRing, audioInfo: AudioFindHelper.handRotationOnce)
+            soundHelper.playSound(.handRotationTwice, on: guideRing)
         }
     }
 }
