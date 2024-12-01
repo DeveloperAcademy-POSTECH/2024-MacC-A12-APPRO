@@ -33,23 +33,6 @@ extension NeckStretchingViewModel {
         }
     }
     
-    func playSpatialAudio(_ entity: Entity, audioInfo: AudioFindHelper) async {
-        let audioInfoDetail = audioInfo.detail
-        await findAudioResourceAndPlay(entity, spatialAudioName: audioInfoDetail.spatialAudioName, resourceLocation: audioInfoDetail.resourceLocation, resourceFrom: audioInfoDetail.resourceFrom)
-    }
-    
-    func findAudioResourceAndPlay(_ entity: Entity, spatialAudioName: String, resourceLocation: String, resourceFrom: String) async {
-        guard let audioEntity = entity.findEntity(named: spatialAudioName),
-              let resource = try? await AudioFileResource(named: resourceLocation,
-                                                          from: resourceFrom,
-                                                          in: realityKitContentBundle) else {
-            print("No Audio Resource Found:  \(resourceLocation) / \(resourceFrom)")
-            return }
-        
-        let audioPlayer = audioEntity.prepareAudio(resource)
-        audioPlayer.play()
-    }
-    
     func animateCoinColorWhenWrongHit( targetEntity: Entity ) {
         guard let model = targetEntity.components[ModelComponent.self], let material = model.materials.first as? PhysicallyBasedMaterial else {
             print("No material Found on coin Entity: \(targetEntity)")

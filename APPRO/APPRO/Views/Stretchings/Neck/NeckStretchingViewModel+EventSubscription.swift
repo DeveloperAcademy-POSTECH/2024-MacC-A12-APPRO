@@ -58,15 +58,15 @@ extension NeckStretchingViewModel {
                     guard let index: Int = self.getCoinIndex(coinEntity.name) else { return }
                     
                     if self.manageCollisionBound(collidedIndex: index) {
-                        await self.playSpatialAudio(coinEntity, audioInfo: .coinCollisionInRightOrder)
-                        self.setOpacityZero(entity: entityB)
+                        self.soundHelper.playSound(.rightCoinHit, on: coinEntity)
+//                        self.setOpacityZero(entity: entityB)
                         
-                        DispatchQueue.main.async {
+//                        DispatchQueue.main.async {
                             coinEntity.isEnabled = false
-                        }
+//                        }
                     } else {
                         self.animateCoinColorWhenWrongHit(targetEntity: entityB)
-                        await self.playSpatialAudio(coinEntity, audioInfo: .coinCollisionInWrongOrder)
+                        self.soundHelper.playSound(.wrongCoinHit, on: coinEntity)
                     }
                 }
             }

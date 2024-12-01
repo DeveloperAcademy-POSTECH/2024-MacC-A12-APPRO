@@ -46,6 +46,7 @@ final class NeckStretchingViewModel: StretchingCounter {
     var direction : NeckStretchingDirection = .vertical
     var criteriaTransform : simd_float4x4 = .init()
     
+    let soundHelper = SoundEffectHelper<NeckSoundEffects>()
     
     func loadEntities() async throws {
         pigEntity = try await loadEntity(entityType: .pig)

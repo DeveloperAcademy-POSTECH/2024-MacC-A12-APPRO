@@ -100,3 +100,7 @@ enum WristSoundEffects: String, AudioEffect, CaseIterable {
 enum EyeSoundEffects: String, AudioEffect, CaseIterable {
     case focusGain, distractionCut, eyeStretch
 }
+enum NeckSoundEffects: String, AudioEffect, CaseIterable {
+    case rightCoinHit
+    case wrongCoinHit
+}
