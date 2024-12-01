@@ -44,12 +44,11 @@ struct NeckStretchingView: View {
             TapGesture()
                 .targetedToAnyEntity()
                 .onEnded { tapEvent in
-                    // Pig's the most exterior-close model entity name : ______  FIXME: fix entity name ____ to more semantic way
                     if tapEvent.entity.name == "______" {
                         if viewModel.coinEntities.count == 0 {
                             viewModel.makeSemiCircleWithCoins()
                         } else {
-                            viewModel.resetCoins() // 여기서 stretchingPhase를 변경하는 구문을 출력하면 resetCoins 가 제대로 작동하지 않는다. 위는 잘 작동한다. 왜 ??
+                            viewModel.resetCoins()
                         }
                     }
                 }
@@ -73,13 +72,8 @@ struct NeckStretchingView: View {
                     }
                 }
                 
-//                let index: Int = viewModel.twoWayStretchingCompletionStatus.first(where: {$0 == false})
-//                viewModel.twoWayStretchingCompletionStatus[index] = true
-                
                 viewModel.completionStatusArray = [false, false]
                 viewModel.collisionBound.setZeroForBothBounds()
-                
-                
             }
         }
         .onChange(of: viewModel.twoWayStretchingCompletionStatus, initial: false) { _, newStatus in
