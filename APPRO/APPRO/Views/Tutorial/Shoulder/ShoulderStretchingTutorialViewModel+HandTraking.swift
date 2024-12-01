@@ -12,8 +12,8 @@ import SwiftUI
 extension ShoulderStretchingTutorialViewModel {
     func startHandTrackingSession() async {
         do {
-            if HandTrackingProvider.isSupported && WorldTrackingProvider.isSupported{
-                try await session.run([handTrackingProvider, worldTrackingProvider])
+            if HandTrackingProvider.isSupported {
+                try await session.run([handTrackingProvider])
             }
         } catch {
             print("ARKitSession error:", error)
@@ -89,7 +89,7 @@ extension ShoulderStretchingTutorialViewModel {
                     isEntryEnd = true
                     return
                 }
-                if currentStep >= 2{
+                if currentStep >= 2 {
                     resetModelEntities()
                     createEntitiesOnEllipticalArc(handTransform: self.rightHandTransform)
                 }
@@ -128,13 +128,5 @@ extension ShoulderStretchingTutorialViewModel {
             contentEntity.addChild(entity)
             handEntities.append(entity)
         }
-    }
-    
-    func setClosureComponent(entity: Entity) {
-        let component = ClosureComponent { [weak self] deltaTime in
-            guard let deviceAnchor = self?.worldTrackingProvider.queryDeviceAnchor(atTimestamp: CACurrentMediaTime()) else { return }
-            self?.startingZ = deviceAnchor.originFromAnchorTransform.columns.3.z
-        }
-        entity.components.set(component)
     }
 }

@@ -13,14 +13,22 @@ import ARKit
 @Observable
 @MainActor
 final class HandRollingStretchingViewModel: StretchingCounter {
+    
+    private let headTracker = HeadTracker()
     //AR Session for hand tracking
     let session = ARKitSession()
     let sessionForWorldTracking = ARKitSession()
     
     var handTracking = HandTrackingProvider()
-    var worldTracking = WorldTrackingProvider()
     
-    var startingHeight: Float = 0.0
+    var startingHeight: Float {
+        guard let deviceAnchor = headTracker.worldTracking.queryDeviceAnchor(atTimestamp: CACurrentMediaTime()) else {
+            debugPrint("device anchor is nil")
+            return .init()
+        }
+        
+        return deviceAnchor.originFromAnchorTransform.translation().y
+    }
     
     var latestHandTracking: HandsUpdates = .init(left: nil, right: nil)
     

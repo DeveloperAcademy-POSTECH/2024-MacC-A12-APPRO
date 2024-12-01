@@ -14,12 +14,20 @@ import ARKit
 @MainActor
 final class HandRollingTutorialViewModel {
     
+    private let headTracker = HeadTracker()
+    
     let session = ARKitSession()
     
     var handTracking = HandTrackingProvider()
-    var worldTracking = WorldTrackingProvider()
     
-    var startingHeight: Float = 0.0
+    var startingHeight: Float {
+        guard let deviceAnchor = headTracker.worldTracking.queryDeviceAnchor(atTimestamp: CACurrentMediaTime()) else {
+            debugPrint("device anchor is nil")
+            return .init()
+        }
+        
+        return deviceAnchor.originFromAnchorTransform.translation().y
+    }
     
     var latestHandTracking: HandsUpdates = .init(left: nil, right: nil)
     

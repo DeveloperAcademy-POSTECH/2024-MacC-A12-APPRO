@@ -14,25 +14,17 @@ struct ShoulderStretchingTutorialView: View {
     @State private var viewModel = ShoulderStretchingTutorialViewModel()
     @State private var isColliding: Bool = false
     @State var isStartWarningDone = false
-
+    
     var body: some View {
         RealityView { content, attachments in
             content.add(viewModel.contentEntity)
             let textEntity = createTextEntity("Stay aware of your surroundings")
             viewModel.contentEntity.addChild(textEntity)
-            setTutorialToStart(content: content)
+            setTutorialToStart(content, attachments)
         } update: { content, attachments in
-            if tutorialManager.currentStepIndex == 0 {
-                if isStartWarningDone {
-                    viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
-                    viewModel.addAttachmentView(content,attachments)
-                } else {
-                    viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
-                }
-            } else {
+            if !tutorialManager.isLastStep {
                 viewModel.computeTransformHandTracking(currentStep: tutorialManager.currentStepIndex)
             }
-            
         } attachments: {
             Attachment(id: viewModel.tutorialAttachmentViewID) {
                 TutorialAttachmentView(tutorialManager: tutorialManager)
@@ -89,6 +81,7 @@ struct ShoulderStretchingTutorialView: View {
                 viewModel.addRightHandAnchor()
                 tutorialManager.advanceToNextStep()
             } else {
+                // 타이머 애니메이션 종료시
                 animationEvent.playbackController.entity?.removeFromParent()
                 tutorialManager.advanceToNextStep()
                 executeCollisionAction()
@@ -109,32 +102,37 @@ struct ShoulderStretchingTutorialView: View {
             isColliding = true
             return
         }
-                        
-        // 충돌시 particle, audio 실행
-        viewModel.playEmitter(eventEntity: collidedModelEntity)
         
-        if let effect = ShoulderSoundEffects.allCases.first(where: { effect in
-            guard let entityNumber = Int(collidedModelEntity.name.dropFirst(4)) else { return false }
-            guard let effectNumber = Int(effect.rawValue.dropFirst(4)) else { return false }
-            // 나머지를 이용해 숫자를 대응
-            return (entityNumber - 1) % ShoulderSoundEffects.stars.count + 1 == effectNumber
-        }) {
-            viewModel.soundHelper.playSound(effect, on: collidedModelEntity)
-        }
+        let entityNumber = Int(collidedModelEntity.name.dropFirst(4)) ?? 0
         
-        // 다음 엔터티 일때만 Material 변경
-        if collidedModelEntity.name == "star\(viewModel.expectedNextNumber)" {
-            viewModel.changeMatreialColor(entity: collidedModelEntity)
-            viewModel.addExpectedNextNumber()
-
-            // 마지막 엔터티 감지
-            if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 1)") {
-                if tutorialManager.currentStepIndex == 3 {
-                    tutorialManager.advanceToNextStep()
-                }
+        // 순서가 아닌 엔터티 일때 에미터, 소리 나오지 않도록 조건 수정
+        if entityNumber <= viewModel.expectedNextNumber {
+            viewModel.playEmitter(eventEntity: collidedModelEntity)
+            
+            if let effect = ShoulderSoundEffects.allCases.first(where: { effect in
+                guard let effectNumber = Int(effect.rawValue.dropFirst(4)) else { return false }
+                // 나머지를 이용해 숫자를 대응
+                return (entityNumber - 1) % ShoulderSoundEffects.stars.count + 1 == effectNumber
+            }) {
+                viewModel.soundHelper.playSound(effect, on: collidedModelEntity)
+            } else {
+                viewModel.soundHelper.playSound(.star1, on: collidedModelEntity)
+            }
+            
+            // 다음 엔터티 일때만 Material 변경
+            if collidedModelEntity.name == "star\(viewModel.expectedNextNumber)" {
+                viewModel.changeMatreialColor(entity: collidedModelEntity)
+                viewModel.addExpectedNextNumber()
                 
-                if tutorialManager.currentStepIndex >= 4  {
-                    viewModel.addShoulderTimerEntity()
+                // 마지막 엔터티 감지
+                if collidedModelEntity.name.contains("\(viewModel.numberOfObjects - 1)") {
+                    if tutorialManager.currentStepIndex == 3 {
+                        tutorialManager.advanceToNextStep()
+                    }
+                    
+                    if tutorialManager.currentStepIndex >= 4  {
+                        viewModel.addShoulderTimerEntity()
+                    }
                 }
             }
         }
@@ -178,7 +176,7 @@ struct ShoulderStretchingTutorialView: View {
         return textEntity
     }
     
-    func setTutorialToStart(content: RealityViewContent) {
+    func setTutorialToStart(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
         if tutorialManager.currentStepIndex == 0 {
             guard let textEntity = viewModel.contentEntity.findEntity(named: "warning") else { return }
             withAnimation {
@@ -190,9 +188,9 @@ struct ShoulderStretchingTutorialView: View {
                     textEntity.removeFromParent()
                     await viewModel.setEntryRocket()
                     viewModel.setHandRocketEntity()
-                    viewModel.setClosureComponent(entity: viewModel.handRocketEntity)
                     subscribeToCollisionEvents(content: content)
                     isStartWarningDone = true
+                    viewModel.addAttachmentView(content, attachments)
                 }
             }
         }

@@ -20,7 +20,7 @@ struct HandRollingTutorialView : View {
         RealityView { content, attachments in
             let textEntity = createTextEntity("Stay aware of your surroundings")
             content.add(textEntity)
-            setTutorialToStart(content: content)
+            setTutorialToStart(content, attachments)
         } update : { content, attachments in
             viewModel.addEntity(content)
             
@@ -38,10 +38,6 @@ struct HandRollingTutorialView : View {
                 if viewModel.isLeftHandInFist {
                     viewModel.updateGuideComponentsTransform(content, chirality: .left)
                 }
-                
-                viewModel.addAttachmentView(content, attachments)
-            } else {
-                
             }
         } attachments: {
             Attachment(id: viewModel.tutorialAttachmentViewID) {
@@ -192,7 +188,7 @@ struct HandRollingTutorialView : View {
         return textEntity
     }
     
-    private func setTutorialToStart(content: RealityViewContent) {
+    private func setTutorialToStart(_ content: RealityViewContent, _ attachments: RealityViewAttachments) {
         if tutorialManager.currentStepIndex == 0 {
             guard let textEntity = content.entities.first(where: { $0.name == "warning" })  else { return }
             withAnimation {
@@ -204,7 +200,7 @@ struct HandRollingTutorialView : View {
                     textEntity.removeFromParent()
                     if viewModel.isStartingObjectVisible {
                         await viewModel.generateStartingObject(content)
-                        viewModel.setClosureComponent(entity: viewModel.startObject)
+                        viewModel.addAttachmentView(content, attachments)
                     }
                     
                     await viewModel.makeFirstEntitySetting()

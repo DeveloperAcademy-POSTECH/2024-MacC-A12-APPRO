@@ -13,13 +13,15 @@ import ARKit
 @Observable
 @MainActor
 final class ShoulderStretchingTutorialViewModel {
+    
+    private let headTracker = HeadTracker()
+    
     var contentEntity = Entity()
     var modelEntities: [Entity] = []
     var handEntities: [Entity] = []
     
     let session = ARKitSession()
     var handTrackingProvider = HandTrackingProvider()
-    var worldTrackingProvider = WorldTrackingProvider()
     var latestHandTracking: HandsUpdates = .init(left: nil, right: nil)
     let handModelEntity = HandModelEntity()
     var entryRocketEntity = Entity()
@@ -32,7 +34,14 @@ final class ShoulderStretchingTutorialViewModel {
     var isRightDone: Bool = false
     var isEntryEnd = false
     
-    var startingZ: Float = 0.0
+    private var startingTranslation: SIMD3<Float> {
+        guard let deviceAnchor = headTracker.worldTracking.queryDeviceAnchor(atTimestamp: CACurrentMediaTime()) else {
+            debugPrint("device anchor is nil")
+            return .init()
+        }
+        
+        return deviceAnchor.originFromAnchorTransform.translation()
+    }
     var rightHandTransform = Transform()
     var entryRocketTransForm = Transform()
     private var shoulderTimerPoint = SIMD3<Float>()
@@ -146,6 +155,8 @@ final class ShoulderStretchingTutorialViewModel {
             /// star1, star2...
             starModelEntity.name = "star\(idx+1)"
             starModelEntity.position = point
+            let rotationValue: Float = isRightSide ? -0.3 : 0.3
+            starModelEntity.transform.rotation = simd_quatf(angle: .pi/2 * rotationValue * Float(idx), axis: SIMD3<Float>(x: 0, y: 1, z: 0))
             starModelEntity.scale = SIMD3<Float>(repeating: 0.001)
             modelEntities.append(starModelEntity)
             contentEntity.addChild(starModelEntity)
@@ -155,7 +166,7 @@ final class ShoulderStretchingTutorialViewModel {
     func createEntitiesOnEllipticalArc(handTransform: Transform) {
         resetExpectedNextNumber()
         let rightHandTranslation = SIMD3<Float>(x: handTransform.translation.x + 0.1, y: handTransform.translation.y, z: handTransform.translation.z)
-        let rightShoulderPosition = simd_float3(rightHandTranslation.x, rightHandTranslation.y, startingZ)
+        let rightShoulderPosition = simd_float3(rightHandTranslation.x, rightHandTranslation.y, startingTranslation.z)
         
         if !isRightDone {
             let rightPoints = generateUniformEllipseArcPoints(
@@ -228,7 +239,7 @@ final class ShoulderStretchingTutorialViewModel {
         if let rootEntity = try? await Entity(named: "Shoulder/RocketScene_New_Less.usda", in: realityKitContentBundle) { //TODO: RCP 콜리젼 크기 크게 하기
             entryRocketEntity = rootEntity
             entryRocketEntity.name = "EntryRocket"
-            entryRocketEntity.position = .init(x: 0, y: 1, z: -1)
+            entryRocketEntity.position = .init(x: startingTranslation.x + 0.2, y: startingTranslation.y + 0.3, z: -1)
             entryRocketEntity.transform.scale = .init(x: 0.1, y: 0.1, z: 0.1)
             entryRocketEntity.transform.rotation = .init(angle: .pi/2, axis: .init(x: 0, y: 1, z: 0))
             entryRocketTransForm = entryRocketEntity.transform
@@ -265,8 +276,10 @@ final class ShoulderStretchingTutorialViewModel {
             dump("TutorialAttachmentView not found in attachments!")
             return
         }
-        tutorialAttachmentView.position = .init(x: -0.5, y: 1.6 , z: -1.3)
+        tutorialAttachmentView.position = .init(x: startingTranslation.x - 0.2, y: startingTranslation.y + 0.2, z: startingTranslation.z - 1.0)
+        
         content.add(tutorialAttachmentView)
+        
     }
     
     func playCustomAnimation(timerEntity: Entity) {
