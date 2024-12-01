@@ -48,16 +48,8 @@ extension NeckStretchingViewModel {
     
     func subscribePigCollisionEvent(_ content: RealityViewContent) {
         _ = content.subscribe(to: CollisionEvents.Began.self, on: nil ) { event in
-            
-            
-            
             let entityA = event.entityA
             let entityB = event.entityB
-            
-            print("=========")
-            print(entityA.name)
-            print(entityB.name)
-            print("=========")
             
             if entityA.name == "pig" && entityB.name == "Boole" { // ModelEntity Name : ______ for pig, Boole for coin
                 guard let coinEntity = entityB.parent?.parent?.parent?.parent else { return }
@@ -76,8 +68,10 @@ extension NeckStretchingViewModel {
             }
             
             if entityA.name == "pig" && entityB.name == "neck_timer" {
-                let parentEntity = entityB.parent?.parent
-                self.playPredefinedAnimation(animationEntity: parentEntity!)
+                guard let parentEntity = entityB.parent?.parent else { return }
+                self.playPredefinedAnimation(animationEntity: parentEntity)
+                self.initiateAllTimerProgress()
+                self.playCustomAudioWith5Sec(timerEntity: parentEntity)
             }
         }
         
@@ -87,6 +81,7 @@ extension NeckStretchingViewModel {
             
             if entityA.name == "pig" && entityB.name == "neck_timer" {
                 self.timerController?.stop()
+                self.stopAllTimerProgress()
             }
         }
         
