@@ -96,14 +96,15 @@ final class EyeStretchingViewModel: StretchingCounter {
     }
     
     func handleCurrentDisturbEntityIndexChanged() {
-        let prevEntity = disturbObjects[safe: currentDisturbObjectIndex-1]
-        let currentEntity = currentDisturbObject
+        let prevObject = disturbObjects[safe: currentDisturbObjectIndex-1]
+        let currentObject = currentDisturbObject
         
-        Task { @MainActor in
+        Task {
             do {
-                prevEntity?.disappear()
+                prevObject?.disappear()
+                try prevObject?.setInputTargetValue(false)
                 try await Task.sleep(nanoseconds: 7 * 100_000_000)
-                currentEntity?.appear()
+                currentObject?.appear()
                 currentDisturbEntityOnEnded = false
             } catch {
                 dump("handleCurrentDisturbEntityIndexChanged failed: \(error)")
