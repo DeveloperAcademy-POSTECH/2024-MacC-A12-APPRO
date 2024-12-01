@@ -324,11 +324,10 @@ final class ShoulderStretchingViewModel: StretchingCounter {
     }
     
     func playCustomAnimation(timerEntity: Entity) {
+        let taskManager = TaskManager() // Actor로 tasks 관리
         let targetModelEntities = ["b1", "b2", "b3", "b4", "b5"]
-        var tasks: [Task<Void, Never>] = []
         
         for (index, target) in targetModelEntities.enumerated() {
-            
             guard let modelEntity = timerEntity.findEntity(named: target) as? ModelEntity,
                   var modelComponent = modelEntity.components[ModelComponent.self] else { continue }
             guard let shaderGraphMaterial = modelComponent.materials as? [ShaderGraphMaterial] else { continue }
@@ -341,8 +340,9 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                 if Task.isCancelled { return }
                 // 타이머 애니메이션을 커스텀 애니메이션 시간과 맞추기 위해 1초 뒤에 실행되는 태스크에서 애니메이션을 실행
                 if index == 1 {
-                    playAnimation(animationEntity: shoulderTimerEntity)
+                    playAnimation(animationEntity: timerEntity)
                 }
+                
                 if timerFiveProgressChecker[index] {
                     for material in shaderGraphMaterial {
                         do {
@@ -356,16 +356,17 @@ final class ShoulderStretchingViewModel: StretchingCounter {
                     modelComponent.materials = materialArray
                     modelEntity.components.set(modelComponent)
                     soundHelper.playSound(.shoulderTimer, on: modelEntity)
+                    
                     if index == 4 {
-                        tasks.forEach { $0.cancel() }
+                        await taskManager.cancelAllTasks()
                     }
                 } else {
                     playBackProgressAnimation(index: index)
-                    tasks.suffix(from: index + 1).forEach { $0.cancel() }
+                    await taskManager.cancelAllTasks()
                     return
                 }
             }
-            tasks.append(task)
+            Task { await taskManager.addTask(task) }
         }
     }
     
