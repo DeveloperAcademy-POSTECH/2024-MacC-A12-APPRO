@@ -18,7 +18,7 @@ struct NeckTutorialView: View {
     
     var body : some View {
         RealityView { content, attachments in
-            let warningEntity = createTextEntity("Stay aware of your surroundings")
+            let warningEntity = createTextEntity(String(localized: "Stay aware of your surroundings"))
             content.add(warningEntity)
             
             viewModel.addTutorialAttachmentView(attachments)
