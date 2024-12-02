@@ -103,4 +103,5 @@ enum EyeSoundEffects: String, AudioEffect, CaseIterable {
 enum NeckSoundEffects: String, AudioEffect, CaseIterable {
     case rightCoinHit
     case wrongCoinHit
+    case neckTimer
 }

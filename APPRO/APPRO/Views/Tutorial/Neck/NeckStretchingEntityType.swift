@@ -15,7 +15,7 @@ enum NeckStretchingEntityType: String {
     var url : String {
         switch self {
         case .pig:
-            "Neck/pig.usda"
+            "Neck/animated_pig.usda"
         case .coin:
             "Neck/coin.usda"
         case .timer:

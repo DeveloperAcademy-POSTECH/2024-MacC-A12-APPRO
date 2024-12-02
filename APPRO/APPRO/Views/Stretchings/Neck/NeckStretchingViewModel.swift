@@ -48,6 +48,8 @@ final class NeckStretchingViewModel: StretchingCounter {
     
     let soundHelper = SoundEffectHelper<NeckSoundEffects>()
     
+    var timerFiveProgressChecker = [true, true, true, true, true]
+    
     func loadEntities() async throws {
         pigEntity = try await loadEntity(entityType: .pig)
         pigEntity.name = "pig"
@@ -89,6 +91,9 @@ final class NeckStretchingViewModel: StretchingCounter {
         pigEntity.name = "pig"
         pigEntity.components[InputTargetComponent.self] = InputTargetComponent(allowedInputTypes: .indirect)
         pigEntity.components.set(HoverEffectComponent(.highlight(.default)))
+        
+        guard let animationResource = pigEntity.availableAnimations.first?.repeat() else { return }
+        pigEntity.playAnimation(animationResource)
     }
     
     func locatedPigOnFixedLocation() {
@@ -146,19 +151,40 @@ final class NeckStretchingViewModel: StretchingCounter {
         
         let translations: [Float3] = drawSemiCirclePoints(transform: transform, isVertical: isVertical, steps: guidingEntitiesCount)
         
-        let startingTimerIndex = 2
-        let endingTimerIndex = translations.count - 3
+        // 좌우방향 스트레칭은 위아래방향과 다르게 가동범위가 넓게 설정해주어야한다.
+        let startingTimerIndex = isVertical ? 2 : 1
+        let endingTimerIndex = isVertical ? translations.count - 3 : translations.count - 2
         
         for (index, translation) in translations.enumerated() { // 각도조절을 위해서, 180도의 양 끝단에 있는 포인트(0도, 180도)는 사용하지 않는다.
-            
             if index < startingTimerIndex ||  endingTimerIndex < index {
                 continue
+            }
+            
+            // 좌우방향 스트레칭의 경우, 별이 +2개 되었으므로 타이머 바로 옆의 배치는 피해준다. 
+            if !isVertical {
+                if [startingTimerIndex + 1, endingTimerIndex - 1].contains(index) {
+                    continue
+                }
             }
             
             if index == startingTimerIndex || index == endingTimerIndex {
                 let timer = timerEntity.clone(recursive: true)
                 timer.look(at: transform.translation(), from: translation, relativeTo: nil, forward: .positiveZ)
                 timer.name = "timer_\(index + 1)"
+                
+                // 타이머가 방향을 가진 모델이라, 스트레칭 방향이 위아래, 좌우인지에 따라서 오브젝트의 배치 방향에 회전을 줘야한다.
+                if isVertical {
+                    if index == endingTimerIndex {
+                        timer.transform.rotation *= simd_quatf(angle: .pi, axis: simd_float3(0,0,1))
+                    }
+                }else {
+                    if index == endingTimerIndex {
+                        timer.transform.rotation *= simd_quatf(angle: +.pi / 2 , axis: simd_float3(0,0,1))
+                    } else {
+                        timer.transform.rotation *= simd_quatf(angle: -.pi / 2 , axis: simd_float3(0,0,1))
+                    }
+                }
+                
                 coinEntities.append(timer)
             } else {
                 let coin = coinEntity.clone(recursive: true)
@@ -207,7 +233,7 @@ struct AvailableCollisionBound {
     var upperBoundIndex : Int = 0
     var lowerBoundIndex : Int = 0
     
-    mutating func setZeroForBothBounds (){
+    mutating func setZeroForBothBounds() {
         self.upperBoundIndex = 0
         self.lowerBoundIndex = 0
     }

@@ -37,14 +37,16 @@ struct NeckStretchingView: View {
                 try await viewModel.loadEntities()
                 areEntitiesAllLoaded = true
             } catch {
+                print("Neck Initial Entities Loading Failed: \(error)")
                 areEntitiesAllLoaded = false
+                
             }
         }
         .gesture(
             TapGesture()
                 .targetedToAnyEntity()
                 .onEnded { tapEvent in
-                    if tapEvent.entity.name == "______" {
+                    if tapEvent.entity.name == "pig" {
                         if viewModel.coinEntities.count == 0 {
                             viewModel.makeSemiCircleWithCoins()
                         } else {
