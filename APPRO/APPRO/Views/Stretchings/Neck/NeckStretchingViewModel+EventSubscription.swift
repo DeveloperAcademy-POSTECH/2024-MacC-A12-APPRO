@@ -51,7 +51,7 @@ extension NeckStretchingViewModel {
             let entityA = event.entityA
             let entityB = event.entityB
             
-            if entityA.name == "pig" && entityB.name == "Boole" { // ModelEntity Name : ______ for pig, Boole for coin
+            if entityA.name == "pig" && entityB.name == "Boole" { // ModelEntity Name : pig for pig, Boole for coin
                 guard let coinEntity = entityB.parent?.parent?.parent?.parent else { return }
                 guard let index: Int = self.getCoinIndex(coinEntity.name) else { return }
                 
