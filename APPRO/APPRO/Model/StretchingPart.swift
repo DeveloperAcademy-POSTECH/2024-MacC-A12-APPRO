@@ -56,7 +56,7 @@ enum StretchingPart: String, Identifiable, CaseIterable {
             [
                 String(localized: "When you’re ready, pinch the lazy eyes in front of you."),
                 String(localized: "You've waken the lazy eyes! Your mission is to cut off distracting thoughts from the lazy eyes."),
-                String(localized: "Try to look and pinch the distracting thoughts to get rid of it. Hold for 1 seconds. Use only your eye movement."),
+                String(localized: "Try to look and long press the distracting thoughts. Hold it for a second to get rid of it. They will keep disturbing the eyes if not removed!"),
                 String(localized: "Great! Stretching your eyes is the main focus in this content. Try to not to move your neck and body too much or it will move the eyes away from its work.")
             ]
         case .wrist:

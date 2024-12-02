@@ -287,7 +287,7 @@
         }
       }
     },
-    "Try to look and pinch the distracting thoughts to get rid of it. Hold for 1 seconds. Use only your eye movement." : {
+    "Try to look and long press the distracting thoughts. Hold it for a second to get rid of it. They will keep disturbing the eyes if not removed!" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
