@@ -45,7 +45,7 @@ extension EyeStretchingViewModel {
     }
     
     func setDisturbObjectsPosition() {
-        let positions = generateDisturbEntityPositions()
+        let positions = generateDisturbObjectPositions()
         
         guard disturbObjects.count == positions.count else {
             dump("Disturb Entities and positions count mismatch")
@@ -74,9 +74,9 @@ extension EyeStretchingViewModel {
         entity.components.set(closureComponent)
     }
     
-    private func generateDisturbEntityPositions() -> [Float3] {
-        let width: Float = 1.2
-        let height: Float = 0.8
+    private func generateDisturbObjectPositions() -> [Float3] {
+        let width: Float = 1.1
+        let height: Float = 0.7
         let dx: [Float] = [-1, 1, 1, -1]
         let dy: [Float] = [1, 1, -1, -1]
         var positions: Set<Float3> = []
