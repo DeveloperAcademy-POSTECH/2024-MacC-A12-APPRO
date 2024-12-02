@@ -18,7 +18,7 @@ struct ShoulderStretchingTutorialView: View {
     var body: some View {
         RealityView { content, attachments in
             content.add(viewModel.contentEntity)
-            let textEntity = createTextEntity("Stay aware of your surroundings")
+            let textEntity = createTextEntity(String(localized: "Stay aware of your surroundings"))
             viewModel.contentEntity.addChild(textEntity)
             setTutorialToStart(content, attachments)
         } update: { content, attachments in
