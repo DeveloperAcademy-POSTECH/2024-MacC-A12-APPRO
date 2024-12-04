@@ -59,7 +59,7 @@ class TutorialManager: NSObject, AVAudioPlayerDelegate {
     }
     
     func skip() {
-        UserDefaults.standard.setValue(true, forKey: "\(stretchingPart)TutorialSkipped")
+//        UserDefaults.standard.setValue(true, forKey: "\(stretchingPart)TutorialSkipped")
         currentStepIndex = steps.count
     }
     
